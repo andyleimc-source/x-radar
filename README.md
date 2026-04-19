@@ -6,8 +6,8 @@
 - 🧠 AI 写一段"今日观察"，抓出跨账号共鸣的主题
 - 📚 按对你的相关性排序，英文推自动附中文要点
 - 💾 原始 JSON 全量落盘，方便二次加工（写文章、做视频选题）
-- ✉️ 通过 Microsoft 365 发邮件，发完就删发件记录，不污染邮箱
-- 🤖 也能接 [OpenClaw](https://github.com/openclaw/openclaw) / [Hermes](https://github.com/NousResearch/hermes) 推到你自己的微信 ClawBot
+- ✉️ 通过 `email-mcp` 发邮件（走任意 IMAP/SMTP 账号，不绑定某家邮箱服务商）
+- 🤖 同步推到微信 ClawBot（通过 [Hermes](https://github.com/NousResearch/hermes) 的 cron deliver 机制）
 
 数据源：[twitterapi.io](https://twitterapi.io)（稳定、便宜、支持支付宝）。
 编排：[Claude Code](https://claude.com/claude-code) 的 Skills + 斜杠命令，一条 `/twitter-digest` 跑完全流程。
@@ -24,8 +24,11 @@
 │   ├── state/last_seen.json
 │   └── digests/           # 生成的每封 Markdown 简报
 ├── prompts/analysis.md    # 给 Claude 的分析 + 排序提示词
-├── scripts/fetch_tweets.sh
-└── .claude/commands/twitter-digest.md   # Claude Code 斜杠命令
+├── scripts/
+│   ├── fetch_tweets.sh       # 抓一个账号最新推文
+│   ├── send-digest.sh        # 调度总控：生成 digest + 发邮件（cron 调这个）
+│   └── send-email-mcp.py     # 通过 email-mcp stdio JSON-RPC 发邮件
+└── .claude/commands/twitter-digest.md   # Claude Code 斜杠命令（只生成 digest 文件）
 ```
 
 ## 快速开始
@@ -49,51 +52,58 @@ cp .env.example .env
 
 首次会回填过去 24 小时的推文，之后按 `data/state/last_seen.json` 增量。
 
-## 定时调度
+## 部署：定时 + 邮件 + 微信
 
-两条 cron（`Asia/Shanghai`）：
+当前线上用的组合 —— **Hermes cron 调度 → `send-digest.sh` 执行 → email-mcp 发邮件 + Hermes deliver 自动推微信**。一次配齐：
 
-- `0 6 * * *` → `/twitter-digest morning`
-- `0 22 * * *` → `/twitter-digest evening`
+### 1. 邮件渠道（email-mcp）
 
-在 Claude Code 里用 `/schedule` 技能一键创建。
+装 [email-mcp](https://www.npmjs.com/package/email-mcp) 并配一个能发信的账号（IMAP/SMTP，任意服务商都行）：
 
-## 邮件/推送渠道
-
-默认走 Microsoft 365 MCP 发邮件（需要你的 365 账号能发邮件）。
-
-### 改用微信 ClawBot（推荐给不想开邮箱的人）
-
-通过 [OpenClaw](https://openclaw.ai/) 或 [Hermes](https://github.com/nousresearch/hermes-agent) 可以把摘要推到你自己的微信。两种部署思路：
-
-**方案 A · Hermes 作为调度器 + 执行器**
-
-1. 本机装 Hermes（参考它 repo 的 quickstart）
-2. 把 `.claude/commands/twitter-digest.md` 里"发邮件"那一步改为调用 Hermes 内置的 `send_message`：
-   ```
-   send_message --target "weixin:<你的 ClawBot 消息目标 id>" --message "<digest markdown>"
-   ```
-3. 让 Hermes 用它的 schedule/cron 能力注册两条任务，每天 06:00 / 22:00 触发这个斜杠命令（本仓库的 `ops/` 下有 launchd 模板可以让 Hermes 参考）
-
-**方案 B · OpenClaw 作为微信网关**
-
-1. 在 OpenClaw 里创建一个 webhook，记下 URL
-2. 在 `.claude/commands/twitter-digest.md` 把最后一步改成 `curl -X POST <webhook_url> -d @data/digests/<date>-<slot>.md`
-3. 调度还是用本仓库默认的 launchd（`ops/install.sh`）
-
-两个方案都不依赖 Microsoft 365，适合不用 Outlook 的人。
-
-### 给 Hermes 的 Prompt（复制即用）
-
-如果你用 Hermes，打开它直接粘贴下面这段，让它自己选 launchd / cron / 原生调度：
-
+```bash
+npm install -g email-mcp
+email-mcp account add       # 交互式向导：起个 account 名字，填 IMAP/SMTP
+email-mcp account list      # 确认配好
 ```
-我在 /Users/andy/Desktop/twitter 部署了 X Radar。每天 06:00 / 22:00 Asia/Shanghai 运行：
-cd /Users/andy/Desktop/twitter && /Users/andy/.local/bin/claude -p "/twitter-digest morning" --dangerously-skip-permissions
-晚上那条把 morning 换成 evening。
 
-用你的调度能力或 macOS launchd 帮我落地这两条任务，log 写到 data/state/launchd-{morning,evening}.log。完成后告诉我用了哪种机制、任务 label、下次触发时间。
+记下你起的 account 名（例如 `mingdao`）。修改 `scripts/send-email-mcp.py` 里的 `ACCOUNT` 和 `TO` 两个常量为你的值。
+
+### 2. 微信推送（Hermes）
+
+装 [Hermes](https://github.com/NousResearch/hermes-agent) 并登录它自带的 weixin MCP（扫码一次），确认 `~/.hermes/weixin/accounts/` 下有你自己的 bot 账号文件，记下目标用户的 `<user_id>@im.wechat`。
+
+### 3. 创建两条 Hermes cron
+
+```bash
+hermes cron create \
+  --name "x-radar twitter evening" \
+  --schedule "0 22 * * *" \
+  --deliver "weixin:<your_user_id>@im.wechat" \
+  --prompt '1. Run: `bash /Users/andy/Desktop/twitter/scripts/send-digest.sh evening`
+2. Read: `/Users/andy/Desktop/twitter/data/digests/$(date +%Y-%m-%d)-evening.md`
+3. Your final assistant message MUST be the raw file content from step 2 (no preface, no wrapper). Hermes will auto-deliver that message to the configured WeChat target.'
+
+# 早间同理，把 evening 全部替换成 morning，schedule 改 "0 6 * * *"
 ```
+
+**关键点**：
+
+- 微信推送走的是 Hermes cron 的 **`--deliver` 机制**——session 最终 assistant 输出会被自动投到 deliver target。所以 prompt 结尾必须把 digest 原文直接输出，**不能**在 prompt 里写 `send_message` 之类（Hermes 给 cron session 注入了 "do NOT use send_message" 的禁令）。
+- 邮件是 `send-digest.sh` 跑 `send-email-mcp.py` 时直接发的，和微信这条路径独立。
+- `send-digest.sh` 内部调 `claude -p "/twitter-digest <slot>"` 生成 digest，所以 cron 运行环境里必须能找到 `claude` 可执行文件。
+
+### 4. 查看 / 修改 / 手动触发
+
+```bash
+hermes cron list
+hermes cron edit <job_id> --schedule "..." --prompt "..." --deliver "..."
+hermes cron run <job_id>       # 立即跑一次（调试用）
+```
+
+### 不用 Hermes 的替代方案
+
+- **只要邮件不要微信**：直接用 macOS `launchd` / `cron` 定时调 `bash scripts/send-digest.sh <slot>` 即可。
+- **用 OpenClaw 推微信**：在 OpenClaw 建 webhook，`send-digest.sh` 尾部加一行 `curl -X POST <webhook> --data-binary @"$DIGEST_FILE"`。
 
 ## 成本参考
 
