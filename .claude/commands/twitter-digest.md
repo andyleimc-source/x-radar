@@ -43,26 +43,17 @@ bash scripts/fetch_tweets.sh <username>
 
 写到 `data/digests/<YYYY-MM-DD>-<slot>.md`。
 
-### 5. 发邮件
+### 5. 不在这里发送
 
-**不要在这里发邮件。** 邮件由外层 `scripts/send-digest.sh` 通过 `send-email-smtp.py` 统一发送，避免重复。交互式手动跑时如果要邮件，也用 `send-digest.sh`。
+本命令只负责生成 digest 文件。邮件 + 微信由外层 `scripts/send-digest.sh` 统一推送（SMTP + `weixin-mcp` CLI）。手动要完整跑一趟就 `bash scripts/send-digest.sh morning|evening`。
 
-### 5.5 推送微信（仅交互模式）
+### 6. 收尾输出
 
-用 `send_message` 把同一条 digest 发到微信 DM：
-- target: `weixin:o9cq80yGCQ-PBegxiOAx3Y-kh4aU@im.wechat`
-- message: 完整 Markdown 内容
-- mirrored: true
-
-launchd / `claude -p` 非交互调用下 Hermes 不可用，跳过即可。
-
-### 7. 收尾输出
-
-一句话总结：`Digested N tweets from M accounts → digest file written. Digest file: data/digests/...`
+一句话总结：`Digested N tweets from M accounts → digest file written: data/digests/...`
 
 ## 关键约束
 
 - 所有路径用绝对路径，脚本里有 `$ROOT_DIR` 兜底
 - 如果某个账号抓取失败（网络 / 404 / 限流），跳过并记录到控制台，不要整体失败
-- 发邮件前如果 `tweets_for_digest` 为空，也要发，但正文就一句"本时段无新推"；这样用户知道系统活着
+- `tweets_for_digest` 为空时也要写 digest 文件，正文就一句"本时段无新推"；让外层依旧能发"系统活着"的邮件
 - API key 从 `.env` 读，绝不 echo 到日志
