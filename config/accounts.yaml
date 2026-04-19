@@ -69,19 +69,28 @@ accounts:
   # === Martech / Growth / Content ===
   - username: dharmesh
     category: martech
-    note: HubSpot CTO
-  - username: HubSpot
-    category: martech
-    note: HubSpot 官
-  - username: GaryVee
-    category: martech
-    note: Gary Vaynerchuk
+    note: HubSpot CTO · B2B SaaS + AI 思考
   - username: aprildunford
     category: martech
-    note: 定位大师
-  - username: swyx
+    note: April Dunford · 定位大师（Obviously Awesome）
+  - username: markritson
     category: martech
-    note: AI + DevTool 叙事
+    note: Mark Ritson · 营销学教授 / Marketing Week 专栏，品牌方法论派
+  - username: peeplaja
+    category: martech
+    note: Peep Laja · Wynter / CXL，B2B 定位 + message testing
+  - username: randfish
+    category: martech
+    note: Rand Fishkin · SparkToro / 前 Moz，audience research
+  - username: amandanat
+    category: martech
+    note: Amanda Natividad · SparkToro VP，Zero-Click Marketing
+  - username: lennysan
+    category: growth
+    note: Lenny Rachitsky · 产品增长 Newsletter 头部
+  - username: elenaverna
+    category: growth
+    note: Elena Verna · PLG 头部 voice
 
   # === Chinese circle ===
   - username: dotey
