@@ -1,0 +1,6 @@
+.env
+data/raw/
+data/state/
+data/digests/
+*.log
+.DS_Store

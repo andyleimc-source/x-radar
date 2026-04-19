@@ -1,0 +1,25 @@
+email:
+  to: leimingcan@icloud.com
+  subject_prefix: "🐦 X Digest"
+  # 发送后从 Sent Items 删除，避免污染邮箱
+  delete_after_send: true
+
+schedule:
+  timezone: Asia/Shanghai
+  slots:
+    morning: "06:00"
+    evening: "22:00"
+
+fetch:
+  # 首次运行时的回填窗口（小时）
+  first_run_backfill_hours: 24
+  # 过滤规则
+  include_replies: false
+  # 是否剔除纯 retweet（保留 quote tweet）
+  exclude_pure_retweet: true
+
+analysis:
+  # 英文推附中文要点
+  add_chinese_note_for_english: true
+  # 不设推文数量上限
+  cap_per_email: 0

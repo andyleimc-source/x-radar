@@ -1,0 +1,89 @@
+# Twitter/X accounts to monitor.
+# 改这个文件增删关注即可。username 不带 @。
+# category 仅用于人工分类查阅，不影响抓取逻辑。
+
+accounts:
+  # === AI labs & key people ===
+  - username: AnthropicAI
+    category: ai-lab
+    note: Claude 官方
+  - username: claudeai
+    category: ai-lab
+    note: Claude 产品号
+  - username: OpenAI
+    category: ai-lab
+    note: GPT 官方
+  - username: sama
+    category: ai-people
+    note: Sam Altman
+  - username: gdb
+    category: ai-people
+    note: Greg Brockman
+  - username: GoogleDeepMind
+    category: ai-lab
+    note: Gemini 背后
+  - username: demishassabis
+    category: ai-people
+    note: Demis Hassabis
+  - username: xai
+    category: ai-lab
+    note: Grok / xAI
+  - username: karpathy
+    category: ai-people
+    note: Andrej Karpathy
+  - username: ylecun
+    category: ai-people
+    note: Yann LeCun
+  - username: _akhaliq
+    category: ai-people
+    note: AK 每日论文
+
+  # === Low-code / No-code / Productivity SaaS ===
+  - username: airtable
+    category: nocode
+    note: Airtable 官
+  - username: NotionHQ
+    category: nocode
+    note: Notion 官
+  - username: ivanhzhao
+    category: nocode
+    note: Ivan Zhao (Notion CEO)
+  - username: zapier
+    category: nocode
+    note: Zapier 官
+  - username: retool
+    category: nocode
+    note: Retool 官
+
+  # === Enterprise SaaS veterans ===
+  - username: Benioff
+    category: saas
+    note: Marc Benioff (Salesforce)
+  - username: levie
+    category: saas
+    note: Aaron Levie (Box)
+  - username: paulg
+    category: saas
+    note: Paul Graham
+
+  # === Martech / Growth / Content ===
+  - username: dharmesh
+    category: martech
+    note: HubSpot CTO
+  - username: HubSpot
+    category: martech
+    note: HubSpot 官
+  - username: GaryVee
+    category: martech
+    note: Gary Vaynerchuk
+  - username: aprildunford
+    category: martech
+    note: 定位大师
+  - username: swyx
+    category: martech
+    note: AI + DevTool 叙事
+
+  # === Chinese circle ===
+  - username: dotey
+    category: cn
+    note: 宝玉
