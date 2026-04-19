@@ -61,7 +61,39 @@ cp .env.example .env
 ## 邮件/推送渠道
 
 默认走 Microsoft 365 MCP 发邮件（需要你的 365 账号能发邮件）。
-如果你用 OpenClaw 或 Hermes，改 `.claude/commands/twitter-digest.md` 最后一步，把发邮件换成"调用 ClawBot webhook 推送到微信"即可。
+
+### 改用微信 ClawBot（推荐给不想开邮箱的人）
+
+通过 [OpenClaw](https://openclaw.ai/) 或 [Hermes](https://github.com/nousresearch/hermes-agent) 可以把摘要推到你自己的微信。两种部署思路：
+
+**方案 A · Hermes 作为调度器 + 执行器**
+
+1. 本机装 Hermes（参考它 repo 的 quickstart）
+2. 把 `.claude/commands/twitter-digest.md` 里"发邮件"那一步改为调用 Hermes 内置的 `send_message`：
+   ```
+   send_message --target "weixin:<你的 ClawBot 消息目标 id>" --message "<digest markdown>"
+   ```
+3. 让 Hermes 用它的 schedule/cron 能力注册两条任务，每天 06:00 / 22:00 触发这个斜杠命令（本仓库的 `ops/` 下有 launchd 模板可以让 Hermes 参考）
+
+**方案 B · OpenClaw 作为微信网关**
+
+1. 在 OpenClaw 里创建一个 webhook，记下 URL
+2. 在 `.claude/commands/twitter-digest.md` 把最后一步改成 `curl -X POST <webhook_url> -d @data/digests/<date>-<slot>.md`
+3. 调度还是用本仓库默认的 launchd（`ops/install.sh`）
+
+两个方案都不依赖 Microsoft 365，适合不用 Outlook 的人。
+
+### 给 Hermes 的 Prompt（复制即用）
+
+如果你用 Hermes，打开它直接粘贴下面这段，让它自己选 launchd / cron / 原生调度：
+
+```
+我在 /Users/andy/Desktop/twitter 部署了 X Radar。每天 06:00 / 22:00 Asia/Shanghai 运行：
+cd /Users/andy/Desktop/twitter && /Users/andy/.local/bin/claude -p "/twitter-digest morning" --dangerously-skip-permissions
+晚上那条把 morning 换成 evening。
+
+用你的调度能力或 macOS launchd 帮我落地这两条任务，log 写到 data/state/launchd-{morning,evening}.log。完成后告诉我用了哪种机制、任务 label、下次触发时间。
+```
 
 ## 成本参考
 
