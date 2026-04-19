@@ -45,23 +45,20 @@ bash scripts/fetch_tweets.sh <username>
 
 ### 5. 发邮件
 
-用 `mcp__ms365__send-mail`：
-- to: `leimingcan@icloud.com`
-- subject: `🐦 X Digest · <YYYY-MM-DD> · <早间|晚间> · <N 条新推>`
-- body: 上面那份 Markdown（用 HTML body，markdown → 简单 HTML；代码简洁即可，不需要渲染复杂样式）
-- bodyType: HTML 或 Text（优先 HTML，链接可点）
+**不要在这里发邮件。** 邮件由外层 `scripts/send-digest.sh` 通过 `send-email-smtp.py` 统一发送，避免重复。交互式手动跑时如果要邮件，也用 `send-digest.sh`。
 
-### 6. 删除发件记录
+### 5.5 推送微信（仅交互模式）
 
-发完后立即：
-- `mcp__ms365__list-mail-folder-messages` 找 Sent Items，定位刚发出的那封（按 subject 精确匹配 + 最近 5 分钟）
-- `mcp__ms365__delete-mail-message` 删掉它
+用 `send_message` 把同一条 digest 发到微信 DM：
+- target: `weixin:o9cq80yGCQ-PBegxiOAx3Y-kh4aU@im.wechat`
+- message: 完整 Markdown 内容
+- mirrored: true
 
-如果出于 365 同步延迟没找到，**不要失败**——只记一行 warning 到控制台。
+launchd / `claude -p` 非交互调用下 Hermes 不可用，跳过即可。
 
 ### 7. 收尾输出
 
-一句话总结：`Digested N tweets from M accounts → emailed + sent-item purged. Digest file: data/digests/...`
+一句话总结：`Digested N tweets from M accounts → digest file written. Digest file: data/digests/...`
 
 ## 关键约束
 
