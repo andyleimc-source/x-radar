@@ -32,7 +32,8 @@ hermes cron run <job_id>     # 手动触发下一轮
 1. `claude -p "/twitter-digest <slot>" --dangerously-skip-permissions`
    → slash command（`.claude/commands/twitter-digest.md`）只负责抓推 + 生成 `data/digests/<date>-<slot>.md`，**不发任何东西**。
 2. `python3 scripts/send-email-mcp.py <slot>` → 通过 `email-mcp`（stdio / JSON-RPC）用 `mingdao` 账号（andy.lei@mingdao.com）发到 `leimingcan@icloud.com`。
-3. `npx -y weixin-mcp send o9cq80yGCQ-PBegxiOAx3Y-kh4aU@im.wechat "$(cat <digest>)"` → 微信 DM。失败不致命。
+3. 微信由 **Hermes cron 外层 prompt** 在 `send-digest.sh` 跑完之后调 `send_message` 工具推到 `weixin:o9cq80yGCQ-PBegxiOAx3Y-kh4aU@im.wechat`。
+   ⚠️ **不要**用 `npx weixin-mcp send` CLI——那个走 `~/.openclaw/openclaw-weixin/` 的老 bot (`49d9aae88202`)，token 已过期；Hermes 用的是自己的 `~/.hermes/weixin/accounts/` 下的新 bot (`946f7376ba44`)。两套账号数据目录完全独立。
 
 日志：`data/state/launchd-<slot>.log` / `.err.log`（名字是历史遗留，别被迷惑，现在是 Hermes cron 写的）。
 

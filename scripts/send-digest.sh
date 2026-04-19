@@ -35,12 +35,8 @@ echo "[Step 2] Digest found: $DIGEST_FILE ($(wc -c < "$DIGEST_FILE") bytes)"
 echo "[Step 3] Sending email..."
 python3 "$ROOT/scripts/send-email-mcp.py" "$SLOT" >> "$LOG" 2>> "$ERR"
 
-# Step 5: Send WeChat via weixin-mcp CLI (non-fatal on failure)
-echo "[Step 4] Sending WeChat..."
-WEIXIN_USER="o9cq80yGCQ-PBegxiOAx3Y-kh4aU@im.wechat"
-if npx -y weixin-mcp send "$WEIXIN_USER" "$(cat "$DIGEST_FILE")" >> "$LOG" 2>> "$ERR"; then
-    echo "[Step 4] WeChat sent."
-else
-    echo "[Step 4] WARNING: WeChat send failed (non-fatal)."
-fi
+# Step 5: WeChat is pushed by the Hermes cron wrapper (uses Hermes's
+# own weixin account 946f7376ba44, which has a fresher token than the
+# openclaw-weixin CLI). See Hermes cron prompt.
+echo "[Step 4] WeChat: delegated to Hermes cron wrapper"
 echo "=== [$(date '+%Y-%m-%d %H:%M:%S')] Done: $SLOT ==="
