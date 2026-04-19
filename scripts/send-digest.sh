@@ -33,7 +33,7 @@ echo "[Step 2] Digest found: $DIGEST_FILE ($(wc -c < "$DIGEST_FILE") bytes)"
 
 # Step 4: Send email via Python smtplib
 echo "[Step 3] Sending email..."
-python3 "$ROOT/scripts/send-email-smtp.py" "$SLOT" >> "$LOG" 2>> "$ERR"
+python3 "$ROOT/scripts/send-email-mcp.py" "$SLOT" >> "$LOG" 2>> "$ERR"
 
 # Step 5: Send WeChat via weixin-mcp CLI (non-fatal on failure)
 echo "[Step 4] Sending WeChat..."

@@ -31,7 +31,7 @@ hermes cron run <job_id>     # 手动触发下一轮
 
 1. `claude -p "/twitter-digest <slot>" --dangerously-skip-permissions`
    → slash command（`.claude/commands/twitter-digest.md`）只负责抓推 + 生成 `data/digests/<date>-<slot>.md`，**不发任何东西**。
-2. `python3 scripts/send-email-smtp.py <slot>` → SMTP 发到 `leimingcan@icloud.com`。
+2. `python3 scripts/send-email-mcp.py <slot>` → 通过 `email-mcp`（stdio / JSON-RPC）用 `mingdao` 账号（andy.lei@mingdao.com）发到 `leimingcan@icloud.com`。
 3. `npx -y weixin-mcp send o9cq80yGCQ-PBegxiOAx3Y-kh4aU@im.wechat "$(cat <digest>)"` → 微信 DM。失败不致命。
 
 日志：`data/state/launchd-<slot>.log` / `.err.log`（名字是历史遗留，别被迷惑，现在是 Hermes cron 写的）。
@@ -39,7 +39,7 @@ hermes cron run <job_id>     # 手动触发下一轮
 ## 为什么这么拆
 
 - slash command 只生成文件——因为 `claude -p` 里没有 `send_message` 这类 Hermes/weixin 工具，发送动作必须在 Bash 层做。
-- 邮件用 SMTP 而不是 ms365 MCP——更稳，不依赖 Graph token 和 Hermes session。
+- 邮件用 `email-mcp`（明道邮箱）而不是 ms365 MCP——账号在 `email-mcp account list` 里管理（`mingdao` 账号），不依赖 Graph token，也绕开 Hermes session。
 - 微信用 `weixin-mcp` CLI 直接发——绕开 Hermes `send_message` 工具（之前在 cron session 里没被调用导致微信一条都没发过）。
 
 ## 排查
