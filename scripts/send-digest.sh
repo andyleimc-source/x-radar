@@ -35,8 +35,23 @@ echo "[Step 2] Digest found: $DIGEST_FILE ($(wc -c < "$DIGEST_FILE") bytes)"
 echo "[Step 3] Sending email..."
 python3 "$ROOT/scripts/send-email-mcp.py" "$SLOT" >> "$LOG" 2>> "$ERR"
 
-# Step 5: WeChat is pushed by the Hermes cron wrapper (uses Hermes's
-# own weixin account 946f7376ba44, which has a fresher token than the
-# openclaw-weixin CLI). See Hermes cron prompt.
-echo "[Step 4] WeChat: delegated to Hermes cron wrapper"
+# Step 5: Send WeChat via CLI
+echo "[Step 4] Sending WeChat..."
+TARGET="o9cq80yGCQ-PBegxiOAx3Y-kh4aU@im.wechat"
+
+# Extract content section (skip header lines up to "## Response")
+START=$(grep -n "^## Response" "$DIGEST_FILE" | cut -d: -f1 | head -1)
+if [ -n "$START" ]; then
+    CONTENT=$(sed -n "$((START+1)),\$p" "$DIGEST_FILE")
+else
+    CONTENT=$(sed -n '19,$p' "$DIGEST_FILE")
+fi
+
+# Fallback to "本时段无新推" if empty
+if [ -z "$(echo "$CONTENT" | tr -d '[:space:]')" ]; then
+    CONTENT="本时段无新推"
+fi
+
+# Send via weixin-mcp (positional args: userId text)
+weixin-mcp send "$TARGET" "$CONTENT" >> "$LOG" 2>> "$ERR"
 echo "=== [$(date '+%Y-%m-%d %H:%M:%S')] Done: $SLOT ==="
