@@ -1,9 +1,7 @@
 #!/bin/bash
 # Twitter Digest Launcher — send-digest.sh
 # Usage: ./send-digest.sh <morning|evening>
-# Tested on: launchd (macOS, non-interactive)
-
-set -e
+# Fixed: non-interactive, error resilient, append logging
 
 SLOT="$1"
 ROOT="/Users/andy/Desktop/twitter"
@@ -12,30 +10,53 @@ ERR="$ROOT/data/state/launchd-${SLOT}.err.log"
 DATE="$(date '+%Y-%m-%d')"
 DIGEST_FILE="$ROOT/data/digests/${DATE}-${SLOT}.md"
 
-exec >> "$LOG" 2>> "$ERR"
+# Append logging (redirect in subshell to avoid fd corruption on re-run)
+(
+echo ""
 echo "=== [$(date '+%Y-%m-%d %H:%M:%S')] Launched: $SLOT ==="
+) >> "$LOG"
+exec 2>> "$ERR"
 
-# Step 1: Run Claude Code twitter-digest
+# --- Step 1: Run Claude Code twitter-digest ---
 echo "[Step 1] Running Claude Code twitter-digest..."
 cd "$ROOT"
-/Users/andy/.local/bin/claude -p "/twitter-digest ${SLOT}" --dangerously-skip-permissions
+if ! /Users/andy/.local/bin/claude -p "/twitter-digest ${SLOT}" --dangerously-skip-permissions; then
+    echo "[Step 1] ERROR: claude command failed"
+fi
 echo "[Step 1] Claude Code done."
 
-# Step 2: Wait for file system sync
+# Wait for file system sync
 sleep 3
 
-# Step 3: Verify digest file
+# --- Step 2: Verify digest file ---
 if [ ! -f "$DIGEST_FILE" ]; then
     echo "[ERROR] Digest file not found: $DIGEST_FILE"
     exit 1
 fi
 echo "[Step 2] Digest found: $DIGEST_FILE ($(wc -c < "$DIGEST_FILE") bytes)"
 
-# Step 4: Send email via Python smtplib
+# --- Step 3: Send email via Python (timeout 90s) ---
 echo "[Step 3] Sending email..."
-python3 "$ROOT/scripts/send-email-mcp.py" "$SLOT" >> "$LOG" 2>> "$ERR"
+# Use gtimeout (brew install coreutils) or perl as timeout (macOS has no timeout cmd)
+# perl approach: runs in bg, parent waits with alarm, kills child on expiry
+_email_status=0
+perl -e '
+    use strict;
+    my $pid = fork;
+    if ($pid == 0) {
+        exec @ARGV or die "exec failed: $!";
+    }
+    $SIG{ALRM} = sub { kill 9, $pid if $pid > 0; exit 1 };
+    alarm 90;
+    waitpid($pid, 0);
+    exit $? >> 8;
+' python3 "$ROOT/scripts/send-email-mcp.py" "$SLOT" >> "$LOG" 2>> "$ERR"
+_email_status=$?
+if [ $_email_status -ne 0 ]; then
+    echo "[Step 3] ERROR: email failed (exit $_email_status)"
+fi
 
-# Step 5: Send WeChat via CLI
+# --- Step 4: Send WeChat via CLI ---
 echo "[Step 4] Sending WeChat..."
 TARGET="o9cq80yGCQ-PBegxiOAx3Y-kh4aU@im.wechat"
 
@@ -53,5 +74,17 @@ if [ -z "$(echo "$CONTENT" | tr -d '[:space:]')" ]; then
 fi
 
 # Send via weixin-mcp (positional args: userId text)
-weixin-mcp send "$TARGET" "$CONTENT" >> "$LOG" 2>> "$ERR"
+# Guard: never call weixin-mcp send with empty args
+if [ -z "$(echo "$CONTENT" | tr -d '[:space:]')" ]; then
+    echo "[Step 4] SKIPPED: no content to send"
+else
+    if weixin-mcp send "$TARGET" "$CONTENT" >> "$LOG" 2>> "$ERR"; then
+        echo "[Step 4] WeChat sent successfully"
+    else
+        echo "[Step 4] ERROR: weixin-mcp send failed"
+    fi
+fi
+
+(
 echo "=== [$(date '+%Y-%m-%d %H:%M:%S')] Done: $SLOT ==="
+) >> "$LOG"

@@ -29,7 +29,7 @@ bash scripts/fetch_tweets.sh <username>
 
 对每个账号的 JSON：
 
-- 取 `tweets` 数组
+- 取 `data.data.tweets` 数组（TwitterAPI.io 返回格式为 `{status, code, msg, data: {tweets: [...]}}`）
 - 丢弃：`isReply == true`（除非 `inReplyToUsername` 等于作者自己，即自我串推）
 - 丢弃：`retweeted_tweet != null`（纯 retweet，保留 quote tweet——`quoted_tweet != null` 是 quote）
 - 首次运行：保留 `createdAt > cutoff` 的
