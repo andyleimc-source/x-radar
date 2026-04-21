@@ -17,13 +17,13 @@ echo "=== [$(date '+%Y-%m-%d %H:%M:%S')] Launched: $SLOT ==="
 ) >> "$LOG"
 exec 2>> "$ERR"
 
-# --- Step 1: Run Claude Code twitter-digest ---
-echo "[Step 1] Running Claude Code twitter-digest..."
+# --- Step 1: Run digest pipeline (Python + DeepSeek) ---
+echo "[Step 1] Running digest pipeline..."
 cd "$ROOT"
-if ! /Users/andy/.local/bin/claude -p "/twitter-digest ${SLOT}" --dangerously-skip-permissions; then
-    echo "[Step 1] ERROR: claude command failed"
+if ! python3 "$ROOT/scripts/digest.py" "$SLOT"; then
+    echo "[Step 1] ERROR: digest.py failed"
 fi
-echo "[Step 1] Claude Code done."
+echo "[Step 1] Digest pipeline done."
 
 # Wait for file system sync
 sleep 3

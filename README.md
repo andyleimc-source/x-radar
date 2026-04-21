@@ -9,7 +9,7 @@
 - ✉️ 通过 `email-mcp` 发邮件（走任意 IMAP/SMTP 账号，不绑定某家邮箱服务商）
 
 数据源：[twitterapi.io](https://twitterapi.io)（稳定、便宜、支持支付宝）。
-编排：[Claude Code](https://claude.com/claude-code) 的 Skills + 斜杠命令，一条 `/twitter-digest` 跑完全流程。
+LLM：[DeepSeek V3](https://platform.deepseek.com)（OpenAI 兼容 API，中文强，大陆直连，一次简报成本约 ¥0.05）。换 MiniMax / OpenAI / Claude 只需改 `.env` 里的 `DEEPSEEK_BASE_URL` + `DEEPSEEK_MODEL` + key。
 
 ## 目录结构
 
@@ -22,31 +22,34 @@
 │   ├── raw/<date>/        # 每次抓取的原始 JSON
 │   ├── state/last_seen.json
 │   └── digests/           # 生成的每封 Markdown 简报
-├── prompts/analysis.md    # 给 Claude 的分析 + 排序提示词
+├── prompts/analysis.md    # 分析 + 排序提示词（喂给 DeepSeek）
 ├── scripts/
 │   ├── fetch_tweets.sh       # 抓一个账号最新推文
-│   ├── send-digest.sh        # 调度总控：生成 digest + 发邮件（launchd 调这个）
+│   ├── digest.py             # 主脚本：并发抓 + 过滤 + 调 DeepSeek + 写 digest
+│   ├── send-digest.sh        # 调度总控：跑 digest.py + 发邮件（launchd/cron 调这个）
 │   └── send-email-mcp.py     # 通过 email-mcp stdio JSON-RPC 发邮件
-└── .claude/commands/twitter-digest.md   # Claude Code 斜杠命令（只生成 digest 文件）
+└── .claude/commands/twitter-digest.md   # 历史：原 Claude Code 斜杠命令（已不在调度路径上）
 ```
 
 ## 快速开始
 
-前置条件：macOS / Linux · [Claude Code](https://claude.com/claude-code) · Python 3.10+ · 一个 twitterapi.io 账号。
+前置条件：macOS / Linux · Python 3.10+ · `curl` · 一个 twitterapi.io 账号 · 一个 DeepSeek API key。
 
 ```bash
 git clone https://github.com/andyleimc-source/x-radar.git
 cd x-radar
 cp .env.example .env
-# 编辑 .env，填入 TWITTERAPI_IO_KEY
+# 编辑 .env，填入 TWITTERAPI_IO_KEY 和 DEEPSEEK_API_KEY
+pip3 install pyyaml    # 唯一运行期 Python 依赖
 ```
 
 改 `config/accounts.yaml` 换成你自己关注的人。默认预置了 25 个 AI / SaaS / 低代码 / 营销技术领域的官号和关键人物。
 
-在 Claude Code 里运行：
+手动跑一次：
 
-```
-/twitter-digest morning
+```bash
+python3 scripts/digest.py morning    # 只生成 digest，不发邮件
+bash scripts/send-digest.sh morning  # 生成 + 发邮件（全流程）
 ```
 
 首次会回填过去 24 小时的推文，之后按 `data/state/last_seen.json` 增量。
