@@ -63,7 +63,9 @@ def fetch_one(username: str, date_str: str) -> tuple[str, list[dict]]:
     except Exception as e:
         print(f"[WARN] parse {username} failed: {e}", file=sys.stderr)
         return username, []
-    return username, data.get("tweets", []) or []
+    # twitterapi.io 返回 {status, code, msg, data: {tweets: [...]}}
+    tweets = (data.get("data") or {}).get("tweets") or data.get("tweets") or []
+    return username, tweets
 
 
 def id_gt(a: str, b: str) -> bool:
