@@ -28,35 +28,154 @@ def load_env():
         os.environ.setdefault(k.strip(), v.strip())
 
 
+FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei',Roboto,'Helvetica Neue',Arial,sans-serif"
+
+STYLE = {
+    "body":   f"margin:0;padding:0;background:#f2f2f4;font-family:{FONT};",
+    "wrap":   "max-width:640px;margin:0 auto;padding:32px 16px;",
+    "card":   "background:#ffffff;border-radius:14px;padding:28px 28px 12px;box-shadow:0 1px 3px rgba(0,0,0,0.04);color:#1d1d1f;line-height:1.75;font-size:16px;",
+    "h1":     "font-size:22px;font-weight:700;margin:0 0 24px;color:#1d1d1f;letter-spacing:-0.01em;",
+    "h2":     "font-size:20px;font-weight:700;margin:36px 0 16px;padding-bottom:10px;border-bottom:1px solid #e5e5ea;color:#1d1d1f;letter-spacing:-0.01em;",
+    "h3":     "font-size:16px;font-weight:600;margin:32px 0 14px;color:#1d1d1f;line-height:1.5;padding-top:20px;border-top:1px dashed #e5e5ea;",
+    "h3_first":"font-size:16px;font-weight:600;margin:24px 0 14px;color:#1d1d1f;line-height:1.5;",
+    "p":      "margin:0 0 14px;color:#333;font-size:15.5px;line-height:1.75;",
+    "p_quote":"margin:0 0 14px 0;padding:10px 14px;background:#f7f7f8;border-left:3px solid #d1d1d6;border-radius:4px;color:#333;font-size:15px;line-height:1.75;white-space:pre-wrap;",
+    "label":  "display:inline-block;font-size:11.5px;font-weight:600;color:#86868b;letter-spacing:0.06em;text-transform:uppercase;margin:6px 0 6px;",
+    "why":    "margin:14px 0 6px;padding:12px 14px;background:#fffbe6;border-left:3px solid #f7c948;border-radius:4px;color:#4a4a4a;font-size:14.5px;",
+    "link":   "margin:6px 0 18px;font-size:13.5px;word-break:break-all;",
+    "a":      "color:#0071e3;text-decoration:none;",
+    "hr":     "border:none;border-top:1px solid #e5e5ea;margin:22px 0;",
+    "foot":   "margin:24px auto 0;max-width:640px;padding:0 24px 40px;color:#8e8e93;font-size:12px;text-align:center;line-height:1.6;",
+}
+
+LABEL_KEYS = ("原文", "中文", "为什么值得看")
+
+
+def _inline(s: str) -> str:
+    """处理行内 markdown：加粗、链接。转义已经在外层做过。"""
+    s = re.sub(r"\*\*(.*?)\*\*", r"<strong>\1</strong>", s)
+    s = re.sub(
+        r"\[(.*?)\]\((.*?)\)",
+        lambda m: f'<a href="{m.group(2)}" style="{STYLE["a"]}">{m.group(1)}</a>',
+        s,
+    )
+    s = re.sub(
+        r"(?<!href=\")(https?://[^\s<]+)",
+        lambda m: f'<a href="{m.group(1)}" style="{STYLE["a"]}">{m.group(1)}</a>',
+        s,
+    )
+    return s
+
+
 def md_to_html(md: str) -> str:
-    out, in_list = [], False
-    for line in md.split("\n"):
-        esc = line.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-        if line.startswith("### "):
-            if in_list: out.append("</ul>"); in_list = False
-            out.append(f"<h3>{esc[4:]}</h3>")
-        elif line.startswith("## "):
-            if in_list: out.append("</ul>"); in_list = False
-            out.append(f"<h2>{esc[3:]}</h2>")
-        elif line.startswith("# "):
-            if in_list: out.append("</ul>"); in_list = False
-            out.append(f"<h1>{esc[2:]}</h1>")
-        elif line.startswith("- "):
-            if not in_list: out.append("<ul>"); in_list = True
-            item = esc[2:]
-            item = re.sub(r"\*\*(.*?)\*\*", r"<strong>\1</strong>", item)
-            item = re.sub(r"\[(.*?)\]\((.*?)\)", r'<a href="\2">\1</a>', item)
-            out.append(f"<li>{item}</li>")
-        elif line.strip() == "":
-            if in_list: out.append("</ul>"); in_list = False
-            out.append("<br/>")
-        else:
-            if in_list: out.append("</ul>"); in_list = False
-            p = re.sub(r"\*\*(.*?)\*\*", r"<strong>\1</strong>", esc)
-            p = re.sub(r"\[(.*?)\]\((.*?)\)", r'<a href="\2">\1</a>', p)
-            out.append(f"<p>{p}</p>")
-    if in_list: out.append("</ul>")
-    return "\n".join(out)
+    """把 digest markdown 渲染成带内联 CSS 的邮件 HTML。"""
+    lines = md.split("\n")
+    out = []
+    i = 0
+    first_h3 = True
+
+    while i < len(lines):
+        raw = lines[i]
+        esc = raw.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        stripped = raw.strip()
+
+        # 标题
+        if raw.startswith("### "):
+            style = STYLE["h3_first"] if first_h3 else STYLE["h3"]
+            first_h3 = False
+            out.append(f'<h3 style="{style}">{_inline(esc[4:])}</h3>')
+            i += 1
+            continue
+        if raw.startswith("## "):
+            out.append(f'<h2 style="{STYLE["h2"]}">{_inline(esc[3:])}</h2>')
+            i += 1
+            continue
+        if raw.startswith("# "):
+            out.append(f'<h1 style="{STYLE["h1"]}">{_inline(esc[2:])}</h1>')
+            i += 1
+            continue
+
+        # 「**原文**：」/「**中文**：」/「**为什么值得看**：」标签块
+        # 两种形式：
+        #   **原文**：单行内容
+        #   **原文**：
+        #   <多行内容>
+        label_match = re.match(r"^\s*(?:👀\s*)?\*\*(原文|中文|为什么值得看)\*\*\s*[：:]\s*(.*)$", raw)
+        if label_match:
+            key = label_match.group(1)
+            tail = label_match.group(2)
+
+            if key == "为什么值得看":
+                # 👀 为什么值得看：推荐理由（单行/短段）
+                content_lines = [tail] if tail else []
+                j = i + 1
+                while j < len(lines) and lines[j].strip() and not lines[j].startswith(("#", "🔗", "**", "👀")):
+                    content_lines.append(lines[j])
+                    j += 1
+                text = " ".join(c.strip() for c in content_lines if c.strip())
+                text_esc = _inline(text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
+                out.append(f'<div style="{STYLE["why"]}">👀 <strong>为什么值得看</strong>　{text_esc}</div>')
+                i = j
+                continue
+
+            # 原文 / 中文：大段引用块
+            content_lines = []
+            if tail:
+                content_lines.append(tail)
+            j = i + 1
+            while j < len(lines):
+                nxt = lines[j]
+                if nxt.strip() == "":
+                    # 空行 = 段落内的 break；但如果下一段是 ** 标签或 ### 或 🔗 就结束
+                    if j + 1 < len(lines) and re.match(r"^(###\s|🔗|\*\*(原文|中文|为什么值得看)\*\*)", lines[j + 1]):
+                        break
+                    content_lines.append("")
+                    j += 1
+                    continue
+                if re.match(r"^(###\s|🔗|\*\*(原文|中文|为什么值得看)\*\*)", nxt):
+                    break
+                content_lines.append(nxt)
+                j += 1
+
+            body_text = "\n".join(content_lines).rstrip()
+            body_esc = body_text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+            body_html = _inline(body_esc)
+
+            out.append(f'<div style="{STYLE["label"]}">{key}</div>')
+            out.append(f'<div style="{STYLE["p_quote"]}">{body_html}</div>')
+            i = j
+            continue
+
+        # 🔗 链接行
+        if stripped.startswith("🔗"):
+            out.append(f'<div style="{STYLE["link"]}">{_inline(esc)}</div>')
+            i += 1
+            continue
+
+        # 空行
+        if stripped == "":
+            i += 1
+            continue
+
+        # 普通段落
+        out.append(f'<p style="{STYLE["p"]}">{_inline(esc)}</p>')
+        i += 1
+
+    inner = "\n".join(out)
+
+    from datetime import datetime
+    year = datetime.now().year
+
+    return f"""<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>X Digest</title></head>
+<body style="{STYLE['body']}">
+<div style="{STYLE['wrap']}">
+<div style="{STYLE['card']}">
+{inner}
+</div>
+<div style="{STYLE['foot']}">X Radar · 每天 06:00 / 22:00 自动送达 · DeepSeek V3 生成 · {year}</div>
+</div>
+</body></html>"""
 
 
 def main(slot: str):
