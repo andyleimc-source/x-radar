@@ -91,6 +91,8 @@ def main(slot: str):
         headers={
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
+            "User-Agent": "xradar/1.0 (+https://github.com/andyleimc-source/x-radar)",
+            "Accept": "application/json",
         },
         method="POST",
     )
