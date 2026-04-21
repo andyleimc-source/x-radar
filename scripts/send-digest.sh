@@ -4,9 +4,15 @@
 # Fixed: non-interactive, error resilient, append logging
 
 SLOT="$1"
-ROOT="/Users/andy/xradar"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LOG="$ROOT/data/state/launchd-${SLOT}.log"
 ERR="$ROOT/data/state/launchd-${SLOT}.err.log"
+mkdir -p "$ROOT/data/state"
+
+# Load .env (for EMAIL_PROVIDER, etc.)
+if [ -f "$ROOT/.env" ]; then
+    set -a; . "$ROOT/.env"; set +a
+fi
 DATE="$(date '+%Y-%m-%d')"
 DIGEST_FILE="$ROOT/data/digests/${DATE}-${SLOT}.md"
 
@@ -35,26 +41,36 @@ if [ ! -f "$DIGEST_FILE" ]; then
 fi
 echo "[Step 2] Digest found: $DIGEST_FILE ($(wc -c < "$DIGEST_FILE") bytes)"
 
-# --- Step 3: Send email via Python (timeout 90s) ---
-echo "[Step 3] Sending email..."
-# Use gtimeout (brew install coreutils) or perl as timeout (macOS has no timeout cmd)
-# perl approach: runs in bg, parent waits with alarm, kills child on expiry
-_email_status=0
-perl -e '
-    use strict;
-    my $pid = fork;
-    if ($pid == 0) {
-        exec @ARGV or die "exec failed: $!";
-    }
-    $SIG{ALRM} = sub { kill 9, $pid if $pid > 0; exit 1 };
-    alarm 90;
-    waitpid($pid, 0);
-    exit $? >> 8;
-' python3 "$ROOT/scripts/send-email-mcp.py" "$SLOT" >> "$LOG" 2>> "$ERR"
-_email_status=$?
-if [ $_email_status -ne 0 ]; then
-    echo "[Step 3] ERROR: email failed (exit $_email_status)"
-fi
+# --- Step 3: Send email ---
+# EMAIL_PROVIDER: "mcp" (local mac email-mcp) | "resend" | "" (skip)
+case "${EMAIL_PROVIDER:-}" in
+  mcp)
+    echo "[Step 3] Sending email via email-mcp..."
+    _email_status=0
+    perl -e '
+        use strict;
+        my $pid = fork;
+        if ($pid == 0) { exec @ARGV or die "exec failed: $!"; }
+        $SIG{ALRM} = sub { kill 9, $pid if $pid > 0; exit 1 };
+        alarm 90;
+        waitpid($pid, 0);
+        exit $? >> 8;
+    ' python3 "$ROOT/scripts/send-email-mcp.py" "$SLOT" >> "$LOG" 2>> "$ERR"
+    _email_status=$?
+    [ $_email_status -ne 0 ] && echo "[Step 3] ERROR: email failed (exit $_email_status)"
+    ;;
+  resend)
+    echo "[Step 3] Sending email via Resend..."
+    python3 "$ROOT/scripts/send-email-resend.py" "$SLOT" >> "$LOG" 2>> "$ERR" \
+      && echo "[Step 3] email sent" || echo "[Step 3] ERROR: resend failed"
+    ;;
+  "")
+    echo "[Step 3] SKIPPED: EMAIL_PROVIDER not set"
+    ;;
+  *)
+    echo "[Step 3] SKIPPED: unknown EMAIL_PROVIDER=$EMAIL_PROVIDER"
+    ;;
+esac
 
 (
 echo "=== [$(date '+%Y-%m-%d %H:%M:%S')] Done: $SLOT ==="
