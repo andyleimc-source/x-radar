@@ -4,7 +4,7 @@
 # Fixed: non-interactive, error resilient, append logging
 
 SLOT="$1"
-ROOT="/Users/andy/Desktop/twitter"
+ROOT="/Users/andy/xradar"
 LOG="$ROOT/data/state/launchd-${SLOT}.log"
 ERR="$ROOT/data/state/launchd-${SLOT}.err.log"
 DATE="$(date '+%Y-%m-%d')"
@@ -54,35 +54,6 @@ perl -e '
 _email_status=$?
 if [ $_email_status -ne 0 ]; then
     echo "[Step 3] ERROR: email failed (exit $_email_status)"
-fi
-
-# --- Step 4: Send WeChat via CLI ---
-echo "[Step 4] Sending WeChat..."
-TARGET="o9cq80yGCQ-PBegxiOAx3Y-kh4aU@im.wechat"
-
-# Extract content section (skip header lines up to "## Response")
-START=$(grep -n "^## Response" "$DIGEST_FILE" | cut -d: -f1 | head -1)
-if [ -n "$START" ]; then
-    CONTENT=$(sed -n "$((START+1)),\$p" "$DIGEST_FILE")
-else
-    CONTENT=$(sed -n '19,$p' "$DIGEST_FILE")
-fi
-
-# Fallback to "本时段无新推" if empty
-if [ -z "$(echo "$CONTENT" | tr -d '[:space:]')" ]; then
-    CONTENT="本时段无新推"
-fi
-
-# Send via weixin-mcp (positional args: userId text)
-# Guard: never call weixin-mcp send with empty args
-if [ -z "$(echo "$CONTENT" | tr -d '[:space:]')" ]; then
-    echo "[Step 4] SKIPPED: no content to send"
-else
-    if weixin-mcp send "$TARGET" "$CONTENT" >> "$LOG" 2>> "$ERR"; then
-        echo "[Step 4] WeChat sent successfully"
-    else
-        echo "[Step 4] ERROR: weixin-mcp send failed"
-    fi
 fi
 
 (

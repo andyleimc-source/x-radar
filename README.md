@@ -7,7 +7,6 @@
 - 📚 按对你的相关性排序，英文推自动附中文要点
 - 💾 原始 JSON 全量落盘，方便二次加工（写文章、做视频选题）
 - ✉️ 通过 `email-mcp` 发邮件（走任意 IMAP/SMTP 账号，不绑定某家邮箱服务商）
-- 🤖 同步推到微信 ClawBot（通过 [Hermes](https://github.com/NousResearch/hermes) 的 cron deliver 机制）
 
 数据源：[twitterapi.io](https://twitterapi.io)（稳定、便宜、支持支付宝）。
 编排：[Claude Code](https://claude.com/claude-code) 的 Skills + 斜杠命令，一条 `/twitter-digest` 跑完全流程。
@@ -26,7 +25,7 @@
 ├── prompts/analysis.md    # 给 Claude 的分析 + 排序提示词
 ├── scripts/
 │   ├── fetch_tweets.sh       # 抓一个账号最新推文
-│   ├── send-digest.sh        # 调度总控：生成 digest + 发邮件（cron 调这个）
+│   ├── send-digest.sh        # 调度总控：生成 digest + 发邮件（launchd 调这个）
 │   └── send-email-mcp.py     # 通过 email-mcp stdio JSON-RPC 发邮件
 └── .claude/commands/twitter-digest.md   # Claude Code 斜杠命令（只生成 digest 文件）
 ```
@@ -52,9 +51,9 @@ cp .env.example .env
 
 首次会回填过去 24 小时的推文，之后按 `data/state/last_seen.json` 增量。
 
-## 部署：定时 + 邮件 + 微信
+## 部署：launchd + 邮件
 
-当前线上用的组合 —— **Hermes cron 调度 → `send-digest.sh` 执行 → email-mcp 发邮件 + Hermes deliver 自动推微信**。一次配齐：
+当前线上组合 —— **macOS launchd 定时 → `send-digest.sh` 执行 → email-mcp 发邮件**。纯本地，无外部调度依赖。
 
 ### 1. 邮件渠道（email-mcp）
 
@@ -66,44 +65,53 @@ email-mcp account add       # 交互式向导：起个 account 名字，填 IMAP
 email-mcp account list      # 确认配好
 ```
 
-记下你起的 account 名（例如 `mingdao`）。修改 `scripts/send-email-mcp.py` 里的 `ACCOUNT` 和 `TO` 两个常量为你的值。
+记下你起的 account 名（例如 `work`）。修改 `scripts/send-email-mcp.py` 里的 `ACCOUNT` 和 `TO` 两个常量。
 
-### 2. 微信推送（Hermes）
+### 2. launchd 定时
 
-装 [Hermes](https://github.com/NousResearch/hermes-agent) 并登录它自带的 weixin MCP（扫码一次），确认 `~/.hermes/weixin/accounts/` 下有你自己的 bot 账号文件，记下目标用户的 `<user_id>@im.wechat`。
-
-### 3. 创建两条 Hermes cron
+仓库里 `scripts/send-digest.sh <morning|evening>` 就是总控。写两个 LaunchAgent，一次早间一次晚间：
 
 ```bash
-hermes cron create \
-  --name "x-radar twitter evening" \
-  --schedule "0 22 * * *" \
-  --deliver "weixin:<your_user_id>@im.wechat" \
-  --prompt '1. Run: `bash /Users/andy/Desktop/twitter/scripts/send-digest.sh evening`
-2. Read: `/Users/andy/Desktop/twitter/data/digests/$(date +%Y-%m-%d)-evening.md`
-3. Your final assistant message MUST be the raw file content from step 2 (no preface, no wrapper). Hermes will auto-deliver that message to the configured WeChat target.'
+cat > ~/Library/LaunchAgents/com.andy.xradar.evening.plist <<'PLIST'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.andy.xradar.evening</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/andy/xradar/scripts/send-digest.sh</string>
+    <string>evening</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict><key>Hour</key><integer>22</integer><key>Minute</key><integer>0</integer></dict>
+  <key>EnvironmentVariables</key>
+  <dict><key>PATH</key><string>/Users/andy/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string></dict>
+  <key>WorkingDirectory</key><string>/Users/andy/xradar</string>
+  <key>StandardOutPath</key><string>/Users/andy/Library/Logs/xradar/launchd-evening.out</string>
+  <key>StandardErrorPath</key><string>/Users/andy/Library/Logs/xradar/launchd-evening.err</string>
+</dict>
+</plist>
+PLIST
 
-# 早间同理，把 evening 全部替换成 morning，schedule 改 "0 6 * * *"
+launchctl load ~/Library/LaunchAgents/com.andy.xradar.evening.plist
+# 早间把 evening 全替换成 morning，Hour 改 6
 ```
 
-**关键点**：
+`PATH` 里必须带 `claude` 的目录（`~/.local/bin`）和 `python3` 的目录（Homebrew 的 `/opt/homebrew/bin`），launchd 默认 PATH 不含这些。
 
-- 微信推送走的是 Hermes cron 的 **`--deliver` 机制**——session 最终 assistant 输出会被自动投到 deliver target。所以 prompt 结尾必须把 digest 原文直接输出，**不能**在 prompt 里写 `send_message` 之类（Hermes 给 cron session 注入了 "do NOT use send_message" 的禁令）。
-- 邮件是 `send-digest.sh` 跑 `send-email-mcp.py` 时直接发的，和微信这条路径独立。
-- `send-digest.sh` 内部调 `claude -p "/twitter-digest <slot>"` 生成 digest，所以 cron 运行环境里必须能找到 `claude` 可执行文件。
-
-### 4. 查看 / 修改 / 手动触发
+### 3. 查看 / 停启 / 手动触发
 
 ```bash
-hermes cron list
-hermes cron edit <job_id> --schedule "..." --prompt "..." --deliver "..."
-hermes cron run <job_id>       # 立即跑一次（调试用）
+launchctl list | grep xradar                                  # 查看状态（第二列是上次退出码）
+launchctl unload ~/Library/LaunchAgents/com.andy.xradar.*.plist
+launchctl load   ~/Library/LaunchAgents/com.andy.xradar.*.plist
+launchctl start  com.andy.xradar.evening                      # 立刻手动跑一次
+bash scripts/send-digest.sh evening                           # 或直接命令行跑
 ```
 
-### 不用 Hermes 的替代方案
-
-- **只要邮件不要微信**：直接用 macOS `launchd` / `cron` 定时调 `bash scripts/send-digest.sh <slot>` 即可。
-- **用 OpenClaw 推微信**：在 OpenClaw 建 webhook，`send-digest.sh` 尾部加一行 `curl -X POST <webhook> --data-binary @"$DIGEST_FILE"`。
+日志在 `data/state/launchd-<slot>.log` / `.err.log`。
 
 ## 成本参考
 

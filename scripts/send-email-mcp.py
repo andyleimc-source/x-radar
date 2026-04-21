@@ -5,9 +5,9 @@ Uses the 'mingdao' account configured in email-mcp (andy.lei@mingdao.com).
 """
 import subprocess, json, sys, re, os, time
 
-ROOT = "/Users/andy/Desktop/twitter"
+ROOT = "/Users/andy/xradar"
 TO = "leimingcan@icloud.com"
-ACCOUNT = "mingdao"
+ACCOUNT = "work"
 
 
 def md_to_html(md: str) -> str:

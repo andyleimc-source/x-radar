@@ -5,7 +5,7 @@ argument-hint: "[morning|evening]"
 
 # /twitter-digest
 
-你在 `/Users/andy/Desktop/twitter` 目录下运行。参数 `$1` 为 `morning` / `evening`，没给就按当前小时判断：0–12 为 morning，其余 evening。
+你在 `/Users/andy/xradar` 目录下运行。参数 `$1` 为 `morning` / `evening`，没给就按当前小时判断：0–12 为 morning，其余 evening。
 
 ## 执行步骤
 
