@@ -44,8 +44,12 @@ STYLE = {
     "why":    "margin:14px 0 6px;padding:12px 14px;background:#fffbe6;border-left:3px solid #f7c948;border-radius:4px;color:#4a4a4a;font-size:14.5px;",
     "link":   "margin:6px 0 18px;font-size:13.5px;word-break:break-all;",
     "a":      "color:#0071e3;text-decoration:none;",
+    "a_muted":"color:#86868b;text-decoration:none;font-size:12px;margin-left:6px;",
     "hr":     "border:none;border-top:1px solid #e5e5ea;margin:22px 0;",
     "foot":   "margin:24px auto 0;max-width:640px;padding:0 24px 40px;color:#8e8e93;font-size:12px;text-align:center;line-height:1.6;",
+    "ul":     "margin:4px 0 20px;padding:0;list-style:none;",
+    "li":     "margin:0;padding:9px 0;font-size:14.5px;line-height:1.55;color:#333;border-bottom:1px solid #f2f2f4;",
+    "li_user":"color:#86868b;font-size:13px;margin-right:6px;",
 }
 
 LABEL_KEYS = ("原文", "中文", "为什么值得看")
@@ -67,12 +71,46 @@ def _inline(s: str) -> str:
     return s
 
 
+def _render_list_item(esc: str) -> str:
+    """渲染未精选列表的一行：`- [@user] **标题** · [🔗](url)`。
+    把 [@user] 染成灰色小字、标题加粗、[🔗] 替换成"打开 ↗"小链接。"""
+    s = esc
+
+    # [@user] → 灰色小字
+    s = re.sub(
+        r"^\s*\[@([^\]]+)\]\s*",
+        lambda m: f'<span style="{STYLE["li_user"]}">@{m.group(1)}</span> ',
+        s,
+    )
+    # [🔗](url) → 小链接"打开 ↗"
+    s = re.sub(
+        r"\[🔗\]\(([^)]+)\)",
+        lambda m: f'<a href="{m.group(1)}" style="{STYLE["a_muted"]}">打开 ↗</a>',
+        s,
+    )
+    # 其余行内渲染（加粗、裸链接）
+    s = re.sub(r"\*\*(.*?)\*\*", r"<strong>\1</strong>", s)
+    s = re.sub(
+        r"\[(.*?)\]\((.*?)\)",
+        lambda m: f'<a href="{m.group(2)}" style="{STYLE["a"]}">{m.group(1)}</a>',
+        s,
+    )
+    return s
+
+
 def md_to_html(md: str) -> str:
     """把 digest markdown 渲染成带内联 CSS 的邮件 HTML。"""
     lines = md.split("\n")
     out = []
     i = 0
     first_h3 = True
+    in_list = False
+
+    def close_list():
+        nonlocal in_list
+        if in_list:
+            out.append("</ul>")
+            in_list = False
 
     while i < len(lines):
         raw = lines[i]
@@ -81,17 +119,40 @@ def md_to_html(md: str) -> str:
 
         # 标题
         if raw.startswith("### "):
-            style = STYLE["h3_first"] if first_h3 else STYLE["h3"]
-            first_h3 = False
-            out.append(f'<h3 style="{style}">{_inline(esc[4:])}</h3>')
+            close_list()
+            # 精选层的 h3 (### 1. [@user] · ...) 用卡片分隔线样式；
+            # 未精选分组的 h3 (### 🤖 AI 圈) 更轻量一点
+            title = esc[4:]
+            # 精选层 h3 形如 "1. [@user] · ..."；未精选分组 h3 形如 "🤖 AI 圈"
+            is_enum = re.match(r"^\s*\d+\.\s", title) is not None
+            if not is_enum:
+                gstyle = "font-size:15px;font-weight:600;margin:24px 0 4px;color:#6e6e73;letter-spacing:0.02em;"
+                out.append(f'<h3 style="{gstyle}">{_inline(title)}</h3>')
+            else:
+                style = STYLE["h3_first"] if first_h3 else STYLE["h3"]
+                first_h3 = False
+                out.append(f'<h3 style="{style}">{_inline(title)}</h3>')
             i += 1
             continue
         if raw.startswith("## "):
+            close_list()
+            first_h3 = True  # 进入新的 H2 段，下一个 H3 当作段内第一个
             out.append(f'<h2 style="{STYLE["h2"]}">{_inline(esc[3:])}</h2>')
             i += 1
             continue
         if raw.startswith("# "):
+            close_list()
             out.append(f'<h1 style="{STYLE["h1"]}">{_inline(esc[2:])}</h1>')
+            i += 1
+            continue
+
+        # 列表项（未精选层）
+        if raw.startswith("- "):
+            if not in_list:
+                out.append(f'<ul style="{STYLE["ul"]}">')
+                in_list = True
+            item_html = _render_list_item(esc[2:])
+            out.append(f'<li style="{STYLE["li"]}">{item_html}</li>')
             i += 1
             continue
 
@@ -148,19 +209,23 @@ def md_to_html(md: str) -> str:
 
         # 🔗 链接行
         if stripped.startswith("🔗"):
+            close_list()
             out.append(f'<div style="{STYLE["link"]}">{_inline(esc)}</div>')
             i += 1
             continue
 
         # 空行
         if stripped == "":
+            close_list()
             i += 1
             continue
 
         # 普通段落
+        close_list()
         out.append(f'<p style="{STYLE["p"]}">{_inline(esc)}</p>')
         i += 1
 
+    close_list()
     inner = "\n".join(out)
 
     from datetime import datetime

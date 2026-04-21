@@ -117,11 +117,12 @@ def filter_tweets(username: str, tweets: list[dict], last_id: str, cutoff_dt: da
     return out
 
 
-def slim_tweet(t: dict, username: str, display_name: str) -> dict:
+def slim_tweet(t: dict, username: str, display_name: str, category: str) -> dict:
     quoted = t.get("quoted_tweet")
     return {
         "username": username,
         "name": display_name,
+        "category": category,
         "url": t.get("url") or f"https://x.com/{username}/status/{t.get('id')}",
         "text": t.get("text") or "",
         "created_at": t.get("createdAt") or t.get("created_at"),
@@ -175,6 +176,7 @@ def main(slot: str):
     settings = yaml.safe_load((ROOT / "config" / "settings.yaml").read_text())
     accounts_cfg = yaml.safe_load((ROOT / "config" / "accounts.yaml").read_text())
     usernames = [a["username"] for a in accounts_cfg["accounts"]]
+    user_to_cat = {a["username"]: (a.get("category") or "other") for a in accounts_cfg["accounts"]}
 
     exclude_rt = settings["fetch"].get("exclude_pure_retweet", True)
     backfill_h = settings["fetch"].get("first_run_backfill_hours", 24)
@@ -217,8 +219,9 @@ def main(slot: str):
                 new_last_seen[u] = max_id
 
             display_name = (tweets[0].get("author") or {}).get("name") or u
+            cat = user_to_cat.get(u, "other")
             for t in kept:
-                digest_tweets.append(slim_tweet(t, u, display_name))
+                digest_tweets.append(slim_tweet(t, u, display_name, cat))
         else:
             # 即使没新内容，也推进 last_seen 到最大 id，避免下次重复过滤老内容
             max_id = ""
