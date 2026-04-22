@@ -23,6 +23,8 @@ from urllib import request, error
 import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "scripts"))
+import external  # noqa: E402
 RAW_DIR = ROOT / "data" / "raw"
 STATE_FILE = ROOT / "data" / "state" / "last_seen.json"
 DIGEST_DIR = ROOT / "data" / "digests"
@@ -237,8 +239,15 @@ def main(slot: str):
     DIGEST_DIR.mkdir(parents=True, exist_ok=True)
     digest_file = DIGEST_DIR / f"{date_str}-{slot}.md"
 
+    # 外部热点板块（HN + Techmeme，独立于 Twitter 管线）
+    try:
+        external_md = external.build(slot)
+    except Exception as e:
+        print(f"[WARN] external fetch failed: {e}", file=sys.stderr)
+        external_md = ""
+
     if not digest_tweets:
-        digest_file.write_text("## 🧠 今日观察\n\n本时段无新推。\n")
+        digest_file.write_text("## 🧠 今日观察\n\n本时段无新推。\n" + external_md)
         print(f"Digested 0 tweets from {len(usernames)} accounts → {digest_file}")
         return
 
@@ -252,7 +261,7 @@ def main(slot: str):
 
     print(f"Calling DeepSeek on {len(digest_tweets)} tweets from {len({t['username'] for t in digest_tweets})} accounts...", flush=True)
     md = call_deepseek(prompt, payload)
-    digest_file.write_text(md)
+    digest_file.write_text(md + external_md)
     print(f"Digested {len(digest_tweets)} tweets → {digest_file}")
 
 
