@@ -2,29 +2,30 @@
 
 ## 架构（一句话）
 
-**launchd → `scripts/send-digest.sh` → 生成 digest + SMTP 邮件**。纯本地，无外部调度依赖。
+**远程服务器 crontab → `scripts/send-digest.sh` → 生成 digest + SMTP 邮件**。
+
+## 部署位置
+
+跑在 **腾讯云硅谷 Ubuntu 24.04**（`ubuntu@170.106.146.222`，凭证见 `.local/servers.md`），代码路径 `/home/ubuntu/xradar`。本机不跑任何调度。
 
 ## 定时调度
 
-调度器是 **macOS launchd**。两个 LaunchAgent：
+调度器是服务器 **crontab**（`ubuntu` 用户，Asia/Shanghai 时区）：
 
-| Label | slot | 时间 | plist |
-|---|---|---|---|
-| `com.andy.xradar.morning` | morning | 06:00 | `~/Library/LaunchAgents/com.andy.xradar.morning.plist` |
-| `com.andy.xradar.evening` | evening | 22:00 | `~/Library/LaunchAgents/com.andy.xradar.evening.plist` |
-
-管理命令：
-
-```bash
-launchctl list | grep xradar                                   # 查看状态
-launchctl unload ~/Library/LaunchAgents/com.andy.xradar.*.plist # 停
-launchctl load   ~/Library/LaunchAgents/com.andy.xradar.*.plist # 启
-launchctl start com.andy.xradar.evening                        # 手动立刻触发一次
+```cron
+0 6  * * * /bin/bash /home/ubuntu/xradar/scripts/send-digest.sh morning
+0 20 * * * /bin/bash /home/ubuntu/xradar/scripts/send-digest.sh evening
 ```
 
-改调度时间直接编辑 plist 里的 `StartCalendarInterval`，然后 unload + load 生效。
+管理命令（SSH 过去）：
 
-⚠️ 不要再接回 Hermes、cron 或任何外部调度器——历史上用过 Hermes cron，不稳定，已切断。
+```bash
+crontab -l                                                 # 查看
+crontab -e                                                 # 改时间
+bash /home/ubuntu/xradar/scripts/send-digest.sh evening    # 手动触发一次
+```
+
+⚠️ 不要再接回 Hermes、launchd 或本机调度——历史上用过 macOS launchd 和 Hermes cron，都不稳/易漏跑，已统一到远程 crontab。本机 `~/Library/LaunchAgents/com.andy.xradar.*.plist` 如果出现，直接删除。
 
 ## 执行管线
 
@@ -44,9 +45,11 @@ launchctl start com.andy.xradar.evening                        # 手动立刻触
 
 ## 排查
 
-- 邮件没到 → 看 `data/state/launchd-<slot>.{log,err.log}`
-- launchd 有没有跑 → `launchctl list | grep xradar`，第二列是上次退出码（`0` = 正常；`-` = 还没跑过）
-- 手动重发今天的 → `bash scripts/send-digest.sh evening`
-- 只测 digest 生成（不发邮件） → `python3 scripts/digest.py evening`
+全部在服务器上操作：
+
+- 邮件没到 → 看 `~/xradar/data/state/launchd-<slot>.{log,err.log}`（历史文件名沿用 launchd- 前缀，没改）
+- cron 有没有跑 → `grep CRON /var/log/syslog | tail` 或 `systemctl status cron`
+- 手动重发今天的 → `bash ~/xradar/scripts/send-digest.sh evening`
+- 只测 digest 生成（不发邮件） → `python3 ~/xradar/scripts/digest.py evening`
 - email-mcp 账号列表 → `email-mcp account list`
-- DeepSeek 报错 → 看 `.env` 里 `DEEPSEEK_API_KEY` 是否存在；测试：`curl -sS https://api.deepseek.com/v1/models -H "Authorization: Bearer $DEEPSEEK_API_KEY"`
+- DeepSeek 报错 → 看 `~/xradar/.env` 里 `DEEPSEEK_API_KEY` 是否存在；测试：`curl -sS https://api.deepseek.com/v1/models -H "Authorization: Bearer $DEEPSEEK_API_KEY"`
