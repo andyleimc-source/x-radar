@@ -27,7 +27,8 @@ exec 2>> "$ERR"
 echo "[Step 1] Running digest pipeline..."
 cd "$ROOT"
 if ! python3 "$ROOT/scripts/digest.py" "$SLOT"; then
-    echo "[Step 1] ERROR: digest.py failed"
+    echo "[Step 1] ERROR: digest.py failed — aborting (will not send stale digest)"
+    exit 1
 fi
 echo "[Step 1] Digest pipeline done."
 
