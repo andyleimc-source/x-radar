@@ -27,8 +27,14 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import external  # noqa: E402
 RAW_DIR = ROOT / "data" / "raw"
 STATE_FILE = ROOT / "data" / "state" / "last_seen.json"
+USAGE_FILE = ROOT / "data" / "state" / "usage.jsonl"
 DIGEST_DIR = ROOT / "data" / "digests"
 PROMPT_FILE = ROOT / "prompts" / "analysis.md"
+
+# twitterapi.io pricing: $0.15/1000 tweets, min 15 credits/call = $0.00015
+# 1 credit = $0.00001, 1 tweet billed = 15 credits
+USD_PER_TWEET = 0.00015
+MIN_USD_PER_CALL = 0.00015
 
 
 def load_env():
@@ -67,7 +73,77 @@ def fetch_one(username: str, date_str: str) -> tuple[str, list[dict]]:
         return username, []
     # twitterapi.io 返回 {status, code, msg, data: {tweets: [...]}}
     tweets = (data.get("data") or {}).get("tweets") or data.get("tweets") or []
-    return username, tweets
+    pinned = (data.get("data") or {}).get("pin_tweet")
+    billed = len(tweets) + (1 if pinned else 0)
+    return username, tweets, billed
+
+
+def log_usage(slot: str, per_account: list[tuple[str, int]]):
+    """Append one JSONL line per fetch to usage.jsonl for cost tracking."""
+    USAGE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    ts = datetime.now(timezone.utc).isoformat()
+    with USAGE_FILE.open("a") as f:
+        for user, billed in per_account:
+            cost = max(MIN_USD_PER_CALL, billed * USD_PER_TWEET)
+            f.write(json.dumps({
+                "ts": ts, "slot": slot, "user": user,
+                "billed_tweets": billed, "usd": round(cost, 6),
+            }, ensure_ascii=False) + "\n")
+
+
+def usage_summary() -> str:
+    """Compute a one-line footer summarising this-run / 30d / daily-avg cost."""
+    if not USAGE_FILE.exists():
+        return ""
+    now = datetime.now(timezone.utc)
+    cutoff_30 = now - timedelta(days=30)
+    first_ts = None
+    total_30 = 0.0
+    calls_30 = 0
+    # "this run" = entries with the most recent ts (written together)
+    last_ts = None
+    run_usd = 0.0
+    run_calls = 0
+    run_tweets = 0
+    lines = USAGE_FILE.read_text().splitlines()
+    for line in lines:
+        try:
+            row = json.loads(line)
+        except Exception:
+            continue
+        try:
+            t = datetime.fromisoformat(row["ts"])
+        except Exception:
+            continue
+        if first_ts is None or t < first_ts:
+            first_ts = t
+        if t >= cutoff_30:
+            total_30 += float(row.get("usd", 0))
+            calls_30 += 1
+    # most recent batch
+    if lines:
+        try:
+            last_ts = json.loads(lines[-1])["ts"]
+        except Exception:
+            last_ts = None
+    if last_ts:
+        for line in reversed(lines):
+            try:
+                row = json.loads(line)
+            except Exception:
+                continue
+            if row.get("ts") != last_ts:
+                break
+            run_usd += float(row.get("usd", 0))
+            run_calls += 1
+            run_tweets += int(row.get("billed_tweets", 0))
+    days = max(1.0, (now - first_ts).total_seconds() / 86400) if first_ts else 1.0
+    daily_avg = total_30 / min(days, 30.0)
+    return (
+        f"本次 API: {run_calls} calls · {run_tweets} tweets · ${run_usd:.4f}  "
+        f"｜ 近 30 天: ${total_30:.2f} ({calls_30} calls)  "
+        f"｜ 日均: ${daily_avg:.3f} · 按 $10 余额推算约 {int(10/daily_avg) if daily_avg > 0 else '∞'} 天"
+    )
 
 
 def id_gt(a: str, b: str) -> bool:
@@ -196,11 +272,14 @@ def main(slot: str):
 
     # 并发抓
     fetched: dict[str, list[dict]] = {}
+    usage_rows: list[tuple[str, int]] = []
     with ThreadPoolExecutor(max_workers=10) as ex:
         futures = {ex.submit(fetch_one, u, date_str): u for u in usernames}
         for fu in as_completed(futures):
-            u, tweets = fu.result()
+            u, tweets, billed = fu.result()
             fetched[u] = tweets
+            usage_rows.append((u, billed))
+    log_usage(slot, usage_rows)
 
     # 过滤 + 更新 last_seen
     digest_tweets = []
@@ -246,8 +325,11 @@ def main(slot: str):
         print(f"[WARN] external fetch failed: {e}", file=sys.stderr)
         external_md = ""
 
+    usage_line = usage_summary()
+    usage_footer = f"\n\n---\n\n💳 {usage_line}\n" if usage_line else ""
+
     if not digest_tweets:
-        digest_file.write_text("## 🧠 今日观察\n\n本时段无新推。\n" + external_md)
+        digest_file.write_text("## 🧠 今日观察\n\n本时段无新推。\n" + external_md + usage_footer)
         print(f"Digested 0 tweets from {len(usernames)} accounts → {digest_file}")
         return
 
@@ -261,7 +343,7 @@ def main(slot: str):
 
     print(f"Calling DeepSeek on {len(digest_tweets)} tweets from {len({t['username'] for t in digest_tweets})} accounts...", flush=True)
     md = call_deepseek(prompt, payload)
-    digest_file.write_text(md + external_md)
+    digest_file.write_text(md.rstrip() + "\n" + external_md + usage_footer)
     print(f"Digested {len(digest_tweets)} tweets → {digest_file}")
 
 

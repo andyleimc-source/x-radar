@@ -207,6 +207,13 @@ def md_to_html(md: str) -> str:
             i = j
             continue
 
+        # 水平分隔线
+        if stripped == "---":
+            close_list()
+            out.append(f'<hr style="{STYLE["hr"]}">')
+            i += 1
+            continue
+
         # 🔗 链接行
         if stripped.startswith("🔗"):
             close_list()
