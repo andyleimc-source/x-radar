@@ -245,7 +245,7 @@ def md_to_html(md: str) -> str:
 <div style="{STYLE['card']}">
 {inner}
 </div>
-<div style="{STYLE['foot']}">X Radar · 每天 06:00 / 22:00 自动送达 · DeepSeek V3 生成 · {year}</div>
+<div style="{STYLE['foot']}">X Radar · 每天 06:00 自动送达 · DeepSeek V3 生成 · {year}</div>
 </div>
 </body></html>"""
 

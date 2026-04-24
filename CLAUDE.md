@@ -13,16 +13,17 @@
 调度器是服务器 **crontab**（`ubuntu` 用户，Asia/Shanghai 时区）：
 
 ```cron
-0 6  * * * /bin/bash /home/ubuntu/xradar/scripts/send-digest.sh morning
-0 20 * * * /bin/bash /home/ubuntu/xradar/scripts/send-digest.sh evening
+0 6 * * * /bin/bash /home/ubuntu/xradar/scripts/send-digest.sh morning
 ```
+
+> 历史上跑过 06:00 + 20:00 两档；为节省 twitterapi.io 用量，2026-04-24 起改为每天一档。`slot` 参数仍保留 `morning|evening` 两个值以兼容旧代码。
 
 管理命令（SSH 过去）：
 
 ```bash
 crontab -l                                                 # 查看
 crontab -e                                                 # 改时间
-bash /home/ubuntu/xradar/scripts/send-digest.sh evening    # 手动触发一次
+bash /home/ubuntu/xradar/scripts/send-digest.sh morning    # 手动触发一次
 ```
 
 ⚠️ 不要再接回 Hermes、launchd 或本机调度——历史上用过 macOS launchd 和 Hermes cron，都不稳/易漏跑，已统一到远程 crontab。本机 `~/Library/LaunchAgents/com.andy.xradar.*.plist` 如果出现，直接删除。
@@ -49,7 +50,7 @@ bash /home/ubuntu/xradar/scripts/send-digest.sh evening    # 手动触发一次
 
 - 邮件没到 → 看 `~/xradar/data/state/launchd-<slot>.{log,err.log}`（历史文件名沿用 launchd- 前缀，没改）
 - cron 有没有跑 → `grep CRON /var/log/syslog | tail` 或 `systemctl status cron`
-- 手动重发今天的 → `bash ~/xradar/scripts/send-digest.sh evening`
-- 只测 digest 生成（不发邮件） → `python3 ~/xradar/scripts/digest.py evening`
+- 手动重发今天的 → `bash ~/xradar/scripts/send-digest.sh morning`
+- 只测 digest 生成（不发邮件） → `python3 ~/xradar/scripts/digest.py morning`
 - email-mcp 账号列表 → `email-mcp account list`
 - DeepSeek 报错 → 看 `~/xradar/.env` 里 `DEEPSEEK_API_KEY` 是否存在；测试：`curl -sS https://api.deepseek.com/v1/models -H "Authorization: Bearer $DEEPSEEK_API_KEY"`
