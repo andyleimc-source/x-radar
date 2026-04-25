@@ -13,6 +13,9 @@ schedule:
 fetch:
   # 首次运行时的回填窗口（小时）
   first_run_backfill_hours: 24
+  # 抓取时间窗（小时）—— 用 advanced_search 的 since_time 做服务端过滤，
+  # 减少计费推文数。每天跑一档 → 26h 给 cron 漂移留 buffer。
+  lookback_hours: 26
   # 过滤规则
   include_replies: false
   # 是否剔除纯 retweet（保留 quote tweet）

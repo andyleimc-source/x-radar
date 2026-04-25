@@ -49,30 +49,34 @@ def load_env():
         os.environ.setdefault(k.strip(), v.strip())
 
 
-def fetch_one(username: str, date_str: str) -> tuple[str, list[dict]]:
-    """调 scripts/fetch_tweets.sh 抓一个账号，返回 (username, tweets list)。"""
+def fetch_one(username: str, date_str: str, lookback_hours: int) -> tuple[str, list[dict], int]:
+    """调 scripts/fetch_tweets.sh 抓一个账号，返回 (username, tweets list, billed)。"""
     out_dir = RAW_DIR / date_str
     out_file = out_dir / f"{username}.json"
     try:
         subprocess.run(
-            ["bash", str(ROOT / "scripts" / "fetch_tweets.sh"), username, str(out_dir)],
+            [
+                "bash", str(ROOT / "scripts" / "fetch_tweets.sh"),
+                username, str(out_dir), str(lookback_hours),
+            ],
             check=True,
             capture_output=True,
             timeout=60,
         )
     except subprocess.CalledProcessError as e:
         print(f"[WARN] fetch {username} failed: {e.stderr.decode()[:200]}", file=sys.stderr)
-        return username, []
+        return username, [], 0
     except subprocess.TimeoutExpired:
         print(f"[WARN] fetch {username} timeout", file=sys.stderr)
-        return username, []
+        return username, [], 0
     try:
         data = json.loads(out_file.read_text())
     except Exception as e:
         print(f"[WARN] parse {username} failed: {e}", file=sys.stderr)
-        return username, []
-    # twitterapi.io 返回 {status, code, msg, data: {tweets: [...]}}
-    tweets = (data.get("data") or {}).get("tweets") or data.get("tweets") or []
+        return username, [], 0
+    # advanced_search 返回 {tweets: [...], has_next_page, next_cursor}
+    # 兼容老 last_tweets 形态 {data: {tweets, pin_tweet}} 以便回滚
+    tweets = data.get("tweets") or (data.get("data") or {}).get("tweets") or []
     pinned = (data.get("data") or {}).get("pin_tweet")
     billed = len(tweets) + (1 if pinned else 0)
     return username, tweets, billed
@@ -258,6 +262,7 @@ def main(slot: str):
 
     exclude_rt = settings["fetch"].get("exclude_pure_retweet", True)
     backfill_h = settings["fetch"].get("first_run_backfill_hours", 24)
+    lookback_h = settings["fetch"].get("lookback_hours", 26)
 
     STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
     last_seen = {}
@@ -274,7 +279,7 @@ def main(slot: str):
     fetched: dict[str, list[dict]] = {}
     usage_rows: list[tuple[str, int]] = []
     with ThreadPoolExecutor(max_workers=10) as ex:
-        futures = {ex.submit(fetch_one, u, date_str): u for u in usernames}
+        futures = {ex.submit(fetch_one, u, date_str, lookback_h): u for u in usernames}
         for fu in as_completed(futures):
             u, tweets, billed = fu.result()
             fetched[u] = tweets
