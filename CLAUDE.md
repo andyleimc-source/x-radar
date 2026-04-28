@@ -32,7 +32,7 @@ bash /home/ubuntu/xradar/scripts/send-digest.sh morning    # 手动触发一次
 
 `scripts/send-digest.sh <morning|evening>` 顺序做两件事：
 
-1. `python3 scripts/digest.py <slot>` → 纯 Python 脚本：读 `config/accounts.yaml` / `data/state/last_seen.json` → 并发调 `scripts/fetch_tweets.sh` 抓每个账号 → 过滤（丢 reply / 纯 RT / 增量按 id）→ 调 **DeepSeek V3**（OpenAI 兼容 API，走 `.env` 里的 `DEEPSEEK_API_KEY`）按 `prompts/analysis.md` 生成 digest → 写到 `data/digests/<date>-<slot>.md`。
+1. `python3 scripts/digest.py <slot>` → 纯 Python 脚本：读 `config/accounts.yaml` / `data/state/last_seen.json` → 并发调 `scripts/fetch_tweets.sh` 抓每个账号 → 过滤（丢 reply / 纯 RT / 增量按 id）→ 调 **DeepSeek V4 Flash**（OpenAI 兼容 API，走 `.env` 里的 `DEEPSEEK_API_KEY`）按 `prompts/analysis.md` 生成 digest → 写到 `data/digests/<date>-<slot>.md`。
 2. `python3 scripts/send-email-mcp.py <slot>` → 通过 `email-mcp`（stdio / JSON-RPC）用 `work` 账号（andy.lei@mingdao.com）发到 `leimingcan@icloud.com`。
 
 ⚠️ 微信推送已砍掉。之前用过 `weixin-mcp` CLI 和 Hermes `deliver` 两种方案都不稳。

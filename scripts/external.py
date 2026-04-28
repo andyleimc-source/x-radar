@@ -165,7 +165,7 @@ def translate_items(items: list[dict]) -> None:
         return
 
     base = os.environ.get("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1").rstrip("/")
-    model = os.environ.get("DEEPSEEK_MODEL", "deepseek-chat")
+    model = os.environ.get("DEEPSEEK_MODEL", "deepseek-v4-flash")
 
     # 准备成对数据：产品名通常不翻；tagline/描述翻
     payload_items = []

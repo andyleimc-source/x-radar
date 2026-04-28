@@ -9,7 +9,7 @@
 - ✉️ 通过 `email-mcp` 发邮件（走任意 IMAP/SMTP 账号，不绑定某家邮箱服务商）
 
 数据源：[twitterapi.io](https://twitterapi.io)（稳定、便宜、支持支付宝）。
-LLM：[DeepSeek V3](https://platform.deepseek.com)（OpenAI 兼容 API，中文强，大陆直连，一次简报成本约 ¥0.05）。换 MiniMax / OpenAI / Claude 只需改 `.env` 里的 `DEEPSEEK_BASE_URL` + `DEEPSEEK_MODEL` + key。
+LLM：[DeepSeek V4 Flash](https://platform.deepseek.com)（OpenAI 兼容 API，中文强，大陆直连，一次简报成本约 ¥0.05）。换 MiniMax / OpenAI / Claude 只需改 `.env` 里的 `DEEPSEEK_BASE_URL` + `DEEPSEEK_MODEL` + key。
 
 ## 目录结构
 

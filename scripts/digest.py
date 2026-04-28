@@ -6,7 +6,7 @@ Twitter Digest 主脚本 —— 纯 Python 版。
     1. 读 config/accounts.yaml + config/settings.yaml + data/state/last_seen.json
     2. 并发调用 scripts/fetch_tweets.sh 抓每个账号
     3. 过滤（丢 reply、丢纯 RT、增量按 last_seen id）
-    4. 调 DeepSeek V3 按 prompts/analysis.md 生成 digest
+    4. 调 DeepSeek V4 Flash 按 prompts/analysis.md 生成 digest
     5. 写 data/digests/<date>-<slot>.md
 
 用法：python3 scripts/digest.py <morning|evening>
@@ -222,7 +222,7 @@ def call_deepseek(prompt: str, user_payload: str) -> str:
     if not api_key:
         raise RuntimeError("DEEPSEEK_API_KEY not set in .env")
     base = os.environ.get("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1").rstrip("/")
-    model = os.environ.get("DEEPSEEK_MODEL", "deepseek-chat")
+    model = os.environ.get("DEEPSEEK_MODEL", "deepseek-v4-flash")
 
     body = json.dumps({
         "model": model,
