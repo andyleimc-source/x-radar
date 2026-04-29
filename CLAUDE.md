@@ -54,3 +54,43 @@ bash /home/ubuntu/xradar/scripts/send-digest.sh morning    # 手动触发一次
 - 只测 digest 生成（不发邮件） → `python3 ~/xradar/scripts/digest.py morning`
 - email-mcp 账号列表 → `email-mcp account list`
 - DeepSeek 报错 → 看 `~/xradar/.env` 里 `DEEPSEEK_API_KEY` 是否存在；测试：`curl -sS https://api.deepseek.com/v1/models -H "Authorization: Bearer $DEEPSEEK_API_KEY"`
+
+## 待开发：扩展信息源（HN + Reddit）
+
+目标：在每天 digest 的「🌐 圈外今日」板块再加两个源，挖掘围绕 AI / Claude / Codex / GPT 的高流量话题，作为选题信号。
+
+**只走官方/合规接口，不爬 HTML，零封号风险。**
+
+### 1. Hacker News（无需凭证）
+
+- 用 Algolia 提供的官方 HN Search API：`https://hn.algolia.com/api/v1/search?tags=front_page&hitsPerPage=15`
+- 过滤标签含 AI / Claude / GPT / Codex / LLM / Anthropic / OpenAI 的帖子
+- 字段：`title` / `url` / `points` / `num_comments` / `objectID`（拼帖子链接 `https://news.ycombinator.com/item?id=<objectID>`）
+- 频率：digest 触发时拉一次，无配额担心
+
+### 2. Reddit（OAuth API）
+
+- 走官方 OAuth：`https://www.reddit.com/api/v1/access_token` 拿 token，再调 `https://oauth.reddit.com/r/<sub>/top?t=week&limit=5`
+- 默认订阅版块：`ClaudeAI` / `cursor` / `LocalLLaMA` / `OpenAI` / `singularity`
+- 取 weekly top 5：`title` / `score` / `num_comments` / `permalink`
+- 限速：免费 100 QPM，daily 1 次绝对够
+
+需要的 `.env` 项（待补）：
+```
+REDDIT_CLIENT_ID=
+REDDIT_CLIENT_SECRET=
+REDDIT_USERNAME=        # Reddit 要求 User-Agent 里带身份
+```
+
+注册流程：reddit.com/prefs/apps → "create another app" → 选 **script** 类型 → redirect uri 填 `http://localhost:8080`（script 类型不用）。
+
+### 3. 渲染
+
+- 翻译标题/描述用现有 DeepSeek 通道（`scripts/external.py` 的 `translate_items` 已有逻辑可复用）
+- 板块结构在「🌐 圈外今日」下加 `### 🔥 Hacker News 今日` 和 `### 💬 Reddit 本周热议`，沿用现有 PH / GitHub Trending 的 markdown 风格
+- 每条带分数、评论数、源链接
+
+### 4. 不接入的源（已评估）
+
+- 知乎 / 微博 / 小红书 / 抖音 — 反爬激进或无可用 API，自动化必被风控。每周人工浏览即可
+- 直接爬 reddit.com / x.com / news.ycombinator.com 的 HTML — 同样不安全
