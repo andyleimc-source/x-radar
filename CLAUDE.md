@@ -1,5 +1,28 @@
 # X Radar · 项目笔记
 
+每日抓 X 关注列表 → DeepSeek 分析 → 邮件 digest。
+
+## 协作骨架文件
+
+- `plan.md` — 当前迭代计划（HN+Reddit 接入、海报、小红书）
+- `progress.md` — 进度流水（按时间倒序）
+- `decision.md` — 架构/选型决策（DeepSeek、远端 crontab、砍微信等）
+- `bug.md` — 已知问题 & 修复
+- `handoff.md` — 会话交接
+
+## 文档维护规则（无需提醒，主动执行）
+
+触发条件出现就立即更新，改完直接 commit 不要问：
+
+- **修完一个 bug** → `bug.md`：OPEN 那条移到 FIXED，补现象/根因/修复/日期
+- **完成 plan.md 勾选项 / 阶段性进展** → `progress.md`：追加一条（日期倒序）
+- **架构/选型/工具链决策** → `decision.md`：追加一条（决策 + Why + 备选 + 代价 + 日期）
+- **新任务、里程碑变化、scope 变** → `plan.md`：改勾选项 / 加条目 / 移 out-of-scope
+- **会话即将结束 / 用户说"交接" / 讨论新一轮干啥** → 刷新 `handoff.md`
+- **发现新 bug 未当场修** → `bug.md` OPEN 区追加
+
+日期用真实当天（环境 currentDate）。不要累积"等会儿一起更"，触发即更。
+
 ## 架构（一句话）
 
 **远程服务器 crontab → `scripts/send-digest.sh` → 生成 digest + SMTP 邮件**。
@@ -35,14 +58,9 @@ bash /home/ubuntu/xradar/scripts/send-digest.sh morning    # 手动触发一次
 1. `python3 scripts/digest.py <slot>` → 纯 Python 脚本：读 `config/accounts.yaml` / `data/state/last_seen.json` → 并发调 `scripts/fetch_tweets.sh` 抓每个账号 → 过滤（丢 reply / 纯 RT / 增量按 id）→ 调 **DeepSeek V4 Flash**（OpenAI 兼容 API，走 `.env` 里的 `DEEPSEEK_API_KEY`）按 `prompts/analysis.md` 生成 digest → 写到 `data/digests/<date>-<slot>.md`。
 2. `python3 scripts/send-email-mcp.py <slot>` → 通过 `email-mcp`（stdio / JSON-RPC）用 `work` 账号（andy.lei@mingdao.com）发到 `leimingcan@icloud.com`。
 
-⚠️ 微信推送已砍掉。之前用过 `weixin-mcp` CLI 和 Hermes `deliver` 两种方案都不稳。
-⚠️ **不再依赖 Claude Code 的 slash command**（原 `.claude/commands/twitter-digest.md` 保留只做历史参考，调度路径已不调它）。切到 DeepSeek 是为了大陆节点部署 + 降低单次成本（~¥0.05/次）。
+⚠️ 微信推送已砍，原 `.claude/commands/twitter-digest.md` 已不在调度路径。详见 `decision.md`。
 
-## 为什么这么拆
-
-- fetch / 过滤 / 状态维护是确定性逻辑，没必要跑在 LLM agent 里；只有"分析 + 排序 + 写稿"需要 LLM，单独用一次 HTTP 调用完成。
-- 邮件用 `email-mcp`（`work` 账号 = andy.lei@mingdao.com）而不是 ms365 MCP——账号在 `email-mcp account list` 里管理，不依赖 Graph token。
-- LLM 供应商通过 `.env` 切换：`DEEPSEEK_BASE_URL` + `DEEPSEEK_MODEL` + `DEEPSEEK_API_KEY`，换 MiniMax / OpenAI 兼容接口只改 env。
+LLM 供应商通过 `.env` 切换：`DEEPSEEK_BASE_URL` + `DEEPSEEK_MODEL` + `DEEPSEEK_API_KEY`，换 MiniMax / OpenAI 兼容接口只改 env。
 
 ## 排查
 
@@ -54,43 +72,3 @@ bash /home/ubuntu/xradar/scripts/send-digest.sh morning    # 手动触发一次
 - 只测 digest 生成（不发邮件） → `python3 ~/xradar/scripts/digest.py morning`
 - email-mcp 账号列表 → `email-mcp account list`
 - DeepSeek 报错 → 看 `~/xradar/.env` 里 `DEEPSEEK_API_KEY` 是否存在；测试：`curl -sS https://api.deepseek.com/v1/models -H "Authorization: Bearer $DEEPSEEK_API_KEY"`
-
-## 待开发：扩展信息源（HN + Reddit）
-
-目标：在每天 digest 的「🌐 圈外今日」板块再加两个源，挖掘围绕 AI / Claude / Codex / GPT 的高流量话题，作为选题信号。
-
-**只走官方/合规接口，不爬 HTML，零封号风险。**
-
-### 1. Hacker News（无需凭证）
-
-- 用 Algolia 提供的官方 HN Search API：`https://hn.algolia.com/api/v1/search?tags=front_page&hitsPerPage=15`
-- 过滤标签含 AI / Claude / GPT / Codex / LLM / Anthropic / OpenAI 的帖子
-- 字段：`title` / `url` / `points` / `num_comments` / `objectID`（拼帖子链接 `https://news.ycombinator.com/item?id=<objectID>`）
-- 频率：digest 触发时拉一次，无配额担心
-
-### 2. Reddit（OAuth API）
-
-- 走官方 OAuth：`https://www.reddit.com/api/v1/access_token` 拿 token，再调 `https://oauth.reddit.com/r/<sub>/top?t=week&limit=5`
-- 默认订阅版块：`ClaudeAI` / `cursor` / `LocalLLaMA` / `OpenAI` / `singularity`
-- 取 weekly top 5：`title` / `score` / `num_comments` / `permalink`
-- 限速：免费 100 QPM，daily 1 次绝对够
-
-需要的 `.env` 项（待补）：
-```
-REDDIT_CLIENT_ID=
-REDDIT_CLIENT_SECRET=
-REDDIT_USERNAME=        # Reddit 要求 User-Agent 里带身份
-```
-
-注册流程：reddit.com/prefs/apps → "create another app" → 选 **script** 类型 → redirect uri 填 `http://localhost:8080`（script 类型不用）。
-
-### 3. 渲染
-
-- 翻译标题/描述用现有 DeepSeek 通道（`scripts/external.py` 的 `translate_items` 已有逻辑可复用）
-- 板块结构在「🌐 圈外今日」下加 `### 🔥 Hacker News 今日` 和 `### 💬 Reddit 本周热议`，沿用现有 PH / GitHub Trending 的 markdown 风格
-- 每条带分数、评论数、源链接
-
-### 4. 不接入的源（已评估）
-
-- 知乎 / 微博 / 小红书 / 抖音 — 反爬激进或无可用 API，自动化必被风控。每周人工浏览即可
-- 直接爬 reddit.com / x.com / news.ycombinator.com 的 HTML — 同样不安全
