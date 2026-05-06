@@ -4,19 +4,21 @@
 
 ---
 
-## 当前状态（2026-04-30）
+## 当前状态（2026-05-06）
 
-- 主管线（远程 crontab 06:00 → `send-digest.sh morning` → digest + 邮件）稳定运行
-- 邮件发到 `leimingcan@icloud.com`，发件账号 `andy.lei@mingdao.com`（email-mcp `work`）
-- LLM 走 DeepSeek V4 Flash（`.env` 里 `DEEPSEEK_API_KEY`）
-- 海报长图脚本 `scripts/render_poster.py` 有本地雏形，未接管线
-- 项目协作骨架文件刚拆分完毕（plan / progress / decision / bug / handoff）
+- 主管线稳定（远程 crontab 06:00 → `send-digest.sh morning` → digest + 邮件）
+- **关注列表 53 账号**（含 Claude Code/Codex/Cursor 同行、AI 重磅、SaaS 老兵、中文圈）
+- prompt 已升级：⭐ 精选 + 📎 其他 + ✍️ **写作选题建议 5–7 条**（热点/争议/爆款 + ≥1 工具向，结合 PH/GH trending）
+- 邮件末尾已带 **DeepSeek v4-flash 账单**（命中/未命中/输出 token + ¥）；价格常量在 `scripts/digest.py` 顶部，决策落 `decision.md`
+- 邮件发到 `leimingcan@icloud.com`（email-mcp `work` 账号 andy.lei@mingdao.com）
+- 海报长图脚本 `scripts/render_poster.py` 仍是本地雏形，未接管线
+- ⚠️ **服务器 `/home/ubuntu/xradar` 有未提交改动**（`config/settings.yaml` / `scripts/digest.py` / `scripts/fetch_tweets.sh` 早就 M 状态）。本次同步用 scp 直接覆盖了 `accounts.yaml` / `analysis.md` / `digest.py`，没动 git。下次部署前先看一眼这几个 M 文件到底是什么差异，决定 commit 还是丢
 
-## 下一轮该做什么
+## 下一轮该做什么（按优先级）
 
-1. 先读 `CLAUDE.md`（架构、部署、排查命令）
-2. 看 `plan.md` 确定开工哪条线：**M1 信息源扩展 / M2 海报接管线 / M3 小红书**
-3. 优先建议 M1（HN 无凭证，可立即写；Reddit 需先注册 OAuth app）
+1. **先看明早 06:00 第一次跑的真实效果**：53 账号全量摘要 + 5–7 条写作选题 + 账单。选题不够爆 / 工具向那条不强 → 调 `prompts/analysis.md` 末尾「✍️ 写作选题建议」规则
+2. 看 `plan.md`：**M1 信息源扩展（HN+Reddit）** 优先；HN 无凭证可立即写
+3. 处理上面 ⚠️ 的服务器未提交改动
 
 ## 环境
 

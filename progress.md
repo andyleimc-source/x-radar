@@ -4,6 +4,19 @@
 
 ---
 
+## 2026-05-06
+
+- 关注列表 27 → **53 账号**（两轮新增）：
+  - 第一轮（7 个）：alexalbert__/swyx/simonw/levelsio/jasonlk/op7418/imxiaohu
+  - 第二轮（13 个）：_catwu/mckaywrigley/OpenAIDevs/kevinweil/stevenheidel/amanrsanger/EricSimons40/DrJimFan/dylan522p/tszzl/bhorowitz/parker_conrad/davegerhardt
+  - 主题覆盖 Claude Code/Codex/Cursor/AI 重磅声音/SaaS 老兵/中文圈
+- `prompts/analysis.md` 新增 **✍️ 写作选题建议** 板块：5–7 条，强制热点/争议/爆款潜力 + ≥1 工具效率向（结合 PH/GH trending），每条带 `[热点]/[争议]/[工具]` 标签
+- `scripts/digest.py` 抽 DeepSeek `usage`（含 `prompt_cache_hit_tokens` / `_miss_tokens`）→ 按 v4-flash 价格算 ¥ → append 到 digest 末尾。价格常量在脚本顶部，调价改一处
+- `decision.md` 落 v4-flash 价格快照（输入命中 ¥0.02 / 未命中 ¥1 / 输出 ¥2 per M tokens）
+- 今日手动跑 2 次验证：第 1 次 33 推 / 13 账号；第 2 次因 last_seen 已推进只剩 8 推 / 4 账号 / **¥0.0103**
+- 全量估算：日常 53 账号一次摘要约 **¥0.02–0.04**，一年 ~¥10
+- commits: `f47fc13`（首轮 7 账号 + 选题板块）、`4d668db`（13 账号 + 选题升级 + 成本计算）
+
 ## 2026-04-30
 - 项目结构化：拆分 `CLAUDE.md` 中「待开发」「为什么这么拆」等内容到 `plan.md` / `decision.md` / `progress.md` / `handoff.md` / `bug.md`
 - 下一步：开工 M1（HN + Reddit 信息源接入）
