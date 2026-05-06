@@ -96,3 +96,28 @@ accounts:
   - username: dotey
     category: cn
     note: 宝玉
+  - username: op7418
+    category: cn
+    note: 歸藏 · AI 工具/设计，中文圈手最快
+  - username: imxiaohu
+    category: cn
+    note: 小互 · AI 资讯密度极高
+
+  # === Claude / AI coding 生态 ===
+  - username: alexalbert__
+    category: ai-people
+    note: Alex Albert · Anthropic DevRel head
+  - username: swyx
+    category: ai-people
+    note: swyx · Latent Space 主理人，AI 工程师视角综述
+  - username: simonw
+    category: ai-people
+    note: Simon Willison · LLM 工具/用法工程实证派
+
+  # === Indie / SaaS build-in-public ===
+  - username: levelsio
+    category: saas
+    note: Pieter Levels · 独立开发者天花板
+  - username: jasonlk
+    category: saas
+    note: Jason Lemkin · SaaStr，B2B SaaS 数据/段子源头
