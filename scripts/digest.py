@@ -36,6 +36,12 @@ PROMPT_FILE = ROOT / "prompts" / "analysis.md"
 USD_PER_TWEET = 0.00015
 MIN_USD_PER_CALL = 0.00015
 
+# DeepSeek V4 Flash pricing (¥/百万 tokens) — 来源：deepseek 官网，2026-05-06 快照
+# 详见 decision.md「DeepSeek 模型 & 价格快照」
+DEEPSEEK_PRICE_INPUT_CACHED_PER_M = 0.02   # 缓存命中
+DEEPSEEK_PRICE_INPUT_UNCACHED_PER_M = 1.0  # 缓存未命中
+DEEPSEEK_PRICE_OUTPUT_PER_M = 2.0
+
 
 def load_env():
     env_path = ROOT / ".env"
@@ -217,7 +223,7 @@ def slim_tweet(t: dict, username: str, display_name: str, category: str) -> dict
     }
 
 
-def call_deepseek(prompt: str, user_payload: str) -> str:
+def call_deepseek(prompt: str, user_payload: str) -> tuple[str, dict]:
     api_key = os.environ.get("DEEPSEEK_API_KEY")
     if not api_key:
         raise RuntimeError("DEEPSEEK_API_KEY not set in .env")
@@ -249,7 +255,32 @@ def call_deepseek(prompt: str, user_payload: str) -> str:
     except error.HTTPError as e:
         raise RuntimeError(f"DeepSeek HTTP {e.code}: {e.read().decode('utf-8', 'ignore')[:400]}")
 
-    return data["choices"][0]["message"]["content"]
+    usage = data.get("usage") or {}
+    usage["_model"] = model
+    return data["choices"][0]["message"]["content"], usage
+
+
+def format_deepseek_cost(usage: dict) -> str:
+    """根据 DeepSeek usage 字段算成本，返回一行 markdown footer。"""
+    if not usage:
+        return ""
+    model = usage.get("_model", "deepseek-v4-flash")
+    prompt_t = int(usage.get("prompt_tokens") or 0)
+    completion_t = int(usage.get("completion_tokens") or 0)
+    # DeepSeek 返回 prompt_cache_hit_tokens / prompt_cache_miss_tokens
+    cached = int(usage.get("prompt_cache_hit_tokens") or 0)
+    uncached = int(usage.get("prompt_cache_miss_tokens") or (prompt_t - cached))
+    cost = (
+        cached / 1_000_000 * DEEPSEEK_PRICE_INPUT_CACHED_PER_M
+        + uncached / 1_000_000 * DEEPSEEK_PRICE_INPUT_UNCACHED_PER_M
+        + completion_t / 1_000_000 * DEEPSEEK_PRICE_OUTPUT_PER_M
+    )
+    return (
+        f"🧾 **DeepSeek 账单**：{model} · "
+        f"输入 {prompt_t:,} tokens（缓存命中 {cached:,} / 未命中 {uncached:,}）· "
+        f"输出 {completion_t:,} tokens · "
+        f"约 ¥{cost:.4f}"
+    )
 
 
 def main(slot: str):
@@ -347,9 +378,14 @@ def main(slot: str):
     }, ensure_ascii=False)
 
     print(f"Calling DeepSeek on {len(digest_tweets)} tweets from {len({t['username'] for t in digest_tweets})} accounts...", flush=True)
-    md = call_deepseek(prompt, payload)
+    md, ds_usage = call_deepseek(prompt, payload)
+    ds_cost_line = format_deepseek_cost(ds_usage)
+    if ds_cost_line:
+        usage_footer = usage_footer.rstrip() + f"\n\n{ds_cost_line}\n" if usage_footer else f"\n\n---\n\n{ds_cost_line}\n"
     digest_file.write_text(md.rstrip() + "\n" + external_md + usage_footer)
     print(f"Digested {len(digest_tweets)} tweets → {digest_file}")
+    if ds_cost_line:
+        print(ds_cost_line, flush=True)
 
 
 if __name__ == "__main__":

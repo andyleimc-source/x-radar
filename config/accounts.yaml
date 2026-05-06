@@ -121,3 +121,48 @@ accounts:
   - username: jasonlk
     category: saas
     note: Jason Lemkin · SaaStr，B2B SaaS 数据/段子源头
+
+  # === Claude Code / Codex / Cursor 同行 ===
+  - username: _catwu
+    category: ai-people
+    note: Cat Wu · Claude Code PM
+  - username: mckaywrigley
+    category: ai-people
+    note: Mckay Wrigley · Takeoff AI，Claude Code 实战派
+  - username: OpenAIDevs
+    category: ai-lab
+    note: OpenAI Devs 官方
+  - username: kevinweil
+    category: ai-people
+    note: Kevin Weil · OpenAI CPO
+  - username: stevenheidel
+    category: ai-people
+    note: Steven Heidel · Codex lead
+  - username: amanrsanger
+    category: ai-people
+    note: Aman Sanger · Cursor 联创
+  - username: EricSimons40
+    category: ai-people
+    note: Eric Simons · Bolt.new 创始人
+
+  # === AI 重磅声音 ===
+  - username: DrJimFan
+    category: ai-people
+    note: Jim Fan · NVIDIA AI 研究
+  - username: dylan522p
+    category: ai-people
+    note: Dylan Patel · SemiAnalysis，AI 基建/经济
+  - username: tszzl
+    category: ai-people
+    note: roon · AI 评论尖锐派
+
+  # === SaaS / B2B 老兵补充 ===
+  - username: bhorowitz
+    category: saas
+    note: Ben Horowitz · a16z
+  - username: parker_conrad
+    category: saas
+    note: Parker Conrad · Rippling CEO
+  - username: davegerhardt
+    category: martech
+    note: Dave Gerhardt · DGMG，B2B 营销

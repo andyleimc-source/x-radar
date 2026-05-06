@@ -11,6 +11,19 @@
 - **备选**：保留双档 / 取消 evening 字段 → 选只动 cron 不动代码，最小改动
 - **代价**：晚间漏掉部分时区的最新动态；可接受
 
+## 2026-05-06 · DeepSeek 模型 & 价格快照（用于 digest.py 成本估算）
+
+- **当前用**：`deepseek-v4-flash`（OpenAI 兼容 API，base `https://api.deepseek.com/v1`）
+- **价格（¥/百万 tokens）**：
+  - 输入（缓存命中）：¥0.02
+  - 输入（缓存未命中）：¥1.0
+  - 输出：¥2.0
+- **来源**：deepseek 官网定价页，2026-05-06 用户提供
+- **生效起点**：缓存命中价 1/10 自 2026-04-26 20:15 起生效
+- **代码落点**：`scripts/digest.py` 顶部 `DEEPSEEK_PRICE_*` 常量；调价改一处即可
+- **备注**：`deepseek-chat` / `deepseek-reasoner` 旧名将弃用，分别对应 v4-flash 非思考 / 思考模式
+- **对比**：v4-pro（2.5 折优惠至 2026-05-31）输入未命中 ¥3、输出 ¥6，是 flash 的 3×；digest 任务用 flash 足够
+
 ## 2026-04 · 升级到 DeepSeek V4 Flash
 
 - **决策**：LLM 走 DeepSeek V4 Flash（OpenAI 兼容 API）
