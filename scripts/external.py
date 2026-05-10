@@ -147,11 +147,28 @@ def fetch_hn(limit: int = 8, hours: int = 36, min_points: int = 50) -> list[dict
 # ---------- Reddit ----------
 
 REDDIT_SUBS = ["codex", "ClaudeCode", "microsaas", "coolgithubprojects", "SaaSMarketing"]
+REDDIT_BODY_MAX = 800
+
+_RD_MD_RE = re.compile(r'<div class="md">(.*?)</div>', re.DOTALL)
+
+
+def _extract_reddit_body(content_html: str) -> str:
+    """从 RSS <content> HTML 里提取帖主正文（<div class="md">），转纯文本，截断到 REDDIT_BODY_MAX 字符。"""
+    if not content_html:
+        return ""
+    m = _RD_MD_RE.search(content_html)
+    if not m:
+        return ""
+    text = _strip_html(m.group(1))
+    if len(text) > REDDIT_BODY_MAX:
+        text = text[:REDDIT_BODY_MAX].rstrip() + "…"
+    return text
 
 
 def fetch_reddit(per_sub: int = 2, limit: int = 10, period: str = "week") -> list[dict]:
     """Reddit 公开 RSS（Atom）feed —— JSON 端点对 DC IP 段封掉了，RSS 还能通。
-    每个 sub 取 top per_sub 条，按 feed 自带的本周热度顺序保留（无 score 字段）。"""
+    每个 sub 取 top per_sub 条，按 feed 自带的本周热度顺序保留（无 score 字段）。
+    返回 slim 后的字段：sub / title / url / comments_url / author / body。"""
     import xml.etree.ElementTree as ET
     headers = {"User-Agent": "python:xradar:v1.0 (contact: andylei.mc@gmail.com)"}
     ns = {"a": "http://www.w3.org/2005/Atom"}
@@ -168,6 +185,7 @@ def fetch_reddit(per_sub: int = 2, limit: int = 10, period: str = "week") -> lis
             title_el = entry.find("a:title", ns)
             link_el = entry.find("a:link", ns)
             author_el = entry.find("a:author/a:name", ns)
+            content_el = entry.find("a:content", ns)
             if title_el is None or link_el is None:
                 continue
             title = (title_el.text or "").strip()
@@ -175,14 +193,14 @@ def fetch_reddit(per_sub: int = 2, limit: int = 10, period: str = "week") -> lis
             if not title or not link:
                 continue
             author = (author_el.text or "").strip() if author_el is not None else ""
+            body = _extract_reddit_body(content_el.text if content_el is not None else "")
             items.append({
-                "source": "RD",
                 "sub": sub,
-                "title_en": title,
-                "tagline_en": title,
+                "title": title,
                 "url": link,
                 "comments_url": link,
                 "author": author,
+                "body": body,
             })
     return items[:limit]
 
@@ -307,11 +325,10 @@ def render_markdown(
     ph: list[dict],
     gh: list[dict],
     hn: list[dict] | None = None,
-    rd: list[dict] | None = None,
 ) -> str:
+    """渲染 HN / PH / GH 三个一行 list 板块。Reddit 走 DeepSeek 分析，不在这里渲染。"""
     hn = hn or []
-    rd = rd or []
-    if not ph and not gh and not hn and not rd:
+    if not ph and not gh and not hn:
         return ""
     lines = ["", "## 🌐 圈外今日（非关注圈热点）", ""]
     if hn:
@@ -322,19 +339,6 @@ def render_markdown(
             if it.get("comments"):
                 meta_bits.append(f"💬 {it['comments']}")
             meta_bits.append(f"[评论]({it['hn_url']})")
-            meta = " · ".join(meta_bits)
-            head = f"- **[{it['title_en']}]({it['url']})**"
-            line = f"{head} — {zh} · {meta}" if zh and zh != it["title_en"] else f"{head} · {meta}"
-            lines.append(line)
-        lines.append("")
-    if rd:
-        lines.append("### 💬 Reddit 本周热议")
-        for it in rd:
-            zh = it.get("tagline_zh") or ""
-            meta_bits = [f"r/{it['sub']}"]
-            if it.get("author"):
-                meta_bits.append(it["author"])
-            meta_bits.append(f"[讨论]({it['comments_url']})")
             meta = " · ".join(meta_bits)
             head = f"- **[{it['title_en']}]({it['url']})**"
             line = f"{head} — {zh} · {meta}" if zh and zh != it["title_en"] else f"{head} · {meta}"
@@ -372,9 +376,8 @@ def build(slot: str = "evening") -> str:
     ph = fetch_ph(limit=8)
     gh = fetch_github_trending(limit=8)
     hn = fetch_hn(limit=8)
-    rd = fetch_reddit(per_sub=2, limit=10)
-    translate_items(ph + gh + hn + rd)
-    return render_markdown(ph, gh, hn, rd)
+    translate_items(ph + gh + hn)
+    return render_markdown(ph, gh, hn)
 
 
 if __name__ == "__main__":

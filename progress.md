@@ -9,7 +9,9 @@
 - M1 信息源扩展第一步：**接入 Hacker News**。`scripts/external.py` 加 `fetch_hn()`：Algolia API `tags=story&created_at_i>{36h},points>=50`，关键词正则过滤（AI/Claude/GPT/Codex/LLM/Anthropic/OpenAI/Cursor/Gemini/MCP/agent 等），按 points 倒序取 top 8。复用 `translate_items` 把标题当 tagline 翻成中文意译，渲染为「🔥 Hacker News 今日（AI 相关）」板块插在 PH 之前。本地 + 服务器测试 8 条命中（ChatGPT 5.5 Pro / Claude Code / LLMs corrupt docs 等）。已 push GitHub + scp 到服务器
 - M1 第二步：**接入 Reddit（公开 RSS）**。原计划 OAuth 路径踩雷：注册 app 验证码循环 + wiki 只给 moderation Zendesk 表单；DC IP 调 `*.json` 端点全部 403。改走 Atom RSS（`/r/<sub>/top/.rss?t=week`），同 IP 同 UA 200 OK，5 个 sub × top 2 = 10 条稳定返回。代价：feed 不带 score/comments，没法跨 sub 排序，靠 feed 顺序
 - Reddit sub 列表（看真实样本质量定）：`codex / ClaudeCode / microsaas / coolgithubprojects / SaaSMarketing`，对应 Andy 选题三条主线（AI 编程 / SaaS 实战 / 营销战术 + GitHub 项目品味）。砍掉之前 plan 里的 ClaudeAI（meme）/ cursor（吐槽）/ LocalLLaMA + OpenAI（X 已覆盖）/ singularity（散）
-- 下一步：明早 06:00 看实际 digest 效果；翻译质量 / 选题相关性需要时调 prompt；M1 完成，下个里程碑 M2 海报触发链或 M3 小红书
+- M1 第三步：**Reddit 升级到"X 同款主信源"处理**。原本 Reddit 走 external.py 自渲染（标题翻译 + 一行列表），改造为：`fetch_reddit()` 多抽 RSS `<div class="md">` 帖主正文（截断 800 字符），`digest.py` 把 reddit 数组和 tweets 一起塞进同一次 DeepSeek 调用，`prompts/analysis.md` 输出新增 `## 💬 Reddit 本周精选（共 N 条）` 段，每条 [r/sub] · 中文要点 + 60-100 字摘要 + 👀 为什么值得看 + 🔗 双链接。意外收获：「今日观察」会自动融合 Twitter + Reddit 跨源信号
+- 实测一封（0 tweets + 10 reddit）：DeepSeek 账单 ¥0.0163，Reddit 摘要全部用上了 body 里的具体细节（巴西渗透测试 50 个 SaaS / 法国创始人 YC P26 中段 / SSH 终端聊天室），meme 帖按规则给了情绪解读；点评直接给选题方向（"用 Claude Code 做 MVP 千万别忽略安全基线" 等）
+- 下一步：明早 06:00 看 Twitter+Reddit 融合效果；M1 完成，下个里程碑 M2 海报触发链或 M3 小红书
 
 ---
 

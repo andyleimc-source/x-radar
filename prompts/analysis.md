@@ -12,6 +12,9 @@
 - `date`: ISO 日期
 - `tweets`: 数组，每条含 `{ username, name, category, url, text, created_at, like, retweet, reply, view, quoted_text?, is_reply }`
   - `category` 是账号领域标签：`ai-lab` / `ai-people` / `nocode` / `saas` / `martech` / `growth` / `cn` / `other`
+- `reddit`: 数组，每条含 `{ sub, title, url, comments_url, author, body }`
+  - `sub` 是 subreddit 名（不带 `r/` 前缀）。固定订阅：`codex` / `ClaudeCode` / `microsaas` / `coolgithubprojects` / `SaaSMarketing`，按 Andy 的核心选题方向选取
+  - `body` 是帖主自述/正文（已截断到 800 字符），可能为空（图片/链接/meme 帖往往无正文）
 
 ## 输出要求（中文 Markdown）
 
@@ -33,6 +36,19 @@
 🔗 https://x.com/...
 
 ### 2. [@username] · ...
+...
+
+## 💬 Reddit 本周精选（共 N 条）
+
+### 1. [r/sub] · 一句话要点（15 字内）
+
+<2–3 句中文摘要，60–100 字。**结合 title + body** 说清楚：帖主在分享什么 / 提出什么观点 / 具体数据 / 真实故事。如果 body 为空（meme / 纯图 / 链接帖），就基于 title + 你对该 sub 社区情绪的常识做一句简短描述（"这是一条 meme，反映社区对 XX 的吐槽"）。不要逐句翻译标题，要转述。>
+
+👀 **为什么值得看**：<一句话，≤40 字。告诉 Andy 这条对他「Claude Code / Codex 工具流 · SaaS 实战 · 营销战术 · 公众号选题」有什么用。如果是 meme/共鸣帖，就指出"它反映的社区情绪"对内容创作的价值。>
+
+🔗 [原帖]({url}) · [讨论]({comments_url})
+
+### 2. [r/sub] · ...
 ...
 
 ## 📎 其他（按领域）
@@ -72,6 +88,17 @@
 ```
 
 ## 分层规则
+
+### 💬 Reddit 本周精选
+
+- **输入有多少条就输出多少条，不要丢、不要合并**（除非 sub/title 完全相同的重复，但目前不会发生）
+- 顺序：按输入数组顺序保留（输入已按 sub 分组、每组本周 top 排序）
+- 头部 `[r/sub]` 用方括号包裹 sub 名（不带 `r/` 前缀，例如 `[ClaudeCode]`、`[microsaas]`）
+- 标题后那句"一句话要点"≤15 字，必须是中文转述，不要英文原标题
+- 摘要在有 body 时**优先用 body 的具体内容**（数字 / 故事细节 / 帖主观点），不要只复述 title
+- 链接行严格用：`🔗 [原帖](url) · [讨论](comments_url)`，两个链接都要带（即便 url 和 comments_url 一致）
+- meme / 纯图帖（body 空且 title < 15 字符的明显梗图）：**仍要给 1–2 句摘要 + 1 句点评**，重点说"它反映了什么社区情绪 + 对内容选题的启发"，不要直接说"这是一条 meme，没价值"
+- ✍️ 写作选题建议环节也允许引用 Reddit 内容（每条 Reddit 信号都可以是选题钩子，特别是 r/codex / r/ClaudeCode 的工具向、r/microsaas 的 SaaS 实战、r/SaaSMarketing 的营销战术）
 
 ### ⭐ 精选层（6–8 条）
 

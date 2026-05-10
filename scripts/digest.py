@@ -364,7 +364,14 @@ def main(slot: str):
     usage_line = usage_summary()
     usage_footer = f"\n\n---\n\n💳 {usage_line}\n" if usage_line else ""
 
-    if not digest_tweets:
+    # 抓 Reddit 主题精选（5 sub × 2 = 10 条），交给 DeepSeek 做摘要+点评
+    try:
+        reddit_items = external.fetch_reddit(per_sub=2, limit=10)
+    except Exception as e:
+        print(f"[WARN] reddit fetch failed: {e}", file=sys.stderr)
+        reddit_items = []
+
+    if not digest_tweets and not reddit_items:
         digest_file.write_text("## 🧠 今日观察\n\n本时段无新推。\n" + external_md + usage_footer)
         print(f"Digested 0 tweets from {len(usernames)} accounts → {digest_file}")
         return
@@ -375,9 +382,10 @@ def main(slot: str):
         "slot": slot,
         "date": date_str,
         "tweets": digest_tweets,
+        "reddit": reddit_items,
     }, ensure_ascii=False)
 
-    print(f"Calling DeepSeek on {len(digest_tweets)} tweets from {len({t['username'] for t in digest_tweets})} accounts...", flush=True)
+    print(f"Calling DeepSeek on {len(digest_tweets)} tweets from {len({t['username'] for t in digest_tweets})} accounts + {len(reddit_items)} reddit posts...", flush=True)
     md, ds_usage = call_deepseek(prompt, payload)
     ds_cost_line = format_deepseek_cost(ds_usage)
     if ds_cost_line:
