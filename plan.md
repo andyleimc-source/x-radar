@@ -11,7 +11,9 @@
 在每日 digest「🌐 圈外今日」板块新增 HN 与 Reddit 两个源，挖 AI/Claude/Codex/GPT 高流量话题。**只走官方/合规接口，不爬 HTML。**
 
 - [x] **Hacker News**：Algolia API（`tags=story&numericFilters=created_at_i>{36h},points>=50`），关键词过滤（AI/Claude/GPT/Codex/LLM/Anthropic/OpenAI/Cursor/Gemini/MCP/agent...），按 points 排序取 top 8，渲染为 `### 🔥 Hacker News 今日`
-- [ ] **Reddit OAuth**：注册 script app（reddit.com/prefs/apps）→ `.env` 加 `REDDIT_CLIENT_ID` / `REDDIT_CLIENT_SECRET` / `REDDIT_USERNAME` → 调 `oauth.reddit.com/r/<sub>/top?t=week&limit=5`，订阅 `ClaudeAI` / `cursor` / `LocalLLaMA` / `OpenAI` / `singularity`，渲染为 `### 💬 Reddit 本周热议`
+- [x] **Reddit**：走公开 RSS（`https://www.reddit.com/r/<sub>/top/.rss?t=week&limit=2`），订阅 `codex / ClaudeCode / microsaas / coolgithubprojects / SaaSMarketing`，每 sub 取 top 2 共 10 条，渲染为 `### 💬 Reddit 本周热议`。⚠️ JSON 端点（`.json` 后缀）对 DC IP 段 403，RSS 仍可用；缺点：feed 不带 score/comments，没法跨 sub 排序，靠 feed 自带顺序。后续若 RSS 也封了再考虑 OAuth。
+
+  **sub 选取原则**（2026-05-10 定稿）：覆盖 Andy 的核心选题方向——AI 编程双雄（codex/ClaudeCode）+ SaaS 实战故事（microsaas）+ GitHub 项目品味（coolgithubprojects）+ 营销战术（SaaSMarketing）。砍掉 r/ClaudeAI（meme 多）/ r/cursor（吐槽多）/ r/singularity（话题散）/ r/LocalLLaMA（X 那边覆盖）/ r/OpenAI（X 那边覆盖）。
 - [ ] 标题/描述翻译复用 `scripts/external.py` 的 `translate_items`
 - [ ] 沿用现有 PH / GitHub Trending 的 markdown 风格（带分数、评论数、源链接）
 

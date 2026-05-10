@@ -144,6 +144,49 @@ def fetch_hn(limit: int = 8, hours: int = 36, min_points: int = 50) -> list[dict
     return items[:limit]
 
 
+# ---------- Reddit ----------
+
+REDDIT_SUBS = ["codex", "ClaudeCode", "microsaas", "coolgithubprojects", "SaaSMarketing"]
+
+
+def fetch_reddit(per_sub: int = 2, limit: int = 10, period: str = "week") -> list[dict]:
+    """Reddit 公开 RSS（Atom）feed —— JSON 端点对 DC IP 段封掉了，RSS 还能通。
+    每个 sub 取 top per_sub 条，按 feed 自带的本周热度顺序保留（无 score 字段）。"""
+    import xml.etree.ElementTree as ET
+    headers = {"User-Agent": "python:xradar:v1.0 (contact: andylei.mc@gmail.com)"}
+    ns = {"a": "http://www.w3.org/2005/Atom"}
+    items = []
+    for sub in REDDIT_SUBS:
+        url = f"https://www.reddit.com/r/{sub}/top/.rss?t={period}&limit={per_sub}"
+        try:
+            raw = _get(url, headers=headers)
+            root = ET.fromstring(raw)
+        except Exception as e:
+            print(f"[external] reddit r/{sub} fetch failed: {e}", file=sys.stderr)
+            continue
+        for entry in root.findall("a:entry", ns)[:per_sub]:
+            title_el = entry.find("a:title", ns)
+            link_el = entry.find("a:link", ns)
+            author_el = entry.find("a:author/a:name", ns)
+            if title_el is None or link_el is None:
+                continue
+            title = (title_el.text or "").strip()
+            link = link_el.get("href") or ""
+            if not title or not link:
+                continue
+            author = (author_el.text or "").strip() if author_el is not None else ""
+            items.append({
+                "source": "RD",
+                "sub": sub,
+                "title_en": title,
+                "tagline_en": title,
+                "url": link,
+                "comments_url": link,
+                "author": author,
+            })
+    return items[:limit]
+
+
 # ---------- GitHub Trending ----------
 
 _GH_ARTICLE_RE = re.compile(r'<article class="Box-row">(.*?)</article>', re.DOTALL)
@@ -260,9 +303,15 @@ def translate_items(items: list[dict]) -> None:
 
 # ---------- Render ----------
 
-def render_markdown(ph: list[dict], gh: list[dict], hn: list[dict] | None = None) -> str:
+def render_markdown(
+    ph: list[dict],
+    gh: list[dict],
+    hn: list[dict] | None = None,
+    rd: list[dict] | None = None,
+) -> str:
     hn = hn or []
-    if not ph and not gh and not hn:
+    rd = rd or []
+    if not ph and not gh and not hn and not rd:
         return ""
     lines = ["", "## 🌐 圈外今日（非关注圈热点）", ""]
     if hn:
@@ -273,6 +322,19 @@ def render_markdown(ph: list[dict], gh: list[dict], hn: list[dict] | None = None
             if it.get("comments"):
                 meta_bits.append(f"💬 {it['comments']}")
             meta_bits.append(f"[评论]({it['hn_url']})")
+            meta = " · ".join(meta_bits)
+            head = f"- **[{it['title_en']}]({it['url']})**"
+            line = f"{head} — {zh} · {meta}" if zh and zh != it["title_en"] else f"{head} · {meta}"
+            lines.append(line)
+        lines.append("")
+    if rd:
+        lines.append("### 💬 Reddit 本周热议")
+        for it in rd:
+            zh = it.get("tagline_zh") or ""
+            meta_bits = [f"r/{it['sub']}"]
+            if it.get("author"):
+                meta_bits.append(it["author"])
+            meta_bits.append(f"[讨论]({it['comments_url']})")
             meta = " · ".join(meta_bits)
             head = f"- **[{it['title_en']}]({it['url']})**"
             line = f"{head} — {zh} · {meta}" if zh and zh != it["title_en"] else f"{head} · {meta}"
@@ -310,8 +372,9 @@ def build(slot: str = "evening") -> str:
     ph = fetch_ph(limit=8)
     gh = fetch_github_trending(limit=8)
     hn = fetch_hn(limit=8)
-    translate_items(ph + gh + hn)
-    return render_markdown(ph, gh, hn)
+    rd = fetch_reddit(per_sub=2, limit=10)
+    translate_items(ph + gh + hn + rd)
+    return render_markdown(ph, gh, hn, rd)
 
 
 if __name__ == "__main__":

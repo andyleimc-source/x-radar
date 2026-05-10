@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-05-10 · Reddit 走公开 RSS，不接 OAuth
+
+- **决策**：Reddit 信息源用未认证的 Atom RSS（`/r/<sub>/top/.rss?t=week`），不注册 script app、不走 OAuth、不存 client_id/secret
+- **Why**：
+  - Reddit 注册流程踩雷：建 app 时验证码循环，提示要先 "register to use the API"，但 wiki 页面只给 moderation 用例 Zendesk 表单，个人 digest 没合规入口
+  - 即便注册通了，从腾讯云硅谷 DC IP 调 `*.json` 端点全部 403（`www/old/api.reddit.com` 都试过），需叠住宅代理才能用
+  - RSS 端点同 IP 同 UA 实测 200 OK，5 个 sub × 2 条稳定返回
+- **备选**：OAuth + 住宅代理（能拿 score/comments，但注册路径未通 + 月费几美元，复杂度收益不匹配）；Pushshift（2023 已停）；完全砍掉 Reddit
+- **代价**：RSS 不带 score / num_comments，没法跨 sub 按热度全局排序，只能 per-sub 取 top 2 + 保留 feed 顺序；meta 信息薄；若 RSS 哪天也封 DC IP 需要切代理或砍掉
+
+---
+
 ## 2026-04-24 · 抓取频率从 2 次/天 降到 1 次/天（仅 06:00）
 
 - **决策**：crontab 只保留早 6:00 一档；`slot` 参数仍保留 `morning|evening` 两个值兼容旧代码

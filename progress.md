@@ -6,8 +6,10 @@
 
 ## 2026-05-10
 
-- M1 信息源扩展第一步：**接入 Hacker News**。`scripts/external.py` 加 `fetch_hn()`：Algolia API `tags=story&created_at_i>{36h},points>=50`，关键词正则过滤（AI/Claude/GPT/Codex/LLM/Anthropic/OpenAI/Cursor/Gemini/MCP/agent 等），按 points 倒序取 top 8。复用 `translate_items` 把标题当 tagline 翻成中文意译，渲染为「🔥 Hacker News 今日（AI 相关）」板块插在 PH 之前。本地测试 8 条命中（ChatGPT 5.5 Pro / Claude Code / LLMs corrupt docs 等）
-- 下一步：部署到服务器（注意服务器 `/home/ubuntu/xradar` 还有几个 M 文件未提交，先看 diff 决定）；Reddit 等 Andy 给 OAuth 凭证再做
+- M1 信息源扩展第一步：**接入 Hacker News**。`scripts/external.py` 加 `fetch_hn()`：Algolia API `tags=story&created_at_i>{36h},points>=50`，关键词正则过滤（AI/Claude/GPT/Codex/LLM/Anthropic/OpenAI/Cursor/Gemini/MCP/agent 等），按 points 倒序取 top 8。复用 `translate_items` 把标题当 tagline 翻成中文意译，渲染为「🔥 Hacker News 今日（AI 相关）」板块插在 PH 之前。本地 + 服务器测试 8 条命中（ChatGPT 5.5 Pro / Claude Code / LLMs corrupt docs 等）。已 push GitHub + scp 到服务器
+- M1 第二步：**接入 Reddit（公开 RSS）**。原计划 OAuth 路径踩雷：注册 app 验证码循环 + wiki 只给 moderation Zendesk 表单；DC IP 调 `*.json` 端点全部 403。改走 Atom RSS（`/r/<sub>/top/.rss?t=week`），同 IP 同 UA 200 OK，5 个 sub × top 2 = 10 条稳定返回。代价：feed 不带 score/comments，没法跨 sub 排序，靠 feed 顺序
+- Reddit sub 列表（看真实样本质量定）：`codex / ClaudeCode / microsaas / coolgithubprojects / SaaSMarketing`，对应 Andy 选题三条主线（AI 编程 / SaaS 实战 / 营销战术 + GitHub 项目品味）。砍掉之前 plan 里的 ClaudeAI（meme）/ cursor（吐槽）/ LocalLLaMA + OpenAI（X 已覆盖）/ singularity（散）
+- 下一步：明早 06:00 看实际 digest 效果；翻译质量 / 选题相关性需要时调 prompt；M1 完成，下个里程碑 M2 海报触发链或 M3 小红书
 
 ---
 
