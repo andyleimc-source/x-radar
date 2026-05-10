@@ -10,7 +10,7 @@
 
 在每日 digest「🌐 圈外今日」板块新增 HN 与 Reddit 两个源，挖 AI/Claude/Codex/GPT 高流量话题。**只走官方/合规接口，不爬 HTML。**
 
-- [ ] **Hacker News**：调 Algolia HN Search API（`https://hn.algolia.com/api/v1/search?tags=front_page&hitsPerPage=15`），过滤 AI/Claude/GPT/Codex/LLM/Anthropic/OpenAI 关键词，渲染为 `### 🔥 Hacker News 今日`
+- [x] **Hacker News**：Algolia API（`tags=story&numericFilters=created_at_i>{36h},points>=50`），关键词过滤（AI/Claude/GPT/Codex/LLM/Anthropic/OpenAI/Cursor/Gemini/MCP/agent...），按 points 排序取 top 8，渲染为 `### 🔥 Hacker News 今日`
 - [ ] **Reddit OAuth**：注册 script app（reddit.com/prefs/apps）→ `.env` 加 `REDDIT_CLIENT_ID` / `REDDIT_CLIENT_SECRET` / `REDDIT_USERNAME` → 调 `oauth.reddit.com/r/<sub>/top?t=week&limit=5`，订阅 `ClaudeAI` / `cursor` / `LocalLLaMA` / `OpenAI` / `singularity`，渲染为 `### 💬 Reddit 本周热议`
 - [ ] 标题/描述翻译复用 `scripts/external.py` 的 `translate_items`
 - [ ] 沿用现有 PH / GitHub Trending 的 markdown 风格（带分数、评论数、源链接）

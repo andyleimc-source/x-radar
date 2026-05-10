@@ -100,6 +100,50 @@ def fetch_ph(limit: int = 8) -> list[dict]:
     return items
 
 
+# ---------- Hacker News ----------
+
+_HN_KEYWORDS = re.compile(
+    r"\b(AI|AGI|LLM|LLMs|Claude|Anthropic|GPT|ChatGPT|OpenAI|Codex|Cursor|Copilot|"
+    r"Gemini|DeepSeek|Llama|Mistral|Qwen|RAG|agent|agents|agentic|MCP|"
+    r"transformer|diffusion|embedding|fine.?tun|prompt|inference|"
+    r"vector\s*db|vibe\s*cod|AI\s*cod)\b",
+    re.I,
+)
+
+
+def fetch_hn(limit: int = 8, hours: int = 36, min_points: int = 50) -> list[dict]:
+    ts = int((datetime.now(timezone.utc) - timedelta(hours=hours)).timestamp())
+    url = (
+        "https://hn.algolia.com/api/v1/search"
+        f"?tags=story&numericFilters=created_at_i>{ts},points>={min_points}&hitsPerPage=50"
+    )
+    try:
+        data = json.loads(_get(url).decode("utf-8", "ignore"))
+    except Exception as e:
+        print(f"[external] HN fetch failed: {e}", file=sys.stderr)
+        return []
+    hits = data.get("hits") or []
+    items = []
+    for h in hits:
+        title = (h.get("title") or "").strip()
+        if not title or not _HN_KEYWORDS.search(title):
+            continue
+        obj_id = h.get("objectID")
+        link = h.get("url") or f"https://news.ycombinator.com/item?id={obj_id}"
+        items.append({
+            "source": "HN",
+            "title_en": title,
+            # HN 没有 description，把 title 当 tagline 走翻译，渲染时显示中文意译
+            "tagline_en": title,
+            "url": link,
+            "hn_url": f"https://news.ycombinator.com/item?id={obj_id}",
+            "points": h.get("points") or 0,
+            "comments": h.get("num_comments") or 0,
+        })
+    items.sort(key=lambda x: x["points"], reverse=True)
+    return items[:limit]
+
+
 # ---------- GitHub Trending ----------
 
 _GH_ARTICLE_RE = re.compile(r'<article class="Box-row">(.*?)</article>', re.DOTALL)
@@ -216,10 +260,24 @@ def translate_items(items: list[dict]) -> None:
 
 # ---------- Render ----------
 
-def render_markdown(ph: list[dict], gh: list[dict]) -> str:
-    if not ph and not gh:
+def render_markdown(ph: list[dict], gh: list[dict], hn: list[dict] | None = None) -> str:
+    hn = hn or []
+    if not ph and not gh and not hn:
         return ""
     lines = ["", "## 🌐 圈外今日（非关注圈热点）", ""]
+    if hn:
+        lines.append("### 🔥 Hacker News 今日（AI 相关）")
+        for it in hn:
+            zh = it.get("tagline_zh") or ""
+            meta_bits = [f"🔥 {it['points']}"]
+            if it.get("comments"):
+                meta_bits.append(f"💬 {it['comments']}")
+            meta_bits.append(f"[评论]({it['hn_url']})")
+            meta = " · ".join(meta_bits)
+            head = f"- **[{it['title_en']}]({it['url']})**"
+            line = f"{head} — {zh} · {meta}" if zh and zh != it["title_en"] else f"{head} · {meta}"
+            lines.append(line)
+        lines.append("")
     if ph:
         lines.append("### 🚀 Product Hunt 今日")
         for it in ph:
@@ -251,8 +309,9 @@ def build(slot: str = "evening") -> str:
     load_env()
     ph = fetch_ph(limit=8)
     gh = fetch_github_trending(limit=8)
-    translate_items(ph + gh)
-    return render_markdown(ph, gh)
+    hn = fetch_hn(limit=8)
+    translate_items(ph + gh + hn)
+    return render_markdown(ph, gh, hn)
 
 
 if __name__ == "__main__":

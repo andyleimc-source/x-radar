@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-05-10
+
+- M1 信息源扩展第一步：**接入 Hacker News**。`scripts/external.py` 加 `fetch_hn()`：Algolia API `tags=story&created_at_i>{36h},points>=50`，关键词正则过滤（AI/Claude/GPT/Codex/LLM/Anthropic/OpenAI/Cursor/Gemini/MCP/agent 等），按 points 倒序取 top 8。复用 `translate_items` 把标题当 tagline 翻成中文意译，渲染为「🔥 Hacker News 今日（AI 相关）」板块插在 PH 之前。本地测试 8 条命中（ChatGPT 5.5 Pro / Claude Code / LLMs corrupt docs 等）
+- 下一步：部署到服务器（注意服务器 `/home/ubuntu/xradar` 还有几个 M 文件未提交，先看 diff 决定）；Reddit 等 Andy 给 OAuth 凭证再做
+
+---
+
 ## 2026-05-06
 
 - 关注列表 27 → **53 账号**（两轮新增）：
