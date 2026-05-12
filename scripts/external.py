@@ -111,7 +111,32 @@ _HN_KEYWORDS = re.compile(
 )
 
 
-def fetch_hn(limit: int = 8, hours: int = 36, min_points: int = 50) -> list[dict]:
+HN_ARTICLE_MAX = 4000
+
+
+def fetch_article_text(url: str, max_chars: int = HN_ARTICLE_MAX, timeout: int = 15) -> str:
+    """轻量抓原文：urllib + strip HTML。paywall / JS 站拿不到就返回空串。"""
+    if not url:
+        return ""
+    try:
+        raw = _get(url, timeout=timeout)
+    except Exception as e:
+        print(f"[external] article fetch failed {url}: {e}", file=sys.stderr)
+        return ""
+    try:
+        html = raw.decode("utf-8", "ignore")
+    except Exception:
+        return ""
+    # 砍掉 script/style
+    html = re.sub(r"<script[\s\S]*?</script>", " ", html, flags=re.I)
+    html = re.sub(r"<style[\s\S]*?</style>", " ", html, flags=re.I)
+    text = _strip_html(html)
+    if len(text) > max_chars:
+        text = text[:max_chars].rstrip() + "…"
+    return text
+
+
+def fetch_hn(limit: int = 8, hours: int = 36, min_points: int = 50, with_article: bool = False) -> list[dict]:
     ts = int((datetime.now(timezone.utc) - timedelta(hours=hours)).timestamp())
     url = (
         "https://hn.algolia.com/api/v1/search"
@@ -132,16 +157,22 @@ def fetch_hn(limit: int = 8, hours: int = 36, min_points: int = 50) -> list[dict
         link = h.get("url") or f"https://news.ycombinator.com/item?id={obj_id}"
         items.append({
             "source": "HN",
-            "title_en": title,
-            # HN 没有 description，把 title 当 tagline 走翻译，渲染时显示中文意译
-            "tagline_en": title,
+            "title": title,
             "url": link,
             "hn_url": f"https://news.ycombinator.com/item?id={obj_id}",
             "points": h.get("points") or 0,
             "comments": h.get("num_comments") or 0,
         })
     items.sort(key=lambda x: x["points"], reverse=True)
-    return items[:limit]
+    items = items[:limit]
+    if with_article:
+        for it in items:
+            # HN 自身 self-post 不抓
+            if "news.ycombinator.com" in it["url"]:
+                it["article"] = ""
+            else:
+                it["article"] = fetch_article_text(it["url"])
+    return items
 
 
 # ---------- Reddit ----------
@@ -165,7 +196,7 @@ def _extract_reddit_body(content_html: str) -> str:
     return text
 
 
-def fetch_reddit(per_sub: int = 2, limit: int = 10, period: str = "week") -> list[dict]:
+def fetch_reddit(per_sub: int = 2, limit: int = 10, period: str = "day") -> list[dict]:
     """Reddit 公开 RSS（Atom）feed —— JSON 端点对 DC IP 段封掉了，RSS 还能通。
     每个 sub 取 top per_sub 条，按 feed 自带的本周热度顺序保留（无 score 字段）。
     返回 slim 后的字段：sub / title / url / comments_url / author / body。"""
@@ -324,26 +355,11 @@ def translate_items(items: list[dict]) -> None:
 def render_markdown(
     ph: list[dict],
     gh: list[dict],
-    hn: list[dict] | None = None,
 ) -> str:
-    """渲染 HN / PH / GH 三个一行 list 板块。Reddit 走 DeepSeek 分析，不在这里渲染。"""
-    hn = hn or []
-    if not ph and not gh and not hn:
+    """渲染 PH / GH 两个一行 list 板块。HN / Reddit 走 DeepSeek 分析，不在这里渲染。"""
+    if not ph and not gh:
         return ""
     lines = ["", "## 🌐 圈外今日（非关注圈热点）", ""]
-    if hn:
-        lines.append("### 🔥 Hacker News 今日（AI 相关）")
-        for it in hn:
-            zh = it.get("tagline_zh") or ""
-            meta_bits = [f"🔥 {it['points']}"]
-            if it.get("comments"):
-                meta_bits.append(f"💬 {it['comments']}")
-            meta_bits.append(f"[评论]({it['hn_url']})")
-            meta = " · ".join(meta_bits)
-            head = f"- **[{it['title_en']}]({it['url']})**"
-            line = f"{head} — {zh} · {meta}" if zh and zh != it["title_en"] else f"{head} · {meta}"
-            lines.append(line)
-        lines.append("")
     if ph:
         lines.append("### 🚀 Product Hunt 今日")
         for it in ph:
@@ -375,9 +391,8 @@ def build(slot: str = "evening") -> str:
     load_env()
     ph = fetch_ph(limit=8)
     gh = fetch_github_trending(limit=8)
-    hn = fetch_hn(limit=8)
-    translate_items(ph + gh + hn)
-    return render_markdown(ph, gh, hn)
+    translate_items(ph + gh)
+    return render_markdown(ph, gh)
 
 
 if __name__ == "__main__":

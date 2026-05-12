@@ -371,7 +371,14 @@ def main(slot: str):
         print(f"[WARN] reddit fetch failed: {e}", file=sys.stderr)
         reddit_items = []
 
-    if not digest_tweets and not reddit_items:
+    # 抓 HN top AI 相关，带原文，交给 DeepSeek 做摘要+点评
+    try:
+        hn_items = external.fetch_hn(limit=6, with_article=True)
+    except Exception as e:
+        print(f"[WARN] hn fetch failed: {e}", file=sys.stderr)
+        hn_items = []
+
+    if not digest_tweets and not reddit_items and not hn_items:
         digest_file.write_text("## 🧠 今日观察\n\n本时段无新推。\n" + external_md + usage_footer)
         print(f"Digested 0 tweets from {len(usernames)} accounts → {digest_file}")
         return
@@ -383,9 +390,10 @@ def main(slot: str):
         "date": date_str,
         "tweets": digest_tweets,
         "reddit": reddit_items,
+        "hn": hn_items,
     }, ensure_ascii=False)
 
-    print(f"Calling DeepSeek on {len(digest_tweets)} tweets from {len({t['username'] for t in digest_tweets})} accounts + {len(reddit_items)} reddit posts...", flush=True)
+    print(f"Calling DeepSeek on {len(digest_tweets)} tweets from {len({t['username'] for t in digest_tweets})} accounts + {len(reddit_items)} reddit posts + {len(hn_items)} hn stories...", flush=True)
     md, ds_usage = call_deepseek(prompt, payload)
     ds_cost_line = format_deepseek_cost(ds_usage)
     if ds_cost_line:
