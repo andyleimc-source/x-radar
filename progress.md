@@ -4,6 +4,16 @@
 
 ---
 
+## 2026-05-13
+
+- digest 四项优化一次性落地（commit `ed52332`）：
+  1. **「📎 其他（按领域）」改成扁平 ≤5 条高价值**：原本不在精选的全部按 ai-lab / nocode / saas / martech / cn 分组列出（动辄 30+ 条），现在改成"未进精选里只挑最多 5 条最有价值的"扁平列表。邮件长度大幅下降
+  2. **Reddit 日热度**：`fetch_reddit(period=)` 默认 `week` → `day`，prompt 内对应小标题改为「💬 Reddit 今日精选」
+  3. **HN 抓原文 + AI 解读**：新增 `fetch_article_text(url)`（urllib + strip HTML，截断 4000 字符），`fetch_hn(with_article=True)` 给每条附 `article` 字段；HN 从 external.py 一行 list 渲染中剥离，改走 DeepSeek 摘要 + 🧠 AI 解读（结构同 Reddit），prompt 新增「🔥 Hacker News 今日」段。paywall / JS 站抓不到时 fallback 基于标题推断并标注
+  4. **写作选题建议 5–7 → 最多 3 条**：宁缺毋滥，信号弱允许 1–2 条甚至 0 条
+- 本地 smoke：HN top 3 拿到 1/3 原文（其余 NYT/Medium 403），Reddit 日热度正常返回
+- 下一步：明早 06:00 服务器跑出来看融合后的成品质量，特别是 HN AI 解读和写作建议精简后的体感
+
 ## 2026-05-10
 
 - M1 信息源扩展第一步：**接入 Hacker News**。`scripts/external.py` 加 `fetch_hn()`：Algolia API `tags=story&created_at_i>{36h},points>=50`，关键词正则过滤（AI/Claude/GPT/Codex/LLM/Anthropic/OpenAI/Cursor/Gemini/MCP/agent 等），按 points 倒序取 top 8。复用 `translate_items` 把标题当 tagline 翻成中文意译，渲染为「🔥 Hacker News 今日（AI 相关）」板块插在 PH 之前。本地 + 服务器测试 8 条命中（ChatGPT 5.5 Pro / Claude Code / LLMs corrupt docs 等）。已 push GitHub + scp 到服务器
