@@ -1,3 +1,1010 @@
-# 作者库 —— 自动由 scripts/build_author.py 维护。
-# 手改后可设 locked: true 防止下次覆盖。
-authors: []
+authors:
+- handle: lennysan
+  source: x
+  name: Lenny Rachitsky
+  bio: Lenny Rachitsky 是产品、增长和职业领域的深度研究者与意见领袖，以其不废话的实用建议和《Lenny's Newsletter》闻名。
+  career: ''
+  expertise:
+  - Product
+  - Growth
+  - Career Advice
+  positioning: 深度研究、不废话的产品、增长与职业建议提供者
+  ai_comment: 每一篇都经过深度研究，对B2B SaaS从业者尤其有价值，能学到可落地的增长策略与产品管理经验。
+  sources:
+  - https://www.linkedin.com/in/lennyrachitsky
+  - https://ai-feeds.com/
+  generated_at: '2026-05-17'
+  locked: false
+- handle: AnthropicAI
+  source: x
+  name: Claude 官方
+  bio: Anthropic 是 Claude 系列 AI 模型的创造者，以构建“有用、诚实、无害”的 AI 为核心使命。团队由来自多学科的研究者、工程师和建设者组成，专注 AI 安全与对齐研究，同时发布关于 AI 经济影响的公开报告。
+  career: ''
+  expertise:
+  - AI safety & alignment
+  - Claude model development
+  - interpretability research
+  - AI economics
+  positioning: 致力于构建安全、受益于全人类的先进 AI 系统的研究公司
+  ai_comment: Claude 官方账号是理解前沿 AI 安全理念与产品化落地的绝佳窗口，尤其适合关注 AI 落地场景和长期技术路线的从业者。
+  sources:
+  - https://www.anthropic.com/careers
+  - https://www.anthropic.com/careers/jobs
+  - https://www.facebook.com/techinsider/posts/anthropic-posted-a-job-listing-for-an-applied-ai-claude-evangelist-the-role-pays/1345109967488476/
+  - https://www.anthropic.com/careers/jobs?office=4001220008
+  - https://www.anthropic.com/research/81k-economics
+  generated_at: '2026-05-17'
+  locked: false
+- handle: claudeai
+  source: x
+  name: Claude 产品号
+  bio: '[待补全]'
+  career: ''
+  expertise: []
+  positioning: ''
+  ai_comment: ''
+  sources: []
+  generated_at: '2026-05-17'
+  locked: false
+- handle: OpenAI
+  source: x
+  name: GPT 官方
+  bio: 一家专注于开发安全、有益的人工智能系统的研究公司，以"人类优先"和"保持谦逊"为核心价值观，致力于确保通用人工智能造福全人类。
+  career: ''
+  expertise:
+  - 人工智能
+  - 安全AI
+  - 有益AI
+  - 研究
+  positioning: 开发安全、有益的通用人工智能的研究公司
+  ai_comment: 作为B2B SaaS从业者，值得研究OpenAI如何将顶尖AI研究与产品化结合，同时其价值观驱动战略对长期增长有启发。
+  sources:
+  - https://openai.com/careers/
+  - https://openai.com/careers/search/
+  - https://www.qbitai.com/2026/01/372364.html
+  - https://www.youtube.com/watch?v=5uXXA5EhuG8
+  - https://openai.com/careers/search/?c=8f8a6fc6-4c02-480c-9ae1-87f9db9d40aa
+  generated_at: '2026-05-17'
+  locked: false
+- handle: sama
+  source: x
+  name: Sam Altman
+  bio: 山姆·奥尔特曼（Sam Altman），1985年生于芝加哥，斯坦福大学辍学，联合创办位置共享应用Loopt，后担任创业加速器Y Combinator总裁（2014-2019），现任OpenAI CEO，领导开发ChatGPT等前沿AI产品，是当代最具影响力的科技企业家之一。
+  career: '- 2014-2019 总裁@Y Combinator
+
+    - 2019至今 CEO@OpenAI'
+  expertise:
+  - 人工智能
+  - 创业
+  - 风险投资
+  - 科技管理
+  positioning: AI时代的标志性创业者和思想领袖
+  ai_comment: Sam Altman的思考覆盖AI前沿趋势、创业方法论与组织管理，对于B2B SaaS从业者和独立创业者理解技术拐点、产品思维及资本运作极具参考价值。
+  sources:
+  - https://zh.wikipedia.org/wiki/%E8%90%A8%E5%A7%86%C2%B7%E5%A5%A5%E5%B0%94%E7%89%B9%E6%9B%BC
+  - https://vickyho.substack.com/p/yc-openaisam-altman
+  - https://en.wikipedia.org/wiki/Sam_Altman
+  - https://www.youtube.com/watch?v=Q_ShX1A2FNo
+  - https://www.britannica.com/money/Sam-Altman
+  generated_at: '2026-05-17'
+  locked: false
+- handle: gdb
+  source: x
+  name: Greg Brockman
+  bio: Greg Brockman（1987年出生）是人工智能研究公司OpenAI的联合创始人兼总裁。他被《时代》杂志列为2023年全球AI领域最具影响力的100人之一，是AI技术前沿的重要推动者。
+  career: '- Co-Founder and President @ OpenAI'
+  expertise:
+  - 人工智能
+  - 技术领导
+  - 创业
+  positioning: AI领域的思想领袖与技术实践者
+  ai_comment: 作为OpenAI的核心构建者，他的经验对理解AI技术前沿与应用落地有直接参考价值。
+  sources:
+  - https://en.wikipedia.org/wiki/Greg_Brockman
+  - https://www.linkedin.com/in/thegdb
+  - https://pmwcintl.com/speaker/greg-brockman-134_openai_2026sv/
+  - https://time.com/collections/time100-ai/6309033/greg-brockman/
+  - https://www.wikidata.org/wiki/Q100604534
+  generated_at: '2026-05-17'
+  locked: false
+- handle: GoogleDeepMind
+  source: x
+  name: Gemini 背后
+  bio: '[待补全]'
+  career: ''
+  expertise: []
+  positioning: ''
+  ai_comment: ''
+  sources: []
+  generated_at: '2026-05-17'
+  locked: false
+- handle: demishassabis
+  source: x
+  name: Demis Hassabis
+  bio: 英国AI科学家，1976年7月27日出生，剑桥大学计算机科学一等荣誉学士，UCL神经科学博士。少年国际象棋神童（FIDE大师），曾创办游戏公司Elixir Studios并开发《主题公园》，后跨界神经科学研究海马体与情景记忆，最终联合创立DeepMind并任CEO。因领导AlphaFold获2024年诺贝尔化学奖，以跨学科背景推动AGI探索。
+  career: '- 1998 创始人@Elixir Studios
+
+    - 2005 博士研究生@University College London'
+  expertise:
+  - 人工智能
+  - 神经科学
+  - 游戏AI
+  - 国际象棋
+  - 计算机科学
+  positioning: AI科学家，Google DeepMind CEO兼联合创始人，2024年诺贝尔化学奖得主
+  ai_comment: 从国际象棋神童到AI科学家，Demis的跨学科背景与理性主义追求，让他对AGI路径和AI for Science的落地逻辑有极深洞见——对关注AI应用与增长的SaaS人而言，是理解技术大势的必读对象。
+  sources:
+  - https://en.wikipedia.org/wiki/Demis_Hassabis
+  - https://uk.linkedin.com/in/demishassabis
+  - https://baike.baidu.com/en/item/Demis%20Hassabis/1475736
+  - https://www.britannica.com/biography/Demis-Hassabis
+  - https://www.youtube.com/watch?v=JNyuX1zoOgU
+  generated_at: '2026-05-17'
+  locked: false
+- handle: xai
+  source: x
+  name: Grok / xAI
+  bio: 该作者在 LinkedIn 上以 Grok xAI 为名，标注为自由职业者，所在地旧金山，教育背景为 xAI，仅 18 个连接。公开信息极为有限，无法形成完整人物综述。
+  career: ''
+  expertise:
+  - null
+  positioning: ''
+  ai_comment: 当前公开信息不足以支撑任何评价，建议关注其后续内容。
+  sources:
+  - https://www.linkedin.com/in/grok-xai-081072365
+  - https://www.instagram.com/reel/DLzAHKWTzB-/
+  - https://www.instagram.com/p/DW1JIuYEaT7/
+  - https://www.instagram.com/reel/DXUnj-hidn3/
+  - https://www.ai.cc/zh/blogs/ai-for-freelancers-solopreneurs-2026-one-person-agency-side-hustles/
+  generated_at: '2026-05-17'
+  locked: false
+- handle: karpathy
+  source: x
+  name: Andrej Karpathy
+  bio: Andrej Karpathy，AI 领域著名研究者和教育家，斯坦福博士（师从李飞飞），曾在 OpenAI 和特斯拉担任核心角色，因在深度学习、计算机视觉和自动驾驶方面的贡献而闻名。他热衷开源和科普，其博客和教程影响了无数 AI
+    从业者。
+  career: ''
+  expertise:
+  - 深度学习
+  - 计算机视觉
+  - 自动驾驶
+  - 神经网络
+  - AI 教育
+  - 开源项目
+  positioning: 一位兼具前沿研究与工程实践能力的 AI 科学家，也是极少数能把深度学习讲得清晰透彻的传道者。
+  ai_comment: 他的技术博客和课程是 B2B SaaS 从业者理解 AI 底层逻辑的最佳入口，能帮你建立技术直觉，避免被概念营销忽悠。
+  sources:
+  - https://www.eet-china.com/mp/a485908.html
+  - https://zh.wikipedia.org/wiki/%E5%AE%89%E5%BE%B7%E7%83%88%C2%B7%E5%8D%A1%E5%B8%95%E8%A5%BF
+  - https://zhuanlan.zhihu.com/p/491299548
+  - https://www.linkedin.com/in/andrej-karpathy-9a650716
+  - https://en.wikipedia.org/wiki/Andrej_Karpathy
+  generated_at: '2026-05-17'
+  locked: false
+- handle: ylecun
+  source: x
+  name: Yann LeCun
+  bio: Yann LeCun 是深度学习领域的奠基人之一，以发明卷积神经网络（CNN）和推动图像识别技术而闻名。2018 年图灵奖得主，现任 Meta（原 Facebook）首席人工智能科学家及纽约大学 Silver 教授。他的研究覆盖手写识别、图像压缩、AI
+    硬件等，出版有《科学之路》等著作。
+  career: '- 现任 首席人工智能科学家@Meta
+
+    - 现任 Silver Professor@纽约大学'
+  expertise:
+  - 卷积神经网络（CNN）
+  - 深度学习
+  - 图像识别
+  - 人工智能
+  positioning: 深度学习之父之一，卷积神经网络奠基人
+  ai_comment: 作为深度学习底层架构的开拓者，他的研究思路（如对非自回归世界模型的坚持）能帮你理解 AI 技术的选择逻辑，对产品规划和长期技术判断极有启发。
+  sources:
+  - https://en.wikipedia.org/wiki/Yann_LeCun
+  - https://www.linkedin.com/in/yann-lecun
+  - https://www.facebook.com/100092284956789/posts/yann-lecun-%E9%9B%A2%E9%96%8B-meta-%E5%BE%8C%E6%88%90%E7%AB%8B%E7%9A%84%E6%96%B0%E5%89%B5%E5%8B%9F%E5%88%B0%E4%BA%86-10%E5%84%84%E9%9B%96%E7%84%B6%E7%A0%94%E7%A9%B6%E8%B7%AF%E7%B7%9A%E5%8F%AF%E8%83%BD%E4%B8%8D%E5%A4%AA%E4%B8%80%E6%A8%A3%E4%BD%86-ami-labs-%E8%B7%9F-ilya-%E7%9A%84-ssisafe-superint/863305650088926/
+  - https://baike.baidu.com/en/item/Yann%20LeCun/1418537
+  - http://yann.lecun.com/
+  generated_at: '2026-05-17'
+  locked: false
+- handle: _akhaliq
+  source: x
+  name: AK 每日论文
+  bio: '[待补全]'
+  career: ''
+  expertise: []
+  positioning: ''
+  ai_comment: ''
+  sources: []
+  generated_at: '2026-05-17'
+  locked: false
+- handle: airtable
+  source: x
+  name: Airtable 官
+  bio: '[待补全]'
+  career: ''
+  expertise: []
+  positioning: ''
+  ai_comment: ''
+  sources: []
+  generated_at: '2026-05-17'
+  locked: false
+- handle: NotionHQ
+  source: x
+  name: Notion 官
+  bio: Notion 官方账号，代表 Notion 公司——全球领先的笔记、知识管理与项目管理一体化平台。公司致力于让每个人和企业都能自定义软件解决自身问题，其估值已超百亿美元。账号发布产品更新、使用技巧与品牌动态。
+  career: ''
+  expertise:
+  - 笔记与知识管理
+  - 项目管理与协作
+  - 低代码/自定义工作流
+  - AI 对话设计
+  positioning: 一体化数字工作空间的开创者与推广者
+  ai_comment: 作为 B2B SaaS 从业者，值得学习 Notion 如何用“将软件民主化”的使命驱动产品设计与增长，对独立创业者理解 PLG 和价值交付极具参考价值。
+  sources:
+  - https://www.notion.com/zh-cn/careers
+  - https://www.iyiou.com/analysis/202410291081204
+  - https://abetterweb3.notion.site/66b2a65ed21d47fea1853207d7855301
+  - https://www.instagram.com/p/DQKxWPLkjyO/
+  generated_at: '2026-05-17'
+  locked: false
+- handle: ivanhzhao
+  source: x
+  name: Ivan Zhao (Notion CEO)
+  bio: Ivan Zhao，Notion 联合创始人兼 CEO。在乌鲁木齐长大，通过编程比赛进入国内顶尖大学，后移居加拿大。深受 Douglas Engelbart、Alan Kay 等早期计算机先驱影响，致力于打造能增强人类智能的模块化生产力工具。Notion
+    从开发者工具转型为“软件界乐高积木”，估值超百亿美元。产品哲学是“把西兰花藏在糖里”，坚持精简团队与独立发展。
+  career: '- 联合创始人兼CEO @ Notion'
+  expertise:
+  - 产品设计
+  - 生产力工具
+  - 创业
+  - 技术哲学
+  - 用户体验
+  positioning: Notion 创始人，用乐高式模块重新定义个人与团队协作工具。
+  ai_comment: Ivan 对产品理念和创业节奏的思考极具启发性，尤其是如何将复杂功能用简单乐高式体验包装，以及在小团队下保持增长和产品聚焦的取舍。
+  sources:
+  - https://www.linkedin.com/in/ivanhzhao
+  - https://www.iyiou.com/analysis/202410291081204
+  - https://laioffer.medium.com/notion%E7%9A%84%E5%88%9B%E5%A7%8B%E4%BA%BA%E5%8F%8Aceo-ivan-zhaonotion%E5%BC%95%E9%A2%86%E7%A1%85%E8%B0%B7%E5%8A%9E%E5%85%AC%E6%96%B0%E6%BD%AE%E6%B5%81-%E5%8F%88%E4%B8%80%E7%8B%AC%E8%A7%92%E5%85%BD%E6%A8%AA%E7%A9%BA%E5%87%BA%E4%B8%96-%E8%BF%99%E4%B8%AA%E6%8A%80%E6%9C%AF%E6%A0%88%E5%8A%A9%E5%AE%83%E5%BC%AF%E9%81%93%E8%B6%85%E8%BD%A6-246c1ce999c7
+  - https://zhuanlan.zhihu.com/p/1889743513052231280
+  - https://www.xiaoyuzhoufm.com/episode/67c9db0a0766616acd2445f1
+  generated_at: '2026-05-17'
+  locked: false
+- handle: zapier
+  source: x
+  name: Zapier 官
+  bio: '[待补全]'
+  career: ''
+  expertise: []
+  positioning: ''
+  ai_comment: ''
+  sources: []
+  generated_at: '2026-05-17'
+  locked: false
+- handle: retool
+  source: x
+  name: Retool 官
+  bio: '[待补全]'
+  career: ''
+  expertise: []
+  positioning: ''
+  ai_comment: ''
+  sources: []
+  generated_at: '2026-05-17'
+  locked: false
+- handle: Benioff
+  source: x
+  name: Marc Benioff (Salesforce)
+  bio: Marc Benioff 是 Salesforce 的联合创始人、董事长兼 CEO，被公认为云计算先驱。他 15 岁开始编程，在 Oracle 工作十年后创办了全球最大的 B2B 企业软件公司。以超前域名收购策略（如 Salesforce.com、bill.com）和“No
+    Software”理念颠覆传统 CRM 行业，被《福布斯》评为“十年创新者”，《财富》评为全球 25 位最伟大领袖之一。
+  career: '- 1986-1996 软件工程师/销售代表@Oracle
+
+    - 1999-至今 联合创始人、董事长兼首席执行官@Salesforce'
+  expertise:
+  - 云计算
+  - 企业 SaaS
+  - 域名投资与战略布局
+  - 创新领导力
+  positioning: 云计算革命的先驱，全球最大 B2B SaaS 公司 Salesforce 的缔造者，以超前远见和“No Software”理念颠覆企业软件行业。
+  ai_comment: Marc Benioff 教你如何用超前域名策略和“No Software”理念颠覆传统企业软件，对 SaaS 创业者和增长负责人极具启发性。
+  sources:
+  - https://en.wikipedia.org/wiki/Marc_Benioff
+  - https://roger-s-note.onrender.com/2025-01-06-Salesforce/2025-01-06-Salesforce/
+  - https://www.salesforce.com/company/marc-benioff-bio/
+  - https://www.linkedin.com/in/marcbenioff
+  - https://www.linkedin.com/posts/lennyrachitsky_marc-benioff-is-the-co-founder-and-ceo-of-activity-7276638844857339904-4gR7
+  generated_at: '2026-05-17'
+  locked: false
+- handle: levie
+  source: x
+  name: Aaron Levie (Box)
+  bio: Aaron Levie 是云内容管理平台 Box 的联合创始人兼 CEO。他出生于科罗拉多州博尔德，曾就读南加州大学后辍学创业，长期专注企业软件与 AI 领域，常就 AI 安全、未来工作、企业级应用等话题发表观点。
+  career: '- 联合创始人@Box
+
+    - CEO@Box'
+  expertise:
+  - 企业软件
+  - 云计算
+  - 人工智能
+  - 内容管理
+  - 网络安全
+  - SaaS 创业
+  positioning: Box 联合创始人兼 CEO，企业云内容管理与 AI 合规的布道者
+  ai_comment: Aaron Levie 站在企业 AI 落地的最前线，他对 AI 安全、企业级应用与工作流重塑的思考，对 B2B SaaS 创业者理解技术与商业的交汇点极有启发。
+  sources:
+  - https://en.wikipedia.org/wiki/Aaron_Levie
+  - https://www.linkedin.com/in/boxaaron
+  - https://www.youtube.com/watch?v=o-OGEJ5q8wo
+  - https://www.cxotalk.com/bio/aaron-levie-ceo-box
+  - https://www.wsj.com/video/series/wsj-leadership-institute-leaders/box-ceo-aaron-levie-on-the-ai-liability-paradox-and-the-future-of-work/F8C399EE-EDFE-44DF-A92E-F90970A04831
+  generated_at: '2026-05-17'
+  locked: false
+- handle: paulg
+  source: x
+  name: Paul Graham
+  bio: Paul Graham 是程序员、作家和投资人。1995 年与 Robert Morris 共同创办 Viaweb（第一家 SaaS 公司），1998 年被雅虎收购成为 Yahoo Store。2001 年开始在 paulgraham.com
+    上发表随笔，以深刻的创业、编程和技术洞见影响全球读者。
+  career: '- 1995 联合创始人@Viaweb
+
+    - 1998 被收购后成员@Yahoo
+
+    - 2001 至今 随笔作家@paulgraham.com'
+  expertise:
+  - 编程
+  - 写作
+  - 创业
+  - 投资
+  - 技术哲学
+  positioning: SaaS 先驱、创业思想领袖与随笔作家
+  ai_comment: Paul Graham 的随笔是创业者绕不开的启蒙读物，教你用第一性原理思考产品、增长与选择，尤其适合 B2B SaaS 创始人。
+  sources:
+  - https://zh.wikipedia.org/wiki/%E4%BF%9D%E7%BD%97%C2%B7%E6%A0%BC%E9%9B%B7%E5%8E%84%E5%A7%86
+  - https://paulgraham.com/bio.html
+  - https://www.threads.com/@kobayashi_yoshico/post/DXsrMxrjg-L/paul-graham%E5%A6%82%E6%9E%9C%E4%BD%A0%E7%82%BA%E4%BA%86%E5%89%B5%E6%A5%AD%E8%80%8C%E8%B7%B3%E9%81%8E%E5%A4%A7%E5%AD%B8%E7%9A%84%E9%83%A8%E5%88%86%E6%88%96%E5%85%A8%E9%83%A8%E8%AA%B2%E7%A8%8B%E9%82%A3%E9%BA%BC%E4%BD%A0%E5%BF%85%E9%A0%88%E8%87%AA%E8%A1%8C%E5%9F%B9%E9%A4%8A%E5%A4%A7%E5%AD%B8%E6%95%99%E8%82%B2%E6%9C%AC%E4%BE%86%E5%8F%AF%E4%BB%A5%E8%AE%93%E4%BD%A0%E5%BB%BA%E7%AB%8B%E8%B5%B7%E4%BE%86%E7%9A%84%E4%B8%80%E5%A5%97%E6%80%9D%E7%B6%AD%E6%96%B9%E5%BC%8F%E5%9C%A8%E5%A4%A7%E5%A4%9A%E6%95%B8%E6%96%B0%E5%89%B5%E5%85%AC%E5%8F%B8%E4%B8%AD%E9%80%99%E4%B8%A6%E9%9D%9E%E8%87%AA%E7%84%B6%E8%80%8C%E7%84%B6%E5%B0%B1%E6%9C%83%E7%99%BC
+  - https://paulgraham.com/worked.html
+  - https://www.explainthis.io/zh-hant/career/do-what-you-interested
+  generated_at: '2026-05-17'
+  locked: false
+- handle: dharmesh
+  source: x
+  name: HubSpot CTO
+  bio: Dharmesh Shah 是 HubSpot 的联合创始人兼 CTO，被誉为“第一性原理思考者”和公司文化代码的守护者。在创办 HubSpot 之前，他曾创立 Pyramid Digital Solutions 并担任 CEO。他是波士顿创业社区活跃成员，天使投资超过
+    60 家初创公司，常就创业、集客营销和公司文化发表演讲，对 SaaS 行业格局产生了深远影响。
+  career: '- 联合创始人兼CEO @ Pyramid Digital Solutions
+
+    - 2006 - 至今 联合创始人兼CTO @ HubSpot'
+  expertise:
+  - Inbound Marketing
+  - Company Culture
+  - Startup Growth
+  - Angel Investing
+  - First-Principles Thinking
+  positioning: HubSpot 联合创始人兼 CTO，公司文化代码的守护者，第一性原理思考的实践者
+  ai_comment: Dharmesh 将产品、文化、增长融为一体，值得每位 B2B SaaS 创业者学习如何用第一性原理构建组织与产品飞轮。
+  sources:
+  - https://www.linkedin.com/in/dharmesh
+  - https://www.hubspot.com/company/management/dharmesh-shah
+  - https://www.clay.com/dossier/hubspot-cto
+  - https://www.linkedin.com/posts/lennyrachitsky_dharmesh-shah-is-the-co-founder-and-cto-of-activity-7181675593283825664-Uq8x
+  - https://www.bostonglobe.com/tech-power-players/year/2022/person/dharmesh-shah-hubspot/
+  generated_at: '2026-05-17'
+  locked: false
+- handle: aprildunford
+  source: x
+  name: April Dunford
+  bio: April Dunford 是 B2B 技术公司定位领域的权威专家，拥有 25 年创业公司高管经验，曾领导营销、产品和销售团队。她参与过 7 家成功的 B2B 技术初创企业，其中多家被 IBM、Siebel、SAP 等巨头收购，累计收购金额超过
+    20 亿美元。她系统化地总结了一套定位方法论，著有《Obviously Awesome》一书，并创立了咨询公司 Ambient Strategy。
+  career: '- 25年 @ 多家B2B技术初创公司（高管）'
+  expertise:
+  - B2B产品定位
+  - 技术公司市场策略
+  - 销售话术与产品发布
+  positioning: 帮助B2B技术公司打磨定位，让产品脱颖而出。
+  ai_comment: 如果你想学会如何在红海中让产品被客户秒懂并记住，April Dunford 的定位框架就是你的必读秘籍。
+  sources:
+  - https://www.aprildunford.com/about
+  - https://ca.linkedin.com/in/aprildunford
+  - https://www.aprildunford.com/
+  - https://www.allamericanspeakers.com/celebritytalentbios/April+Dunford/439343
+  - https://marketinghistory.org/p/april-dunford-positioning
+  generated_at: '2026-05-17'
+  locked: false
+- handle: markritson
+  source: x
+  name: Mark Ritson
+  bio: Mark Ritson 是营销学教授，拥有兰卡斯特大学营销博士学位，25 年教学经验。曾任职于伦敦商学院、MIT 斯隆、墨尔本商学院等顶尖商学院，多次获最佳教师奖。现创办 MiniMBA 课程，专注营销与品牌管理教育，服务过麦肯锡、百事、斯巴鲁等全球企业。
+  career: '- 教授@Melbourne Business School
+
+    - 教授@London Business School
+
+    - 教授@MIT Sloan School of Management
+
+    - 创始人@MiniMBA'
+  expertise:
+  - 营销战略
+  - 品牌管理
+  - 市场细分与定位
+  - 营销教育
+  positioning: 全球顶尖营销教授，以经典理论重构实用 MBA 教育。
+  ai_comment: 营销基本功的“守门人”——他用商学院金牌课帮你抵御行业噪音，适合想夯实品牌与增长底层的 SaaS 操盘手。
+  sources:
+  - https://au.linkedin.com/in/markritson
+  - https://www.lancaster.ac.uk/lums/about-us/alumni/alumni-profiles/profiles/mark-ritson/
+  - https://markritson.brandyourself.com/
+  - https://minimba.com/professor/mark-ritson
+  generated_at: '2026-05-17'
+  locked: false
+- handle: peeplaja
+  source: x
+  name: Peep Laja
+  bio: Peep Laja 是连续创业者，创办了 CXL、Wynter 和 Speero 三家专注于转化优化与 SaaS 增长的公司。他出生于爱沙尼亚，现居美国奥斯汀，被视为数字游民和转化优化领域的领军人物。他长期分享创始人营销、差异化策略及数字化增长实战经验。
+  career: ''
+  expertise:
+  - 转化优化
+  - 创始人营销
+  - SaaS 增长
+  positioning: 连续创业者，专注 SaaS 转化优化与创始人驱动的营销策略。
+  ai_comment: 他亲手孵化了多家 B2B SaaS 公司，从 CRO 到消息测试，实战路径清晰，适合想学创始人营销和增长闭环的独立创业者。
+  sources:
+  - https://www.linkedin.com/in/peeplaja
+  - https://www.youtube.com/watch?v=_c2Y2-NBLr4
+  - https://weworkremotely.com/the-remote-show-podcast/peep-laja-founder-cxl-wynter-speero
+  generated_at: '2026-05-17'
+  locked: false
+- handle: randfish
+  source: x
+  name: Rand Fishkin
+  bio: Rand Fishkin 是 SparkToro 联合创始人兼 CEO，Moz 前创始人。他用 14 年将 Moz 从一家 SEO 代理机构发展为科技驱动的 SaaS 成功企业。著有《Lost and Founder》及即将出版的《Zero
+    Click Marketing》，专注数字营销、SEO 与受众研究。
+  career: ''
+  expertise:
+  - SEO
+  - 数字营销
+  - SaaS创业
+  - 受众研究
+  positioning: 搜索引擎与数字营销领域的先驱者、创业者
+  ai_comment: 他的创业复盘和营销洞察非常贴近 SaaS 实战，尤其《Lost and Founder》中关于创业幻灭的坦诚叙述，值得每一位 B2B 创始人反复读。
+  sources:
+  - https://www.linkedin.com/in/randfishkin
+  - https://www.reddit.com/r/bigseo/comments/8q9i8x/after_moz_rand_fishkin_bares_all_on_the_startup/?tl=zh-hans
+  - https://sparktoro.com/team/rand
+  - https://www.linkedin.com/posts/marcelocalbucci_rand-fishkin-is-one-of-the-founders-i-admire-activity-7454672332859539456-JAKP
+  - https://www.chartwellspeakers.com/speaker/rand-fishkin/
+  generated_at: '2026-05-17'
+  locked: false
+- handle: amandanat
+  source: x
+  name: Amanda Natividad
+  bio: Amanda Natividad 是 Zero Click Marketing 的创始人，也是一位前记者和蓝带厨师。她专注于内容营销咨询与教学，在 Maven 平台讲授 Content Marketing 201 课程，被公认为当今最具影响力的内容营销人之一。
+  career: ''
+  expertise:
+  - 内容营销
+  - 市场营销咨询
+  positioning: 内容营销领域的独立顾问与教育者
+  ai_comment: 她将新闻功底与蓝带厨师的创造力融入内容营销，适合学习如何用设计思维和稀缺视角打造高传播力的内容策略。
+  sources:
+  - https://www.linkedin.com/in/amandanat
+  - https://maven.com/resources/content-marketing-leader-amanda-natividad
+  - https://www.instagram.com/accounts/login/?next=https%3A%2F%2Fwww.instagram.com%2Famandanat%2F&is_from_rle
+  generated_at: '2026-05-17'
+  locked: false
+- handle: elenaverna
+  source: x
+  name: Elena Verna
+  bio: Elena Verna 是一位增长领域的实践者与思想领袖，曾任 Dropbox 高级副总裁，后转型为独立创业者（Solopreneur），目前负责 AI 创业公司 Lovable 的增长工作。她擅长将大公司的增长方法论与独立创业的敏捷性结合，并积极分享关于产品驱动增长、职业规划与独立创业的洞见。
+  career: '- 角色未知@Dropbox（曾任 Senior VP）
+
+    - Solopreneur（独立创业者）
+
+    - Growth@Lovable'
+  expertise:
+  - 产品驱动增长
+  - 产品驱动销售
+  - 独立创业
+  - 职业成长策略
+  positioning: 从大厂高管到独立创业者，专注增长实战与职业成长的思想领袖。
+  ai_comment: 她能把大公司增长框架拆解成独立创业者可用的打法，尤其适合关注产品驱动增长与职业第二曲线的读者。
+  sources:
+  - https://www.linkedin.com/in/elenaverna
+  - https://www.youtube.com/watch?v=tCvcBOnm6q8
+  - https://www.linkedin.com/posts/elenaverna_hic-activity-7461061222982135808-F-lX
+  - https://www.youtube.com/watch?v=DtNzlBv9zs8
+  - https://www.linkedin.com/posts/elenaverna_your-career-is-a-startup-building-sustainable-activity-7287925953454907393-7uVr
+  generated_at: '2026-05-17'
+  locked: false
+- handle: dotey
+  source: x
+  name: 宝玉
+  bio: '[待补全]'
+  career: ''
+  expertise: []
+  positioning: ''
+  ai_comment: ''
+  sources: []
+  generated_at: '2026-05-17'
+  locked: false
+- handle: op7418
+  source: x
+  name: 歸藏
+  bio: AIGC Weekly 周报作者，专注追踪 AI 领域最新动态、产品发布与工具应用，以深度整理和精炼解读见长。
+  career: ''
+  expertise:
+  - AIGC
+  - AI 产品动态
+  - 信息聚合
+  positioning: AIGC 领域信息聚合者
+  ai_comment: 归藏每周精选让 AI 圈动态一目了然，适合想快速跟上技术迭代却不耐受碎片噪音的 SaaS 从业者。
+  sources:
+  - https://quaily.com/op7418/p/aigc-weekly-46
+  - http://xwiki.yzlit.com/xwtools/getRec.php
+  - https://x.com/i/flow/login?redirect_after_login=%2Fsearch%3Fq%3D%25E7%259A%2587%25E5%2586%25A0%25E7%2599%25BB%25E4%25BA%258C%25E5%25B9%25B3%25E5%258F%25B0%25E7%25AE%25A1%25E7%2590%2586%25E5%2587%25BA%25E7%25A7%259F%25E3%2580%2590%25E6%2589%25A3%25E5%25BE%25AE%25E5%2590%258C%25E5%258F%25B7%25EF%25BC%259A%25F0%259D%259F%25BF%25F0%259D%259F%25BD%25F0%259D%259F%25BB%25F0%259D%259F%25B8%25F0%259D%259F%25B9%25F0%259D%259F%25B9%25F0%259D%259F%25BE%25F0%259D%259F%25BE%25E3%2580%2591.uxf%26src%3Dlive%26f%3Dlive
+  - https://www.chakrafamily.com/news/65551095.html
+  - https://twstalker.com/soulcakegpt
+  generated_at: '2026-05-17'
+  locked: false
+- handle: imxiaohu
+  source: x
+  name: 小互
+  bio: '[待补全]'
+  career: ''
+  expertise: []
+  positioning: ''
+  ai_comment: ''
+  sources: []
+  generated_at: '2026-05-17'
+  locked: false
+- handle: alexalbert__
+  source: x
+  name: Alex Albert
+  bio: Alex Albert 是 Anthropic 的开发者关系主管（Claude Relations），负责推广 Claude AI 模型的社区应用与提示工程。他毕业于华盛顿大学计算机科学专业，曾于 Google 担任软件工程实习生。他通过推特、个人网站和
+    Newsletter 分享 AI 产品使用技巧与开发者关系实践。
+  career: '- 2022 Software Engineering Intern@Google'
+  expertise:
+  - Prompt Engineering
+  - Developer Relations
+  - Claude AI 模型
+  - AI 社区运营
+  positioning: Anthropic Claude 关系负责人，专注提示工程与 AI 开发者生态建设
+  ai_comment: 作为 B2B SaaS 从业者，关注 Alex 能学到如何将 Claude 有效嵌入产品工作流，以及提示工程在真实场景中的落地技巧。
+  sources:
+  - https://alexalbert.me/resume.pdf
+  - https://www.linkedin.com/in/alex-albert
+  - https://alexalbert.me/
+  - https://grokipedia.com/page/alex-albert
+  generated_at: '2026-05-17'
+  locked: false
+- handle: swyx
+  source: x
+  name: swyx
+  bio: swyx（Shawn Wang）是AI Engineer运动的发起者与核心布道者，现为Latent Space、AI Engineer大会及Cognition的联合创始人。他同时也是知名技术写作者和演讲者，提出“Learn in
+    Public”“Self Provisioning Runtime”等广受传播的理念，以深度解读JavaScript演进、开发者体验（DevEx）及AI工程化趋势而闻名。
+  career: ''
+  expertise:
+  - AI Engineer
+  - 开发者体验（DevEx）
+  - Learn in Public
+  - JavaScript
+  - 技术写作与演讲
+  - 初创社区建设
+  positioning: AI Engineer运动的发起者与布道者
+  ai_comment: swyx的“Learn in Public”方法论和AI Engineer框架对B2B SaaS创业者极具启发——他用技术深度加社区杠杆，为产品增长和开发者生态提供了可复用的思考模型。
+  sources:
+  - https://www.linkedin.com/in/shawnswyxwang
+  - https://www.swyx.io/about
+  - https://x.com/search?q=%E8%8D%86%E5%B7%9E%E6%80%8E%E4%B9%88%E6%89%BE%E5%A4%96%E5%9B%B4%E6%B4%8B%E5%A6%9E%E4%B8%8A%E9%97%A8%E6%9C%8D%E5%8A%A1%EF%BC%88V134-8233-7991%E9%AB%98%E7%AB%AF%E5%B0%8F%E5%A7%90%E4%B8%8A%E9%97%A8%EF%BC%89%E6%80%8E%E4%B9%88%E6%89%BE%E5%B0%8F%E5%A7%90%E6%9C%8D%E5%8A%A1-%E5%93%AA%E9%87%8C%E6%9C%89%E5%B0%8F%E5%A7%90%E4%B8%8A%E9%97%A8%E6%9C%8D%E5%8A%A1%E9%A2%84%E7%BA%A6-%E6%89%BE%E5%B0%8F%E5%A7%90%E5%8C%85%E5%A4%9C%E4%B8%8A%E9%97%A8%E6%8C%89%E6%91%A9%E7%89%B9%E6%AE%8A%E6%9C%8D%E5%8A%A1.dsh&f=live
+  - https://x.com/search?q=csgo%E6%8A%95%E6%B3%A8%E6%98%AF%E4%BB%80%E4%B9%88%E8%BD%AF%E4%BB%B6%EF%BD%9B%E5%AE%98%E7%BD%91%EF%BC%9A852.tw%EF%BD%9D.zlf&f=live
+  generated_at: '2026-05-17'
+  locked: false
+- handle: simonw
+  source: x
+  name: Simon Willison
+  bio: 英国web开发者与企业家。作为Django Web框架的联合创始人之一而广为人知，随后创立了Datasette开源项目，专注于利用SQLite实现数据探索与发布。他也是活跃的技术演讲者和博客作者。
+  career: ''
+  expertise:
+  - Web development
+  - Django
+  - Datasette
+  - Open source
+  positioning: 开源数据工具Datasette的创造者，Django框架的联合创始人
+  ai_comment: 作为Django和Datasette的核心人物，Simon展示了如何构建高效的开发者工具，他的开源项目设计理念对B2B SaaS产品设计有直接借鉴意义。
+  sources:
+  - https://en.wikipedia.org/wiki/Simon_Willison
+  - https://www.linkedin.com/in/simonwillison
+  - https://blog.est.im/category/stderr
+  - https://ytm.app/aien-bot-1777954295/
+  generated_at: '2026-05-17'
+  locked: false
+- handle: levelsio
+  source: x
+  name: Pieter Levels
+  bio: Pieter Levels（又名 levelsio）是近十年最具代表性的独立创业（indie hacker）与一人公司（solo founder）实践者。他通过自建多个在线项目实现年收入约 300 万美元，以极简流程和快速迭代闻名，是数字游民和远程工作运动的标志性人物。
+  career: ''
+  expertise:
+  - 独立开发
+  - 一人公司
+  - 数字游民
+  - 远程工作
+  - 产品增长
+  positioning: 将个人项目变现为百万美元业务的独立黑客先驱
+  ai_comment: 如果你是 SaaS 创业者或想独立起盘，Pieter Levels 的极速试错、低代码构建和收入公开打法，是 B 端增长最硬核的实战教材。
+  sources:
+  - https://www.facebook.com/taitung.liu/posts/pieter-levels%E6%9C%AC%E5%90%8Dpieter-levels%E5%8F%88%E5%90%8D-levelsio%E6%98%AF%E8%BF%91%E5%8D%81%E5%B9%B4%E6%9C%80%E5%85%B7%E4%BB%A3%E8%A1%A8%E6%80%A7%E7%9A%84%E7%8D%A8%E7%AB%8B%E5%89%B5%E6%A5%ADindie-hacker%E4%B8%80%E4%BA%BA%E5%85%AC%E5%8F%B8solo-founde/10164169132865070/
+  - https://www.reddit.com/r/SaaS/comments/1concpp/the_man_who_led_me_to_micro_saas_indie_hacking/?tl=zh-hant
+  - https://www.reddit.com/r/PHP/comments/1f6xsws/lex_fridman_interviews_pieter_levels_php_stack/?tl=zh-hans
+  - https://www.youtube.com/watch?v=hv6BUw-gzmk
+  - https://medium.com/@rushabtated4/3m-an-year-pieter-levels-d6f6808a6a02
+  generated_at: '2026-05-17'
+  locked: false
+- handle: jasonlk
+  source: x
+  name: Jason Lemkin
+  bio: Jason Lemkin 是 SaaStr 的创始人兼 Trusted Advisor，SaaS 领域最具影响力的思想领袖之一。他曾任 EchoSign（后被 Adobe 收购）的联合创始人兼 CEO，并在 Adobe 担任 Web
+    Business Services 副总裁。作为种子轮领投投资者和创始人支持者，他长期通过内容、社区和峰会赋能全球 SaaS 创业者。
+  career: '- Trusted Advisor@SaaStr
+
+    - Seed Stage Lead Investor & Founder Champion
+
+    - Vice President, Web Business Services@Adobe
+
+    - Co-founder, CEO@EchoSign
+
+    - Co-founder, President
+
+    - Vice President'
+  expertise:
+  - SaaS
+  - B2B 创业
+  - 增长与 GTM
+  - 创始人建议
+  positioning: 全球最大 SaaS 社区 SaaStr 的创始人，资深创业者和投资人，专注 SaaS 从 0 到 IPO 的全周期实战洞察。
+  ai_comment: 作为 B2B SaaS 从业者，Jason 的每一条推文几乎都是创业增长路上的实弹弹药，尤其是对 PMF、定价和销售团队的见解，值得反复咀嚼。
+  sources:
+  - https://www.linkedin.com/in/jasonmlemkin
+  - https://www.cxotalk.com/bio/jason-lemkin-trusted-advisor-saastr
+  - https://www.allamericanspeakers.com/celebritytalentbios/Jason+Lemkin/445487
+  generated_at: '2026-05-17'
+  locked: false
+- handle: _catwu
+  source: x
+  name: Cat Wu
+  bio: '[待补全]'
+  career: ''
+  expertise: []
+  positioning: ''
+  ai_comment: ''
+  sources: []
+  generated_at: '2026-05-17'
+  locked: false
+- handle: mckaywrigley
+  source: x
+  name: Mckay Wrigley
+  bio: '[待补全]'
+  career: ''
+  expertise: []
+  positioning: ''
+  ai_comment: ''
+  sources: []
+  generated_at: '2026-05-17'
+  locked: false
+- handle: OpenAIDevs
+  source: x
+  name: OpenAI Devs 官方
+  bio: '[待补全]'
+  career: ''
+  expertise: []
+  positioning: ''
+  ai_comment: ''
+  sources: []
+  generated_at: '2026-05-17'
+  locked: false
+- handle: kevinweil
+  source: x
+  name: Kevin Weil
+  bio: '[待补全]'
+  career: ''
+  expertise: []
+  positioning: ''
+  ai_comment: ''
+  sources: []
+  generated_at: '2026-05-17'
+  locked: false
+- handle: stevenheidel
+  source: x
+  name: Steven Heidel
+  bio: Steven Heidel 是 OpenAI 的软件开发者与人才发展者，拥有萨斯喀彻温大学教育背景，现居旧金山湾区。他在 LinkedIn 上以“develop software and develop people”概括自己的工作，关注工程实践与人员成长。
+  career: '- 未知 软件开发者与人才发展者@OpenAI'
+  expertise: []
+  positioning: ''
+  ai_comment: 作为 OpenAI 的核心成员，Steven 的视角有助于理解前沿 AI 实践与人才发展，值得关注他在 AI 工具与团队构建上的洞察。
+  sources:
+  - https://www.linkedin.com/in/stevenheidel
+  generated_at: '2026-05-17'
+  locked: false
+- handle: amanrsanger
+  source: x
+  name: Aman Sanger
+  bio: Aman Sanger 是 AI 编程平台 Cursor 的核心开发者，自称“AI 最大化主义者”。他毕业于麻省理工学院，在旧金山从事将 AI 集成到编码工具的前沿工作。据报道，他因创建 AI 驱动的编程平台而成为最年轻的白手起家亿万富翁，展现了
+    AI 对开发者工具领域的颠覆性影响。
+  career: '- Coding @ Cursor'
+  expertise:
+  - AI 编程
+  - 开发者工具
+  - 创业
+  positioning: AI 编程平台 Cursor 的核心推动者
+  ai_comment: Andy 视角：他的实践展示了 AI 如何重构传统开发工具，对 SaaS 创业者理解 AI 原生产品设计极具启发。
+  sources:
+  - https://www.linkedin.com/in/aman-sanger-482243171
+  - https://www.linkedin.com/posts/srinivasa-manapragada-59b2a65_indianamerican-genzentrepreneur-billionaire-activity-7403451259002929152-Gx7-
+  - https://www.linkedin.com/posts/surajdevx_at-14-aman-sanger-was-learning-to-code-activity-7406908310387462146-iDPt
+  generated_at: '2026-05-17'
+  locked: false
+- handle: EricSimons40
+  source: x
+  name: Eric Simons
+  bio: Eric Simons 是 bolt.new 的创始人兼 CEO，位于美国旧金山，在 LinkedIn 上拥有 500+ 连接。
+  career: '- 创始人兼 CEO@bolt.new'
+  expertise: []
+  positioning: bolt.new 创始人兼 CEO
+  ai_comment: ''
+  sources:
+  - https://www.linkedin.com/in/eric-simons-a464a664
+  - https://www.highperformr.ai/people/eric-simons-a464a664
+  generated_at: '2026-05-17'
+  locked: false
+- handle: DrJimFan
+  source: x
+  name: Jim Fan
+  bio: Jim Fan 是 NVIDIA 机器人研究总监、杰出科学家，GEAR 实验室联合负责人，Project GR00T 人形机器人项目共同主导者。斯坦福博士，师从李飞飞，曾为 OpenAI 第一位实习生。他致力于构建物理通用人工智能（Physical
+    AGI），研究涵盖基础模型、策略学习、机器人、多模态学习和大规模系统。哥伦比亚大学 2016 届毕业生代表，获 Illig 奖章。
+  career: '- 现任 Director of Robotics & Distinguished Scientist @ NVIDIA'
+  expertise:
+  - Foundation Models
+  - Robotics
+  - Multimodal Learning
+  - World Models
+  - Physical AGI
+  positioning: NVIDIA 机器人研究总监，致力于推动物理通用人工智能（Physical AGI）的实现
+  ai_comment: 站在物理 AI 的最前沿，Jim 不仅给出 VLA 的批判思考，还用“苦乐启示”把机器人路线图与 LLM 成功故事精准对齐，对做 AI 产品战略的你极有启发。
+  sources:
+  - https://www.linkedin.com/in/drjimfan
+  - https://www.threads.com/@harryspeaks_/post/DUUkH2fj1xD/nvidia-%E7%9A%84-robotics-director-jim-fan-%E5%AF%AB%E7%9A%84%E9%80%99%E7%AF%87%E6%96%87%E5%BE%88%E5%80%BC%E5%BE%97%E8%AE%80%E7%9F%AD%E7%9F%AD%E5%B9%BE%E6%AE%B5%E8%80%8C%E5%B7%B2%E4%BD%86%E6%98%AF%E6%8A%8A%E7%9B%AE%E5%89%8D-robotics-%E7%9A%84%E7%93%B6%E9%A0%B8%E8%88%87%E6%9C%AA%E4%BE%86%E7%9A%84%E9%A1%98%E6%99%AF%E8%A1%A8%E9%81%94%E7%9A%84%E9%9D%9E%E5%B8%B8%E6%B8%85
+  - https://jimfan.me/
+  - https://x.com/DrJimFan?lang=zh-CN
+  - https://tedai-sanfrancisco.ted.com/speakers/jim-fan/
+  generated_at: '2026-05-17'
+  locked: false
+- handle: dylan522p
+  source: x
+  name: Dylan Patel
+  bio: Dylan Patel 是独立分析机构 SemiAnalysis 的创始人、CEO 兼首席分析师。他从匿名 Silicon Twitter 芯片发帖人和农村养蜂人起步，凭借对 AI 基础设施、半导体供应链和芯片战争的深度研究，成为该领域最常被引用的分析师之一，为顶级
+    AI 实验室、云厂商、对冲基金和半导体巨头提供咨询。
+  career: '- Founder, CEO, Chief Analyst @ SemiAnalysis'
+  expertise:
+  - AI Infrastructure
+  - Semiconductor & Chip Wars
+  - Nvidia & GPU Economics
+  - Export Controls & Fab Bottlenecks
+  - GitHub Commit Share Analysis
+  positioning: 独立半导体与 AI 基础设施分析师，SemiAnalysis 创始人
+  ai_comment: 从零起步建立深度分析机构，他对 AI 芯片、资本开支和地缘政治的交叉洞察，是理解 AI 供应链底层逻辑和独立创业路径的绝佳素材。
+  sources:
+  - https://www.linkedin.com/in/dylanpatelsa
+  - https://semianalysis.com/dylan-patel/
+  - https://www.latent.space/p/dylanpatel-cooking
+  - https://yesterdayy.substack.com/p/dylan-patellost-in-life-to-founding
+  - https://www.youtube.com/shorts/nQjdwmboLDc
+  generated_at: '2026-05-17'
+  locked: false
+- handle: tszzl
+  source: x
+  name: roon
+  bio: '[待补全]'
+  career: ''
+  expertise: []
+  positioning: ''
+  ai_comment: ''
+  sources: []
+  generated_at: '2026-05-17'
+  locked: false
+- handle: bhorowitz
+  source: x
+  name: Ben Horowitz
+  bio: 本·霍罗威茨（Ben Horowitz），1966年生于伦敦，哥伦比亚大学学士、加州大学洛杉矶分校硕士。知名风险投资人，a16z（Andreessen Horowitz）联合创始人。职业生涯始于说唱歌手，后转型为创业者与投资人，以对创业公司管理、CEO领导力和产品管理的深刻见解闻名，著有经典文章《Good
+    Product Manager, Bad Product Manager》。
+  career: ''
+  expertise:
+  - 创业公司管理
+  - CEO领导力
+  - 产品管理
+  - 风险投资
+  positioning: 硅谷顶级风险投资人，a16z联合创始人，专注初创企业管理和创始人CEO角色洞见。
+  ai_comment: Ben Horowitz作为创业者出身的风投，他关于创始人为何更适合担任CEO的观点，对B2B SaaS创始人如何平衡产品、增长与组织管理极有启发。
+  sources:
+  - https://zh.wikipedia.org/zh-cn/%E6%9C%AC%C2%B7%E9%9C%8D%E7%BD%97%E5%A8%81%E8%8C%A8
+  - https://zhuanlan.zhihu.com/p/19912145
+  - https://en.wikipedia.org/wiki/Ben_Horowitz
+  - https://www.linkedin.com/in/behorowitz
+  - https://www.linkedin.com/posts/lennyrachitsky_things-you-probably-didnt-know-about-ben-activity-7371939190298693632--YuR
+  generated_at: '2026-05-17'
+  locked: false
+- handle: parker_conrad
+  source: x
+  name: Parker Conrad
+  bio: Parker Conrad 是美国连续创业者，现任 Rippling 首席执行官。他以“先做不可规模化的事情”的创业理念著称，曾创立 Zenefits，在企业软件领域具有深刻影响力。
+  career: '- CEO @ Rippling'
+  expertise:
+  - SaaS 创业
+  - 企业软件
+  - 规模化增长
+  - HR 科技
+  positioning: 连续创业者，企业软件领域“反直觉”策略的代表人物
+  ai_comment: 他的“先做不可规模化的事情”理念对 B2B SaaS 早期获客和产品验证极具启发，值得每位增长驱动型创业者反复咀嚼。
+  sources:
+  - https://en.wikipedia.org/wiki/Parker_Conrad
+  - https://www.linkedin.com/in/parkerconrad
+  - https://www.clay.com/dossier/rippling-ceo
+  - https://www.forbes.com/profile/parker-conrad/
+  - https://www.youtube.com/watch?v=M93xlPxQADE
+  generated_at: '2026-05-17'
+  locked: false
+- handle: davegerhardt
+  source: x
+  name: Dave Gerhardt
+  bio: Dave Gerhardt 是 B2B SaaS 营销领域的实践者与思想领袖，Exit Five 创始人。他从零打造个人品牌，专注创业公司营销策略、内容营销与创始人品牌。拥有 Wagner College 2009 届学位，凭借一线实战经验帮助多家初创企业实现增长，其观点和案例在业内广受认可。
+  career: '- Founder @ Exit Five'
+  expertise:
+  - B2B SaaS Marketing
+  - Startup Marketing
+  - Content Marketing
+  - Personal Branding
+  positioning: B2B SaaS 营销专家，Exit Five 创始人，专注创业公司营销策略与创始人个人品牌建设。
+  ai_comment: 从独立创业到知识变现的完整路径，Dave 用实战教你如何从零做 B2B 营销、建立个人影响力。
+  sources:
+  - https://davegerhardt.com/
+  - https://www.instagram.com/accounts/login/?next=https%3A%2F%2Fwww.instagram.com%2Fdavegerhardt%2F&is_from_rle
+  - https://www.facebook.com/WagnerAlumni/posts/alumni-spotlight-dave-gerhardt-09-is-an-entrepreneur-and-the-founder-of-exit-fiv/981100860725894/
+  - https://www.youtube.com/watch?v=BznmCU1Myn4
+  - https://davegerhardt.com/articles/author/davegerhardt
+  generated_at: '2026-05-17'
+  locked: false
+- handle: swyx-pod
+  source: podcast
+  name: Latent Space
+  bio: '[待补全]'
+  career: ''
+  expertise: []
+  positioning: ''
+  ai_comment: ''
+  sources: []
+  generated_at: '2026-05-17'
+  locked: false
+- handle: nathanlabenz-pod
+  source: podcast
+  name: The Cognitive Revolution
+  bio: Nathan Labenz 是播客「The Cognitive Revolution」的主持人，全职研究人工智能并致力于帮助他人理解 AI 前沿动态。他同时担任 AI 顾问和企业家，深耕技术与商业交叉领域。
+  career: ''
+  expertise:
+  - AI
+  - 技术播客
+  - 创业
+  - AI 战略
+  positioning: AI 研究者、企业家与播客主持人，专注解读认知革命时代的 AI 进展。
+  ai_comment: 作为 AI 深度观察者和创业者，他的播客能帮你快速跟上 AI 最新趋势、理解技术如何落地商业，对 B2B SaaS 从业者的战略思考很有启发。
+  sources:
+  - https://www.linkedin.com/in/nathanlabenz
+  - https://www.cognitiverevolution.ai/about/
+  generated_at: '2026-05-17'
+  locked: false
+- handle: nopriors-pod
+  source: podcast
+  name: No Priors
+  bio: 由Elad Gil和Sarah Guo共同主持的播客，专注AI革命，对话全球顶尖工程师、研究员和创始人，探讨AI、机器学习、科技与创业等前沿话题。
+  career: ''
+  expertise:
+  - AI
+  - Machine Learning
+  - Tech
+  - Startups
+  positioning: 聚焦AI革命的顶尖播客，访谈业界领袖探讨技术、创业与未来
+  ai_comment: 从播客中能直接获取一线AI创业者、研究者的真实思考，适合想把握AI趋势并学习创业经验的SaaS从业者。
+  sources:
+  - https://www.youtube.com/@NoPriorsPodcast
+  - https://www.youtube.com/playlist?list=PLMKa0PxGwad7jf8hwwX8w5FHitXZ1L_h1
+  generated_at: '2026-05-17'
+  locked: false
+- handle: nlw-pod
+  source: podcast
+  name: The AI Daily Brief
+  bio: The AI Daily Brief 是一档专注于人工智能新闻与趋势的每日播客，提供最新 AI 动态、行业分析和深度解读，帮助听众快速掌握 AI 领域的关键进展。
+  career: ''
+  expertise:
+  - 人工智能新闻
+  - AI 趋势分析
+  positioning: 每日人工智能新闻播客
+  ai_comment: 作为 B2B SaaS 从业者，每天花 10 分钟听这个节目就能跟上 AI 最新变化，节省大量信息筛选时间，尤其适合关注 AI 商业应用的读者。
+  sources:
+  - https://www.youtube.com/@AIDailyBrief
+  generated_at: '2026-05-17'
+  locked: false
+- handle: lennysan-pod
+  source: podcast
+  name: Lenny's Podcast
+  bio: Lenny's Podcast 是一个专注于产品、增长与职业发展的深度访谈播客，由前产品经理 Lenny 主持，其同名 Newsletter 订阅量超过 120 万。节目邀请顶级实践者分享创业、治理与个人成长的真知灼见。
+  career: ''
+  expertise:
+  - 产品管理
+  - 增长策略
+  - 职业生涯发展
+  - 精益创业
+  - 公司治理
+  positioning: 面向产品领导者与创始人的深度访谈播客，以高密度实战洞察著称。
+  ai_comment: 如果你想听一线操盘手拆解增长、治理与创业成败，Lenny 的访谈是业界最扎实的案例库，尤其适合 B2B SaaS 从业者吸收跨领域经验。
+  sources:
+  - https://www.youtube.com/@LennysPodcast
+  - https://www.lennysnewsletter.com/podcast
+  - https://podcasts.apple.com/sc/podcast/lennys-podcast-product-career-growth/id1627920305
+  - https://podcasts.apple.com/lk/podcast/lennys-podcast-product-career-growth/id1627920305
+  - https://www.youtube.com/channel/UC6t1O76G0jYXOAoYCm153dA/videos
+  generated_at: '2026-05-17'
+  locked: false
+- handle: shaanvp-pod
+  source: podcast
+  name: My First Million
+  bio: 由 Hubspot Media 制作的每日创业播客，主持人为 Sam Parr 和 Shaan Puri。每期围绕市场趋势与机会脑暴新商业创意，内容聚焦低成本创业、商业模式拆解与增长策略。
+  career: ''
+  expertise:
+  - 创业
+  - 商业创意
+  - 趋势分析
+  - 机会识别
+  positioning: 每日商业创意头脑风暴播客
+  ai_comment: 作为B2B SaaS从业者，每期都能挖到可落地的增长思路和产品灵感，尤其适合独立创业者捕捉低成本试错机会。
+  sources:
+  - https://podcasts.apple.com/cn/podcast/my-first-million/id1469759170
+  - https://www.youtube.com/@MyFirstMillionPod
+  generated_at: '2026-05-17'
+  locked: false
+- handle: a16z-pod
+  source: podcast
+  name: a16z Podcast
+  bio: a16z Podcast 是由硅谷顶级风投 Andreessen Horowitz（a16z）出品的科技与商业深度对谈栏目。每期邀请行业领袖、企业家、学者等嘉宾，围绕 AI、加密、企业服务、消费、金融科技等前沿领域，探讨“软件吞噬世界”背景下技术与文化的交汇。节目兼具
+    VC 实战洞察与思想深度，是理解硅谷投资逻辑与技术趋势的窗口。
+  career: ''
+  expertise:
+  - 风险投资
+  - 科技趋势
+  - AI与加密
+  - 企业服务
+  - 创业与增长
+  - 软件生态
+  positioning: 硅谷顶级风投打造的科技趋势与商业思想对谈播客
+  ai_comment: 作为 B2B SaaS 从业者，能从嘉宾实战分享中预判技术落地方向、理解资本如何评估产品价值，是补充行业认知与增长叙事的高性价比输入。
+  sources:
+  - https://podcasts.apple.com/us/podcast/ep125-%E6%BB%BF%E6%89%8B%E7%8D%A8%E8%A7%92%E7%8D%B8%E7%9A%84%E7%9F%BD%E8%B0%B7vc%E5%B7%A8%E9%A0%AD-a16z-%E7%A0%B4%E5%A3%9E%E5%BC%8F%E5%89%B5%E6%96%B0%E7%9A%84%E5%A5%BD%E8%90%8A%E5%A1%A2%E7%B6%93%E7%B4%80%E6%8A%95%E8%B3%87%E5%BF%83%E6%B3%95-%E4%B8%BB%E6%8C%81%E4%BA%BAickt%E5%89%B5%E6%A5%AD%E5%B0%8D%E8%AB%87/id1504424352?i=1000586608724&l=ru
+  - https://a16z.com/podcast/a16z-podcast-entrepreneurs-then-and-now/
+  - https://open.spotify.com/show/5bC65RDvs3oxnLyqqvkUYX
+  - https://www.youtube.com/watch?v=O91S1NL-B0Q
+  - https://x.com/search?q=C%E5%8E%82%E5%8A%B3%E5%8A%9B%E5%A3%AB%E9%BB%91%E6%B0%B4%E9%AC%BCV5%E7%89%88%E6%9C%AC%E3%80%90%E5%BE%AE%E4%BF%A1%EF%BC%9Aolleh345%E3%80%91%E9%A1%B6%E7%BA%A7%E5%A4%8D%E5%88%BB%E4%B8%80%E6%AF%94%E4%B8%80.xoo&f=live
+  generated_at: '2026-05-17'
+  locked: false
+- handle: practicalai-pod
+  source: podcast
+  name: Practical AI
+  bio: '[待补全]'
+  career: ''
+  expertise: []
+  positioning: ''
+  ai_comment: ''
+  sources: []
+  generated_at: '2026-05-17'
+  locked: false
+- handle: gergelyorosz-pod
+  source: podcast
+  name: The Pragmatic Engineer
+  bio: The Pragmatic Engineer 播客的主持人，曾与编译器领域顶尖专家 Chris Lattner 展开深度对谈，探讨语言设计、编译器工程与 AI 编程等前沿话题。
+  career: '- 无'
+  expertise:
+  - 无
+  positioning: ''
+  ai_comment: 从他的播客中，可以快速获取编译器与 AI 编程语言的最新思考，适合想用工程思维理解 AI 工具链的从业者。
+  sources:
+  - https://www.youtube.com/c/mrgergelyorosz
+  generated_at: '2026-05-17'
+  locked: false

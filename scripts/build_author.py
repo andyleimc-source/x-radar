@@ -85,7 +85,7 @@ def search_jina(query: str) -> tuple[list[dict], str]:
         headers["Authorization"] = f"Bearer {jina_key}"
     req = request.Request(url, headers=headers, method="GET")
     try:
-        with request.urlopen(req, timeout=20) as resp:
+        with request.urlopen(req, timeout=60) as resp:
             body = resp.read().decode("utf-8", "ignore")
     except (error.URLError, error.HTTPError, TimeoutError, OSError) as e:
         print(f"[WARN] Jina search failed: {e}", file=sys.stderr)
