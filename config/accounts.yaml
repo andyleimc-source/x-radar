@@ -166,3 +166,35 @@ accounts:
   - username: davegerhardt
     category: martech
     note: Dave Gerhardt · DGMG，B2B 营销
+
+# === Podcasts (海外 AI / SaaS / 创业 / dev) ===
+# 改这个列表增删播客源。topic 仅人工分类，不影响逻辑。
+# 体检 RSS 可达性：bash scripts/check_podcast_feeds.sh
+podcasts:
+  - name: Latent Space
+    rss: https://api.substack.com/feed/podcast/1084089.rss
+    topic: ai-eng
+  - name: The Cognitive Revolution
+    rss: https://feeds.megaphone.fm/RINTP3108857801
+    topic: ai-frontier
+  - name: No Priors
+    rss: https://feeds.megaphone.fm/nopriors
+    topic: ai-vc
+  - name: The AI Daily Brief
+    rss: https://anchor.fm/s/f7cac464/podcast/rss
+    topic: ai-news
+  - name: Lenny's Podcast
+    rss: https://api.substack.com/feed/podcast/10845.rss
+    topic: saas-growth
+  - name: My First Million
+    rss: https://feeds.megaphone.fm/HS2300184645
+    topic: startup-ideas
+  - name: a16z Podcast
+    rss: https://feeds.simplecast.com/JGE3yC0V
+    topic: ai-vc
+  - name: Practical AI
+    rss: https://changelog.com/practicalai/feed
+    topic: ai-eng
+  - name: The Pragmatic Engineer
+    rss: https://api.substack.com/feed/podcast/458709.rss
+    topic: dev
