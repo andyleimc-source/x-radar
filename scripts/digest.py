@@ -314,6 +314,112 @@ def build_missing_authors(handles_with_meta: list[tuple[str, str, str]]):
             print(f"[author-build] {handle} timeout", file=sys.stderr)
 
 
+AUTHOR_SELECT_PROMPT = ROOT / "prompts" / "author_select.md"
+AUTHORS_FILE = ROOT / "config" / "authors.yaml"
+
+
+def load_authors_map() -> dict:
+    """handle → 完整作者记录。"""
+    if not AUTHORS_FILE.exists():
+        return {}
+    try:
+        d = yaml.safe_load(AUTHORS_FILE.read_text()) or {}
+        return {a["handle"]: a for a in d.get("authors", []) if a.get("handle")}
+    except Exception:
+        return {}
+
+
+def collect_daily_authors(digest_tweets: list[dict], podcast_items: list[dict],
+                          accounts_cfg: dict, authors_map: dict) -> list[dict]:
+    """返回 [{handle, blurb}, ...]，blurb 给选 prompt 的"文章摘要"上下文。
+    只保留已在 authors_map 里且 bio 非占位的作者。
+    """
+    by_user: dict[str, dict] = {}
+    for t in digest_tweets:
+        u = t["username"]
+        if u not in authors_map:
+            continue
+        cur = by_user.get(u)
+        if cur is None or (t.get("like") or 0) > (cur.get("like") or 0):
+            by_user[u] = t
+
+    pod_cfg = {p["name"]: p for p in (accounts_cfg.get("podcasts") or [])}
+    for p in podcast_items or []:
+        name = p.get("podcast")
+        cfg = pod_cfg.get(name)
+        if not cfg:
+            continue
+        h = cfg.get("host_handle")
+        if not h or h not in authors_map:
+            continue
+        title = p.get("title", "")
+        summary = (p.get("show_notes") or p.get("description") or p.get("summary") or "")[:200]
+        by_user.setdefault(h, {
+            "username": h,
+            "text": f"{title}: {summary}",
+        })
+
+    result = []
+    for h, t in by_user.items():
+        a = authors_map[h]
+        if not a.get("bio") or a["bio"] == "[待补全]":
+            continue
+        blurb = (t.get("text") or "")[:120].replace("\n", " ")
+        result.append({"handle": h, "blurb": blurb})
+    return result
+
+
+def pick_three(candidates: list[dict]) -> list[str]:
+    """调 DeepSeek 选 3 人，返回 handle 列表。失败/为空返回 candidates 前 3。"""
+    if not candidates:
+        return []
+    if len(candidates) <= 3:
+        return [c["handle"] for c in candidates]
+
+    tpl = AUTHOR_SELECT_PROMPT.read_text()
+    candidates_md = "\n".join(
+        f"- @{c['handle']}: {c['blurb']}" for c in candidates
+    )
+    prompt = tpl.replace("{candidates}", candidates_md)
+
+    try:
+        raw, _ = call_deepseek("", prompt)
+    except Exception as e:
+        print(f"[author-pick] DeepSeek failed: {e}; falling back to first 3", file=sys.stderr)
+        return [c["handle"] for c in candidates[:3]]
+
+    handles = [s.strip().lstrip("@") for s in raw.replace("\n", ",").split(",") if s.strip()]
+    valid = [h for h in handles if any(c["handle"] == h for c in candidates)]
+    return valid[:3] if valid else [c["handle"] for c in candidates[:3]]
+
+
+def render_authors_block(handles: list[str], authors_map: dict) -> str:
+    if not handles:
+        return ""
+    lines = ["## 👤 今日作者介绍\n"]
+    for h in handles:
+        a = authors_map.get(h)
+        if not a:
+            continue
+        name = a.get("name") or h
+        lines.append(f"### {name} (@{h})\n")
+        lines.append(a.get("bio", "").strip() + "\n")
+        career = (a.get("career") or "").strip()
+        if career:
+            lines.append(f"**履历**：\n{career}\n")
+        exp = a.get("expertise") or []
+        if exp:
+            lines.append("**擅长**：" + " / ".join(exp) + "\n")
+        pos = (a.get("positioning") or "").strip()
+        if pos:
+            lines.append(f"**定位**：{pos}\n")
+        ac = (a.get("ai_comment") or "").strip()
+        if ac:
+            lines.append(f"**🤖 AI 点评**：{ac}\n")
+        lines.append("---\n")
+    return "\n".join(lines) + "\n"
+
+
 def main(slot: str):
     load_env()
 
@@ -462,6 +568,24 @@ def main(slot: str):
 
     print(f"Calling DeepSeek on {len(digest_tweets)} tweets from {len({t['username'] for t in digest_tweets})} accounts + {len(reddit_items)} reddit posts + {len(hn_items)} hn stories + {len(podcast_items)} podcast episodes...", flush=True)
     md, ds_usage = call_deepseek(prompt, payload)
+
+    # === 今日作者介绍：拼到「写作建议」前 ===
+    try:
+        authors_map = load_authors_map()
+        daily = collect_daily_authors(digest_tweets, podcast_items, accounts_cfg, authors_map)
+        picked = pick_three(daily)
+        authors_block = render_authors_block(picked, authors_map)
+        if authors_block:
+            marker = "## ✍️ 写作建议"
+            if marker in md:
+                head, tail = md.split(marker, 1)
+                md = head.rstrip() + "\n\n" + authors_block + marker + tail
+            else:
+                md = md.rstrip() + "\n\n" + authors_block
+            print(f"[author-block] picked {len(picked)} authors: {','.join(picked)}", flush=True)
+    except Exception as e:
+        print(f"[author-block] failed (non-fatal): {e}", file=sys.stderr)
+
     ds_cost_line = format_deepseek_cost(ds_usage)
     if ds_cost_line:
         usage_footer = usage_footer.rstrip() + f"\n\n{ds_cost_line}\n" if usage_footer else f"\n\n---\n\n{ds_cost_line}\n"
