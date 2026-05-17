@@ -4,6 +4,22 @@
 
 ---
 
+## 2026-05-17 · 播客走 A 流（RSS 元数据），不做转写
+
+- **决策**：第 5 信源用海外播客 RSS 元数据（标题 + show notes），不抓音频不转写，9 个英文源
+- **Why**：
+  - Show notes 已足够生成"2–3 句中文要点"——DeepSeek 实测出来质量可读
+  - 转写（B 流）每集 30–90 分钟音频，Groq Whisper ~$0.04/小时，AssemblyAI ~$0.37/小时，工程量大、要异步队列
+  - 先用零成本（仅 RSS + DeepSeek piggyback 调用）方案验证邮件价值，再决定是否升级
+- **备选**：
+  - B 流（Whisper 全量转写）：质量高 N 倍，但成本/工程量差一个数量级。延后
+  - C 流（白名单转写）：A 流跑稳后标记高价值播客单独走 B。延后
+  - 中文播客（小宇宙）：RSS 私有，无标准接入。暂不做
+- **代价**：show notes 写得糙的播客（My First Million / a16z 偶发）只能 fallback 到"仅列标题"；prompt 已兜底，体感可接受
+- **架构选择**：piggyback 到现有 tweets+reddit+hn 那次 DeepSeek 调用里（一次调用、同一 prompt 多输出一段），不开独立调用。Why：成本/复杂度都最低，且与 Reddit 卡片用同一套样式
+
+---
+
 ## 2026-05-10 · Reddit 走公开 RSS，不接 OAuth
 
 - **决策**：Reddit 信息源用未认证的 Atom RSS（`/r/<sub>/top/.rss?t=week`），不注册 script app、不走 OAuth、不存 client_id/secret

@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-05-17
+
+- **接入第 5 个信源：海外播客（A 流·RSS 元数据）**。9 个源：Latent Space / The Cognitive Revolution / No Priors / The AI Daily Brief / Lenny's / My First Million / a16z / Practical AI / The Pragmatic Engineer。覆盖 AI eng / Codex Claude vibe coding / SaaS 营销 / AI 创业 / dev / GitHub 热门
+- 架构：`external.fetch_podcasts()` 抓 RSS（含 RSS 2.0 + Atom 兼容）→ piggyback 到现有 DeepSeek 一次调用 → `prompts/analysis.md` 加播客卡片输出规范 → 增量按 episode GUID 写 `data/state/last_seen.json` 的 `_podcasts` 命名空间
+- 仅用 stdlib，无新依赖
+- 服务器端到端验证 OK：14410 → 16567 bytes（含 4 集播客卡片），真实邮件已发（DeepSeek ¥0.0196 / 次）
+- spec：`docs/superpowers/specs/2026-05-17-podcast-source-design.md`；plan：`docs/superpowers/plans/2026-05-17-podcast-source.md`
+- 体检脚本：`bash scripts/check_podcast_feeds.sh`（9/9 200）
+- 下一步：观察未来 3 天卡片质量，特别是 show_notes 糙的源（My First Million / a16z）是否经常 fallback 到"信息不足"；糙得离谱就考虑替换源
+
+---
+
 ## 2026-05-13
 
 - digest 四项优化一次性落地（commit `ed52332`）：
