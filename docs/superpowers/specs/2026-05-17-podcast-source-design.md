@@ -20,14 +20,16 @@
 | # | 播客 | RSS 来源 | 话题命中 |
 |---|---|---|---|
 | 1 | Latent Space | `https://api.substack.com/feed/podcast/1084089.rss` | AI eng / codex / claude / vibe coding |
-| 2 | The Cognitive Revolution | `https://feeds.transistor.fm/the-cognitive-revolution-transforming-work-society-with-ai` | 前沿 AI 深访 |
-| 3 | No Priors | `https://feeds.transistor.fm/no-priors` | AI 创业 / 投资 |
-| 4 | The AI Daily Brief | `https://feeds.megaphone.fm/the-ai-daily-brief` | AI 资讯日更 |
+| 2 | The Cognitive Revolution | `https://feeds.megaphone.fm/RINTP3108857801` | 前沿 AI 深访 |
+| 3 | No Priors | `https://feeds.megaphone.fm/nopriors` | AI 创业 / 投资 |
+| 4 | The AI Daily Brief | `https://anchor.fm/s/f7cac464/podcast/rss` | AI 资讯日更 |
 | 5 | Lenny's Podcast | `https://api.substack.com/feed/podcast/10845.rss` | SaaS / 产品 / 增长 |
 | 6 | My First Million | `https://feeds.megaphone.fm/HS2300184645` | SaaS 创业 / idea |
 | 7 | a16z Podcast | `https://feeds.simplecast.com/JGE3yC0V` | AI / startup |
 | 8 | Practical AI | `https://changelog.com/practicalai/feed` | AI 工程实践 |
-| 9 | The Pragmatic Engineer | `https://api.substack.com/feed/podcast/458678.rss` | dev / eng / GitHub 项目 |
+| 9 | The Pragmatic Engineer | `https://api.substack.com/feed/podcast/458709.rss` | dev / eng / GitHub 项目 |
+
+> **环境提示**：以上 URL 已在硅谷服务器（170.106.146.222，最终运行环境）验证 9/9 返回 200。本机（上海 GFW 环境）可能 timeout Substack 或 Anchor SSL 报错，属环境差异，不影响线上。
 
 > RSS URL 在实现阶段需逐个 `curl` 验证可达性，失败的换备用源（Apple Podcasts → RSS 通过 `https://podcastindex.org/` 反查）。
 
