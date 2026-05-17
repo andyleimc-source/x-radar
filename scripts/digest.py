@@ -349,8 +349,6 @@ def main(slot: str):
             if max_id and id_gt(max_id, new_last_seen.get(u, "")):
                 new_last_seen[u] = max_id
 
-    STATE_FILE.write_text(json.dumps(new_last_seen, indent=2, ensure_ascii=False))
-
     DIGEST_DIR.mkdir(parents=True, exist_ok=True)
     digest_file = DIGEST_DIR / f"{date_str}-{slot}.md"
 
@@ -378,7 +376,23 @@ def main(slot: str):
         print(f"[WARN] hn fetch failed: {e}", file=sys.stderr)
         hn_items = []
 
-    if not digest_tweets and not reddit_items and not hn_items:
+    # 抓播客新单集（增量，last_seen 来自 state 文件）
+    podcast_last_seen = new_last_seen.get("_podcasts", {})
+    try:
+        podcast_items = external.fetch_podcasts(limit=8, last_seen=podcast_last_seen)
+    except Exception as e:
+        print(f"[WARN] podcast fetch failed: {e}", file=sys.stderr)
+        podcast_items = []
+
+    # 合并 podcast last_seen 到 new_last_seen
+    if podcast_items:
+        new_last_seen.setdefault("_podcasts", {})
+        new_last_seen["_podcasts"].update(external.latest_podcast_guids(podcast_items))
+
+    # 写回 STATE（必须在 podcast 合并之后）
+    STATE_FILE.write_text(json.dumps(new_last_seen, indent=2, ensure_ascii=False))
+
+    if not digest_tweets and not reddit_items and not hn_items and not podcast_items:
         digest_file.write_text("## 🧠 今日观察\n\n本时段无新推。\n" + external_md + usage_footer)
         print(f"Digested 0 tweets from {len(usernames)} accounts → {digest_file}")
         return
@@ -391,9 +405,10 @@ def main(slot: str):
         "tweets": digest_tweets,
         "reddit": reddit_items,
         "hn": hn_items,
+        "podcasts": podcast_items,
     }, ensure_ascii=False)
 
-    print(f"Calling DeepSeek on {len(digest_tweets)} tweets from {len({t['username'] for t in digest_tweets})} accounts + {len(reddit_items)} reddit posts + {len(hn_items)} hn stories...", flush=True)
+    print(f"Calling DeepSeek on {len(digest_tweets)} tweets from {len({t['username'] for t in digest_tweets})} accounts + {len(reddit_items)} reddit posts + {len(hn_items)} hn stories + {len(podcast_items)} podcast episodes...", flush=True)
     md, ds_usage = call_deepseek(prompt, payload)
     ds_cost_line = format_deepseek_cost(ds_usage)
     if ds_cost_line:
