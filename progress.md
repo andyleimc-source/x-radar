@@ -6,6 +6,7 @@
 
 ## 2026-05-17
 
+- **HN 原文抓取修复**：`fetch_article_text` 改用浏览器 UA + r.jina.ai reader 兜底（直抓失败或 <500 字符自动转）。之前 6 条里 3 条拿不到（Bloomberg 403 / crates.io 404 / Twitter stub），现在 6/6 全拿到 2k-4k 字正文，DeepSeek 不用再靠标题瞎猜
 - **接入第 5 个信源：海外播客（A 流·RSS 元数据）**。9 个源：Latent Space / The Cognitive Revolution / No Priors / The AI Daily Brief / Lenny's / My First Million / a16z / Practical AI / The Pragmatic Engineer。覆盖 AI eng / Codex Claude vibe coding / SaaS 营销 / AI 创业 / dev / GitHub 热门
 - 架构：`external.fetch_podcasts()` 抓 RSS（含 RSS 2.0 + Atom 兼容）→ piggyback 到现有 DeepSeek 一次调用 → `prompts/analysis.md` 加播客卡片输出规范 → 增量按 episode GUID 写 `data/state/last_seen.json` 的 `_podcasts` 命名空间
 - 仅用 stdlib，无新依赖
