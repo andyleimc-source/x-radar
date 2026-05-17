@@ -114,23 +114,43 @@ _HN_KEYWORDS = re.compile(
 HN_ARTICLE_MAX = 4000
 
 
+_BROWSER_UA = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+)
+
+
+def _fetch_via_jina(url: str, max_chars: int, timeout: int) -> str:
+    """r.jina.ai reader proxy: 处理 paywall / JS / Cloudflare，返回纯文本 markdown。"""
+    try:
+        raw = _get(f"https://r.jina.ai/{url}", headers={"User-Agent": _BROWSER_UA}, timeout=timeout)
+        text = raw.decode("utf-8", "ignore").strip()
+        if len(text) > max_chars:
+            text = text[:max_chars].rstrip() + "…"
+        return text
+    except Exception as e:
+        print(f"[external] jina reader failed {url}: {e}", file=sys.stderr)
+        return ""
+
+
 def fetch_article_text(url: str, max_chars: int = HN_ARTICLE_MAX, timeout: int = 15) -> str:
-    """轻量抓原文：urllib + strip HTML。paywall / JS 站拿不到就返回空串。"""
+    """抓原文：先 urllib 直抓（浏览器 UA），失败或内容太短就走 r.jina.ai 兜底。"""
     if not url:
         return ""
+    text = ""
     try:
-        raw = _get(url, timeout=timeout)
-    except Exception as e:
-        print(f"[external] article fetch failed {url}: {e}", file=sys.stderr)
-        return ""
-    try:
+        raw = _get(url, headers={"User-Agent": _BROWSER_UA}, timeout=timeout)
         html = raw.decode("utf-8", "ignore")
-    except Exception:
-        return ""
-    # 砍掉 script/style
-    html = re.sub(r"<script[\s\S]*?</script>", " ", html, flags=re.I)
-    html = re.sub(r"<style[\s\S]*?</style>", " ", html, flags=re.I)
-    text = _strip_html(html)
+        html = re.sub(r"<script[\s\S]*?</script>", " ", html, flags=re.I)
+        html = re.sub(r"<style[\s\S]*?</style>", " ", html, flags=re.I)
+        text = _strip_html(html)
+    except Exception as e:
+        print(f"[external] direct fetch failed {url}: {e}", file=sys.stderr)
+    # 直抓失败 / 内容过短（多半被反爬挡了 stub 页）→ jina 兜底
+    if len(text) < 500:
+        jina = _fetch_via_jina(url, max_chars, timeout)
+        if len(jina) > len(text):
+            text = jina
     if len(text) > max_chars:
         text = text[:max_chars].rstrip() + "…"
     return text
