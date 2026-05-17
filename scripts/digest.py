@@ -283,6 +283,37 @@ def format_deepseek_cost(usage: dict) -> str:
     )
 
 
+def load_authors_handles() -> set[str]:
+    """返回 authors.yaml 里所有已存在的 handle。"""
+    p = ROOT / "config" / "authors.yaml"
+    if not p.exists():
+        return set()
+    try:
+        d = yaml.safe_load(p.read_text()) or {}
+        return {a.get("handle") for a in d.get("authors", []) if a.get("handle")}
+    except Exception:
+        return set()
+
+
+def build_missing_authors(handles_with_meta: list[tuple[str, str, str]]):
+    """对不在库的 handle 逐个调 build_author.py。
+    handles_with_meta: [(handle, source, display_name), ...]
+    """
+    have = load_authors_handles()
+    for handle, source, name in handles_with_meta:
+        if handle in have:
+            continue
+        print(f"[author-build] {handle} not in library, building...", flush=True)
+        try:
+            subprocess.run(
+                ["python3", str(ROOT / "scripts" / "build_author.py"),
+                 handle, source, "--name", name],
+                check=False, timeout=90,
+            )
+        except subprocess.TimeoutExpired:
+            print(f"[author-build] {handle} timeout", file=sys.stderr)
+
+
 def main(slot: str):
     load_env()
 
@@ -316,6 +347,16 @@ def main(slot: str):
             fetched[u] = tweets
             usage_rows.append((u, billed))
     log_usage(slot, usage_rows)
+
+    # 收集本轮抓到推文的 X 作者 → 不在库的建档
+    x_candidates: list[tuple[str, str, str]] = []
+    for u in usernames:
+        tweets = fetched.get(u, [])
+        if not tweets:
+            continue
+        display_name = (tweets[0].get("author") or {}).get("name") or u
+        x_candidates.append((u, "x", display_name))
+    build_missing_authors(x_candidates)
 
     # 过滤 + 更新 last_seen
     digest_tweets = []
@@ -383,6 +424,17 @@ def main(slot: str):
     except Exception as e:
         print(f"[WARN] podcast fetch failed: {e}", file=sys.stderr)
         podcast_items = []
+
+    # podcast 主播建档：从 accounts.yaml 取 host_handle
+    pod_cfg = accounts_cfg.get("podcasts") or []
+    pod_candidates: list[tuple[str, str, str]] = []
+    if podcast_items:
+        # podcast_items 每条用字段名 "podcast" 表示节目名
+        hit_names = {p.get("podcast") for p in podcast_items}
+        for p in pod_cfg:
+            if p.get("name") in hit_names and p.get("host_handle"):
+                pod_candidates.append((p["host_handle"], "podcast", p["name"]))
+    build_missing_authors(pod_candidates)
 
     # 合并 podcast last_seen 到 new_last_seen
     if podcast_items:
