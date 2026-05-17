@@ -576,7 +576,7 @@ def main(slot: str):
         picked = pick_three(daily)
         authors_block = render_authors_block(picked, authors_map)
         if authors_block:
-            marker = "## ✍️ 写作建议"
+            marker = "## ✍️ 写作选题建议"
             if marker in md:
                 head, tail = md.split(marker, 1)
                 md = head.rstrip() + "\n\n" + authors_block + marker + tail
