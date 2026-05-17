@@ -167,7 +167,8 @@
 - 摘要 2–3 句中文要点，必须基于 `show_notes` 字段内容，不要凭训练知识硬编。如果 show_notes < 100 字或全是套话（如"This week we discuss..."无实质），写："（show notes 信息不足，仅列标题中文翻译）"
 - **保留专有名词 / 数字 / 嘉宾名**（如 "Cursor 团队"、"$9B 估值"、"嘉宾 Michael Truell"）
 - **不要逐句翻译**，读完 show_notes 用中文概括；**不要堆形容词**，信息密度优先（同推文摘要风格）
-- 链接行严格用：`🔗 [收听]({url}) · ⏱️ {duration} · 📅 {published}`。若 `duration` 为空就省略 `· ⏱️ ...`，`published` 为空就省略 `· 📅 ...`，但 `[收听]({url})` 必须保留
+- 链接行严格用：`🔗 [收听]({url}) · ⏱️ {duration} · 📅 {published}`。若 `duration` 为空就省略 `· ⏱️ ...`，`published` 为空就省略 `· 📅 ...`
+- **`url` 字段为空字符串时，整行链接省略**——不要凭训练知识编造 URL（不要写 somewhere.com / example.com 这种假链接），也不要写 "url 为空" 字样。直接不输出 🔗 那一行
 
 ### ✍️ 写作选题建议（最多 3 条，放整篇最末尾）
 
