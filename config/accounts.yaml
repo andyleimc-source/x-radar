@@ -174,27 +174,36 @@ podcasts:
   - name: Latent Space
     rss: https://api.substack.com/feed/podcast/1084089.rss
     topic: ai-eng
+    host_handle: swyx-pod
   - name: The Cognitive Revolution
     rss: https://feeds.megaphone.fm/RINTP3108857801
     topic: ai-frontier
+    host_handle: nathanlabenz-pod
   - name: No Priors
     rss: https://feeds.megaphone.fm/nopriors
     topic: ai-vc
+    host_handle: nopriors-pod
   - name: The AI Daily Brief
     rss: https://anchor.fm/s/f7cac464/podcast/rss
     topic: ai-news
+    host_handle: nlw-pod
   - name: Lenny's Podcast
     rss: https://api.substack.com/feed/podcast/10845.rss
     topic: saas-growth
+    host_handle: lennysan-pod
   - name: My First Million
     rss: https://feeds.megaphone.fm/HS2300184645
     topic: startup-ideas
+    host_handle: shaanvp-pod
   - name: a16z Podcast
     rss: https://feeds.simplecast.com/JGE3yC0V
     topic: ai-vc
+    host_handle: a16z-pod
   - name: Practical AI
     rss: https://changelog.com/practicalai/feed
     topic: ai-eng
+    host_handle: practicalai-pod
   - name: The Pragmatic Engineer
     rss: https://api.substack.com/feed/podcast/458709.rss
     topic: dev
+    host_handle: gergelyorosz-pod
