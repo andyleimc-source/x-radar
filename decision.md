@@ -4,6 +4,21 @@
 
 ---
 
+## 2026-05-17 · 作者库数据源选 Jina（s.jina.ai）而非 Perplexity
+
+- **决策**：用 `s.jina.ai` 搜索 + DeepSeek 综述生成作者画像；不引 Perplexity Sonar
+- **Why**：
+  - Perplexity 最低充值 $50，本场景预期年消耗 < $1，资金趴账浪费
+  - Jina 已在用（HN 兜底 `r.jina.ai`），同源减依赖
+  - Jina 免费注册即送 1000 万 token 配额，按用量计费 ~$0.0004/搜索
+- **备选**：Perplexity Sonar、Tavily、Exa、纯 LLM（编造风险否决）、Jina + 不用 key（已不可行，s.jina.ai 现需 auth）
+- **代价**：
+  - 中文搜索片段质量参差 → 占位 `[待补全]`，Andy 手填后 `locked: true`
+  - 国内 Mac 无法直接调试 `s.jina.ai`（GFW 阻断），调试要走服务器
+- **配置**：`.env` 加 `JINA_API_KEY=jina_xxx`（服务器侧已配）
+
+---
+
 ## 2026-05-17 · 播客走 A 流（RSS 元数据），不做转写
 
 - **决策**：第 5 信源用海外播客 RSS 元数据（标题 + show notes），不抓音频不转写，9 个英文源

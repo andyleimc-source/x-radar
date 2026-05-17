@@ -6,6 +6,12 @@
 
 ## 2026-05-17
 
+- **作者库 + 「👤 今日作者介绍」模块上线**：每日 digest 倒数第二位（写作选题建议前）插入 3 位当日上榜作者的画像（bio / 履历 / 擅长 / 定位 / 🤖 AI 点评）。
+  - 数据源：`s.jina.ai`（Jina 免费 token API + key）+ DeepSeek 综述
+  - 作者库：`config/authors.yaml`（57 条，42 条真实画像 / 15 个品牌·小众 placeholder，可手填后 `locked: true`）
+  - 流程：digest 抓后自动给不在库的新 handle 调 `scripts/build_author.py`；生成 digest 后再调 DeepSeek 选 3 人渲染并插入
+  - spec：`docs/superpowers/specs/2026-05-17-author-library-design.md`；plan：`docs/superpowers/plans/2026-05-17-author-library.md`
+  - 服务器端到端验证 OK：作者块已出现在 `data/digests/2026-05-17-morning.md`
 - **HN 原文抓取修复**：`fetch_article_text` 改用浏览器 UA + r.jina.ai reader 兜底（直抓失败或 <500 字符自动转）。之前 6 条里 3 条拿不到（Bloomberg 403 / crates.io 404 / Twitter stub），现在 6/6 全拿到 2k-4k 字正文，DeepSeek 不用再靠标题瞎猜
 - **接入第 5 个信源：海外播客（A 流·RSS 元数据）**。9 个源：Latent Space / The Cognitive Revolution / No Priors / The AI Daily Brief / Lenny's / My First Million / a16z / Practical AI / The Pragmatic Engineer。覆盖 AI eng / Codex Claude vibe coding / SaaS 营销 / AI 创业 / dev / GitHub 热门
 - 架构：`external.fetch_podcasts()` 抓 RSS（含 RSS 2.0 + Atom 兼容）→ piggyback 到现有 DeepSeek 一次调用 → `prompts/analysis.md` 加播客卡片输出规范 → 增量按 episode GUID 写 `data/state/last_seen.json` 的 `_podcasts` 命名空间
