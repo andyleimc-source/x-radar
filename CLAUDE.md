@@ -1,14 +1,14 @@
 # X Radar · 项目笔记
 
 每日抓 X 关注列表 → DeepSeek 分析 → 邮件 digest（主线）。
-另有支线：**小红书 AI 日更图组**（M4）——AI 信号选题 → 3:4 卡片图 → 每天 07:30 自动 Bark 推到手机。
+另有支线：**小红书 AI 日更图组**（M4）——AI 信号选题 → 3:4 卡片图 → 每天 06:20 自动 Bark 推到手机。
 
 ## 小红书图组 · 全自动交付（M4，2026-06-29 起）
 
 两条 cron 接力，**渲染在 Mac、定时在服务器**：
 
 1. **硅谷服务器 06:00**（既有 `send-digest.sh` Step 1.5）→ `analyze_xhs.py` 出当天选好题的 `data/xhs/<date>.json`。
-2. **cn 服务器 07:30**（crontab `30 7 * * *` → `~/cn-trigger-xhs.sh`）→ Tailscale SSH 回连 Mac（work 节点 `100.82.108.123`）→ Mac 跑 `scripts/deliver-xhs.sh`：拉硅谷 JSON → 渲染 3:4 图 → 归档 `posts/<date>/` → 部署预览页 `xhs-<date>` → 发 **Bark**（标题=小红书标题、正文=简介+标签、链接=预览页）。Mac 连不上 → cn 发失败 Bark 报警。
+2. **cn 服务器 06:20**（crontab `20 6 * * *` → `~/cn-trigger-xhs.sh`）→ Tailscale SSH 回连 Mac（work 节点 `100.82.108.123`）→ Mac 跑 `scripts/deliver-xhs.sh`：拉硅谷 JSON → 渲染 3:4 图 → 归档 `posts/<date>/` → 部署预览页 `xhs-<date>` → 发 **Bark**（标题=小红书标题、正文=简介+标签、链接=预览页）。Mac 连不上 → cn 发失败 Bark 报警。
 
 - 渲染脚本只能在 Mac 跑（Playwright/Chromium）。`.env` 里 `BARK_KEY`。详见 `decision.md` 2026-06-29。
 - **手动出一期**（任意时间）：本机 `bash scripts/build-xhs.sh [date]`（拉 JSON+渲染+归档+开目录）。

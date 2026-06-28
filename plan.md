@@ -53,7 +53,7 @@
 - [x] **文案生成**：选题 prompt 同时出 `hook`/`caption`/`tags` 写进 JSON，render_xhs 落 `caption.txt`
 - [x] **本机一条命令**：`scripts/build-xhs.sh [date]` — scp 拉服务器当天 raw（key 免密，不二次消耗 twitterapi）→ analyze → render → 开目录。`SKIP_PULL=1` 纯本机
 - [x] **发布归档目录** `posts/<date>/`：`scripts/archive_xhs.py` 把当天图片 + `post.md`（小红书标题/正文/标签/图片顺序/来源自查/发布状态）归档；`build-xhs.sh` 末尾自动调。post.md 入 git（编辑记录），图片 gitignore（日更不撑大仓库）。工作区 `data/xhs/`（临时）与 `posts/`（留存档案）分开
-- [x] **全自动交付（Bark 推送）**：cn 服务器 crontab `30 7 * * *` → Tailscale SSH 到 Mac → `deliver-xhs.sh`（拉硅谷 JSON + 渲染 + 归档 + 部署预览 + 发 Bark）。一条 Bark = 标题 + 简介 + 标签 + 预览页链接，点开存图+复制即发。失败 cn 报警。详见 decision 2026-06-29。**已端到端实测通过**（cn→Mac→渲染→Bark 退出码 0）
+- [x] **全自动交付（Bark 推送）**：cn 服务器 crontab `20 6 * * *` → Tailscale SSH 到 Mac → `deliver-xhs.sh`（拉硅谷 JSON + 渲染 + 归档 + 部署预览 + 发 Bark）。一条 Bark = 标题 + 简介 + 标签 + 预览页链接，点开存图+复制即发。失败 cn 报警。详见 decision 2026-06-29。**已端到端实测通过**（cn→Mac→渲染→Bark 退出码 0）
 - [ ] **人工把关**（前几次必跑）→ 收到 Bark 后人工传小红书（点链接存图 + 复制 post.md/通知里的标题简介）
 - [x] **analyze 接进服务器 cron**：`send-digest.sh` 加 Step 1.5，每天 06:00 digest 后跑 `analyze_xhs.py` 出 `data/xhs/<date>.json`（非致命）。本机 `build-xhs.sh` 默认直接 scp 这份现成 JSON 渲染（无需本机调 DeepSeek）；`LOCAL=1` 可强制本机重选。已部署+实测
 - [x] **在线预览**：`scripts/preview_xhs.py` 把当天 PNG 内嵌成单个自包含 HTML（横滑顺序 + 平铺 + 文案），`vibeshare` 一键部署成链接在手机/电脑审版式。第一组已出（2026-06-28）
