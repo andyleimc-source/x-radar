@@ -54,7 +54,9 @@
 - [x] **本机一条命令**：`scripts/build-xhs.sh [date]` — scp 拉服务器当天 raw（key 免密，不二次消耗 twitterapi）→ analyze → render → 开目录。`SKIP_PULL=1` 纯本机
 - [ ] **人工把关**（前几次必跑）→ 人工传小红书
 - [x] **analyze 接进服务器 cron**：`send-digest.sh` 加 Step 1.5，每天 06:00 digest 后跑 `analyze_xhs.py` 出 `data/xhs/<date>.json`（非致命）。本机 `build-xhs.sh` 默认直接 scp 这份现成 JSON 渲染（无需本机调 DeepSeek）；`LOCAL=1` 可强制本机重选。已部署+实测
-- [ ] **可选下一步**：把 newsletter/blog 接进邮件 digest 的 `build()`；CDP 自动发布；卡片排版微调（fact 短时 take 留白偏大）
+- [x] **在线预览**：`scripts/preview_xhs.py` 把当天 PNG 内嵌成单个自包含 HTML（横滑顺序 + 平铺 + 文案），`vibeshare` 一键部署成链接在手机/电脑审版式。第一组已出（2026-06-28）
+- [x] **去 AI 腔收紧 + 排版微调**：`prompts/xhs_select.md` 堵死标题「X：Y」冒号结构、空洞升华金句（「细节决定X」「从能跑走向好用」）、引号口号；`render_xhs.py` 改信号卡布局——take 紧跟 fact（34px），留白沉到页脚前，fact 短时不再中间裂开
+- [ ] **可选下一步**：把 newsletter/blog 接进邮件 digest 的 `build()`；CDP 自动发布；候选池稳健性（本机连跑 reddit 易 429、HN 偶尔空 → 候选池缩水到十几条，服务器 cron 更稳）
 
 ## 暂不做
 

@@ -6,6 +6,13 @@
 
 ## 2026-06-28
 
+- **出第一组图 + 去 AI 腔/排版收紧 + 在线预览**（M4 首次真数据成片）：
+  - 跑通 `build-xhs.sh 2026-06-28` 默认路径（拉服务器现成 JSON → 渲染），出封面+内容+尾卡。**核实选题真实性**：Sol / Terra / Mythos 5 / Fable 5 都是知识截止后的真模型，逐字对得上 @sama/@AnthropicAI/@OpenAIDevs/@_akhaliq 原文——选题管线没编造，准确。
+  - **去 AI 腔收紧**（`prompts/xhs_select.md`）：堵死标题「X：Y」冒号结构、空洞升华金句（「细节决定X」「从能跑走向好用」「XX 正成为 YY」）、引号当口号。重选后标题无冒号、take 是具体判断。
+  - **排版微调**（`render_xhs.py` 信号卡）：take 紧跟 fact（margin 34px），留白沉到页脚前（foot 改 `margin-top:auto`），fact 短时不再中间裂开。
+  - **在线预览**（新 `scripts/preview_xhs.py`）：当天 PNG 内嵌成单个自包含 HTML（横滑顺序 + 平铺 + 文案），`vibeshare` 一键部署。第一组链接 https://preview-8aec2.web.app/preview/
+  - ⚠️ 本机连跑导致 reddit 429 + HN 偶空 → 当日候选池缩到 14 条只选出 3 条；服务器 cron 错峰更稳。
+
 - **M4 小红书 AI 日更卡片组启动**（grill 定稿见 decision/plan）。完成两条独立支线 ①②：
   - **① 扩源**：`accounts.yaml` 新增 `newsletters:`(Import AI / Ben's Bites / TLDR AI) + `blogs:`(OpenAI / DeepMind / Google AI / Hugging Face / Mistral / Anthropic 社区镜像) 两段，补 6 个 AI X 号（AndrewYNg/jackclarkSF/GoogleAI/MistralAI/huggingface/AIatMeta）；`external.py` 加 `fetch_newsletters()`/`fetch_blogs()`，复用现有 RSS/Atom 解析，纯标准库无新依赖。全部 WebFetch 验证可达；自测宽窗 newsletters 8 / blogs 12 条。The Batch 无官方 RSS 暂缺，Anthropic 用社区镜像（无官方源）。⚠️ 尚未接进 `build()`。
   - **② 信号卡出图最小闭环**：新建 `scripts/render_xhs.py`，三套模板（封面 / 信号卡 / 尾卡 CTA），Playwright 截 3:4 PNG（1080×1440，viewport 540×720@2x）。雷码工坊品牌色（米白底/墨黑标题/磷绿竖线「雷码视角」/石墨正文）。`--sample` 跑通 5 张图 + `caption.txt`。本机已 `playwright install chromium`（headless-shell 145）。

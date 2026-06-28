@@ -154,12 +154,12 @@ def render_card(c: dict, idx: int, total: int, date_str: str) -> str:
 .sig .date {{ margin-left:auto; font-size:15px; color:{MIST}; }}
 .sig h2 {{ font-size:40px; line-height:1.22; font-weight:800; color:{INK}; letter-spacing:-0.5px; }}
 .sig .fact {{ margin-top:26px; font-size:21px; line-height:1.62; color:{GRAPHITE}; }}
-.sig .take {{ margin-top:auto; padding-left:20px; position:relative; }}
-.sig .take::before {{ content:""; position:absolute; left:0; top:4px; bottom:4px; width:6px;
+.sig .take {{ margin-top:34px; padding:22px 0 0 20px; position:relative; }}
+.sig .take::before {{ content:""; position:absolute; left:0; top:22px; bottom:4px; width:6px;
   background:{PHOS}; border-radius:3px; }}
 .sig .take .label {{ font-size:16px; font-weight:800; color:{PHOS}; letter-spacing:1px; margin-bottom:8px; }}
 .sig .take .body {{ font-size:20px; line-height:1.6; color:{GRAPHITE}; }}
-.sig .foot {{ margin-top:30px; display:flex; align-items:center; font-size:15px; color:{MIST}; }}
+.sig .foot {{ margin-top:auto; padding-top:30px; display:flex; align-items:center; font-size:15px; color:{MIST}; }}
 .sig .foot .src {{ color:{BRICK}; }}
 .sig .foot .pg {{ margin-left:auto; }}
 """
