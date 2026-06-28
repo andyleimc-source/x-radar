@@ -28,25 +28,62 @@ XHS_DIR = ROOT / "data" / "xhs"
 PROMPT = ROOT / "prompts" / "xhs_select.md"
 sys.path.insert(0, str(ROOT / "scripts"))
 
+import yaml  # noqa: E402
 import external  # noqa: E402
-# 复用 render_poster 已有的 AI 推文加载 + DeepSeek 调用 + 按作者取热
-from render_poster import load_ai_tweets, pick_top_per_author, _deepseek, load_env  # noqa: E402
+# 复用 render_poster 已有的 AI 推文加载 + DeepSeek 调用
+from render_poster import load_ai_tweets, _deepseek, load_env  # noqa: E402
+
+ACCOUNTS_YAML = ROOT / "config" / "accounts.yaml"
 
 
-def gather_candidates(date_str: str, tweet_top: int = 25) -> list[dict]:
-    """聚合多源候选条目，统一成 {id, source_type, source, text, url, score}。"""
-    cands: list[dict] = []
-
-    # 1) AI 推文
+def _note_map() -> dict:
+    """username（小写，不带@）→ note（账号是谁），给作者身份做 ground truth。"""
     try:
-        tweets = pick_top_per_author(load_ai_tweets(date_str), tweet_top)
+        cfg = yaml.safe_load(ACCOUNTS_YAML.read_text())
+    except Exception:
+        return {}
+    m = {}
+    for a in cfg.get("accounts") or []:
+        u = (a.get("username") or "").lstrip("@").lower()
+        if u:
+            m[u] = (a.get("note") or "").strip()
+    return m
+
+
+def pick_top_n_per_author(tweets: list[dict], per_author: int = 3,
+                          max_authors: int = 40) -> list[dict]:
+    """每个作者取热度最高的前 N 条（不再只取 1 条，扩大候选池），
+    作者按其最高分排序取前 max_authors 位，整体仍按热度降序。"""
+    by_author: dict[str, list[dict]] = {}
+    for t in tweets:
+        by_author.setdefault(t["username"], []).append(t)
+    # 作者排序：按各自最高分
+    authors = sorted(by_author, key=lambda u: -max(x["score"] for x in by_author[u]))
+    picked: list[dict] = []
+    for u in authors[:max_authors]:
+        top = sorted(by_author[u], key=lambda x: -x["score"])[:per_author]
+        picked.extend(top)
+    picked.sort(key=lambda x: -x["score"])
+    return picked
+
+
+def gather_candidates(date_str: str, per_author: int = 3) -> list[dict]:
+    """聚合多源候选条目，统一成 {id, source_type, source, source_note, text, url, score}。"""
+    cands: list[dict] = []
+    notes = _note_map()
+
+    # 1) AI 推文（每作者取 top3，扩大池子）
+    try:
+        tweets = pick_top_n_per_author(load_ai_tweets(date_str), per_author=per_author)
     except Exception as e:
         print(f"[xhs] load tweets failed: {e}", file=sys.stderr)
         tweets = []
     for t in tweets:
+        u = t["username"].lower()
         cands.append({
             "source_type": "tweet",
             "source": f"@{t['username']}",
+            "source_note": notes.get(u, ""),
             "text": t["text"][:600],
             "url": t["url"],
             "score": t.get("score", 0),
@@ -54,10 +91,11 @@ def gather_candidates(date_str: str, tweet_top: int = 25) -> list[dict]:
 
     # 2) Hacker News
     try:
-        for h in external.fetch_hn(limit=8):
+        for h in external.fetch_hn(limit=14):
             cands.append({
                 "source_type": "hn",
                 "source": "Hacker News",
+                "source_note": "Hacker News 社区热帖",
                 "text": h.get("title", ""),
                 "url": h.get("url") or h.get("hn_url", ""),
                 "score": h.get("points", 0),
@@ -67,12 +105,14 @@ def gather_candidates(date_str: str, tweet_top: int = 25) -> list[dict]:
 
     # 3) Reddit
     try:
-        for r in external.fetch_reddit(limit=8):
+        for r in external.fetch_reddit(limit=14):
             body = (r.get("body") or "").strip()
             txt = r.get("title", "") + (("：" + body[:300]) if body else "")
+            sub = r.get("sub", "")
             cands.append({
                 "source_type": "reddit",
-                "source": f"r/{r.get('sub','')}",
+                "source": f"r/{sub}",
+                "source_note": f"r/{sub} 社区讨论",
                 "text": txt,
                 "url": r.get("url", ""),
                 "score": 0,
@@ -80,14 +120,16 @@ def gather_candidates(date_str: str, tweet_top: int = 25) -> list[dict]:
     except Exception as e:
         print(f"[xhs] reddit failed: {e}", file=sys.stderr)
 
-    # 4) Newsletters
+    # 4) Newsletters（窗口放宽到 72h——RSS 更新慢，48h 常空）
     try:
-        for n in external.fetch_newsletters(hours=48):
+        for n in external.fetch_newsletters(hours=72):
             summ = (n.get("summary") or "").strip()
             txt = n.get("title", "") + (("：" + summ[:300]) if summ else "")
+            name = n.get("name") or n.get("source", "newsletter")
             cands.append({
                 "source_type": "newsletter",
-                "source": n.get("name") or n.get("source", "newsletter"),
+                "source": name,
+                "source_note": f"{name} AI 简报",
                 "text": txt,
                 "url": n.get("url", ""),
                 "score": 0,
@@ -95,14 +137,16 @@ def gather_candidates(date_str: str, tweet_top: int = 25) -> list[dict]:
     except Exception as e:
         print(f"[xhs] newsletters failed: {e}", file=sys.stderr)
 
-    # 5) 官方博客
+    # 5) 官方博客（窗口 72h）
     try:
-        for b in external.fetch_blogs(hours=48):
+        for b in external.fetch_blogs(hours=72):
             summ = (b.get("summary") or "").strip()
             txt = b.get("title", "") + (("：" + summ[:300]) if summ else "")
+            name = b.get("name") or b.get("source", "blog")
             cands.append({
                 "source_type": "blog",
-                "source": b.get("name") or b.get("source", "blog"),
+                "source": name,
+                "source_note": f"{name} 官方博客",
                 "text": txt,
                 "url": b.get("url", ""),
                 "score": 0,
@@ -120,22 +164,25 @@ POLISH_PROMPT = ROOT / "prompts" / "xhs_polish.md"
 
 
 def polish_takes(cards: list[dict]) -> None:
-    """二次过校：把每张卡的「雷码视角」take 再过一道去 AI 腔重写（就地改 cards）。"""
-    takes = [(c.get("take") or "").strip() for c in cards]
-    if not any(takes):
+    """二次过校：把非空的「雷码视角」take 再过一道去 AI 腔重写（就地改 cards）。
+    take 现为可选，空的不送过校、原样保留空。"""
+    # 只挑非空 take 去过校，记录它们在 cards 里的下标
+    idxs = [i for i, c in enumerate(cards) if (c.get("take") or "").strip()]
+    if not idxs:
         return
+    takes = [cards[i]["take"].strip() for i in idxs]
     try:
         sys_prompt = POLISH_PROMPT.read_text()
         res = _deepseek(sys_prompt, {"takes": takes}, timeout=180)
         new = res.get("takes") or []
-        if len(new) == len(cards):
-            for c, t in zip(cards, new):
+        if len(new) == len(takes):
+            for i, t in zip(idxs, new):
                 t = (t or "").strip()
                 if t:
-                    c["take"] = t
+                    cards[i]["take"] = t
             print(f"[xhs] 去 AI 腔二次过校完成（{len(new)} 段）", flush=True)
         else:
-            print(f"[xhs] WARN: 过校返回 {len(new)} 段 ≠ {len(cards)} 张卡，跳过", file=sys.stderr)
+            print(f"[xhs] WARN: 过校返回 {len(new)} 段 ≠ {len(takes)} 段，跳过", file=sys.stderr)
     except Exception as e:
         print(f"[xhs] WARN: 二次过校失败（保留原 take）：{e}", file=sys.stderr)
 
@@ -158,6 +205,7 @@ def select_and_write(date_str: str, cands: list[dict]) -> dict:
     # 给模型的精简载荷（去掉 score 为 0 的噪音字段无所谓，保留 id/source_type/source/text/url）
     payload = {"date": date_str, "candidates": [
         {"id": c["id"], "source_type": c["source_type"], "source": c["source"],
+         "source_note": c.get("source_note", ""),
          "text": c["text"], "url": c["url"], "score": c["score"]}
         for c in cands
     ]}
@@ -182,7 +230,7 @@ def select_and_write(date_str: str, cands: list[dict]) -> dict:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--date", help="YYYY-MM-DD（缺省今天）")
-    ap.add_argument("--max", type=int, default=32, help="参选推文数（按作者取热前 N）")
+    ap.add_argument("--per-author", type=int, default=3, help="每个作者取热度最高的前 N 条推文进候选池")
     args = ap.parse_args()
 
     load_env()
@@ -191,7 +239,7 @@ def main():
 
     date_str = args.date or datetime.now().strftime("%Y-%m-%d")
     print(f"[xhs] 聚合候选 {date_str} ...", flush=True)
-    cands = gather_candidates(date_str, tweet_top=args.max)
+    cands = gather_candidates(date_str, per_author=args.per_author)
     by_type: dict[str, int] = {}
     for c in cands:
         by_type[c["source_type"]] = by_type.get(c["source_type"], 0) + 1

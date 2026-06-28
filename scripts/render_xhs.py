@@ -150,25 +150,31 @@ def render_card(c: dict, idx: int, total: int, date_str: str) -> str:
     # 次级旁注用的浅色块（比米白背景略深，柔和区分「点评 ≠ 新闻」）
     TINT = "#EFEBDF"
     css = f"""
-.sig .top {{ display:flex; align-items:center; gap:9px; margin-bottom:30px; }}
+.sig .top {{ display:flex; align-items:center; gap:9px; margin-bottom:26px; }}
 .sig .dot {{ width:11px; height:11px; border-radius:50%; background:{PHOS}; flex:none; }}
 .sig .cat {{ font-size:17px; font-weight:700; color:{INK}; }}
 .sig .date {{ margin-left:auto; font-size:15px; color:{MIST}; }}
-/* 新闻为主：标题大而黑，事实大而深 */
-.sig h2 {{ font-size:42px; line-height:1.2; font-weight:800; color:{INK}; letter-spacing:-0.5px; }}
-.sig .fact {{ margin-top:24px; font-size:23px; line-height:1.6; color:{INK}; font-weight:500; }}
-/* 雷码视角：次级旁注——缩小、变浅、加底色块，明显弱于新闻 */
-.sig .take {{ margin-top:30px; background:{TINT}; border-radius:14px;
-  padding:18px 22px 20px 22px; position:relative; }}
-.sig .take::before {{ content:""; position:absolute; left:0; top:16px; bottom:16px; width:5px;
+/* 标题缩小让位给事实；事实是绝对主体——大号深色，吃满版面 */
+.sig h2 {{ font-size:34px; line-height:1.22; font-weight:800; color:{INK}; letter-spacing:-0.5px; }}
+.sig .fact {{ margin-top:22px; font-size:22px; line-height:1.62; color:{INK}; font-weight:500; }}
+/* 雷码视角：次级旁注，可选——缩小、变浅、加底色块，明显弱于新闻 */
+.sig .take {{ margin-top:26px; background:{TINT}; border-radius:14px;
+  padding:16px 20px 18px 20px; position:relative; }}
+.sig .take::before {{ content:""; position:absolute; left:0; top:15px; bottom:15px; width:5px;
   background:{PHOS}; border-radius:0 3px 3px 0; }}
-.sig .take .label {{ font-size:14px; font-weight:800; color:{PHOS}; letter-spacing:1.5px; margin-bottom:6px; }}
-.sig .take .body {{ font-size:18px; line-height:1.58; color:{BRICK}; }}
-.sig .foot {{ margin-top:auto; padding-top:24px; display:flex; align-items:center; font-size:15px; color:{MIST}; }}
+.sig .take .label {{ font-size:14px; font-weight:800; color:{PHOS}; letter-spacing:1.5px; margin-bottom:5px; }}
+.sig .take .body {{ font-size:18px; line-height:1.55; color:{BRICK}; }}
+.sig .foot {{ margin-top:auto; padding-top:22px; display:flex; align-items:center; font-size:15px; color:{MIST}; }}
 .sig .foot .src {{ color:{BRICK}; }}
 .sig .foot .pg {{ margin-left:auto; }}
 """
     src_disp = f"来源 {source}" if source else ""
+    # take 可选：没有就不渲染那块旁注，事实独占更多版面
+    take_html = f"""
+  <div class="take">
+    <div class="label">雷码视角</div>
+    <div class="body">{take}</div>
+  </div>""" if take else ""
     body = f"""
 <div class="card sig">
   <div class="top">
@@ -177,11 +183,7 @@ def render_card(c: dict, idx: int, total: int, date_str: str) -> str:
     <span class="date mono">{md}</span>
   </div>
   <h2>{title}</h2>
-  <div class="fact">{fact}</div>
-  <div class="take">
-    <div class="label">雷码视角</div>
-    <div class="body">{take}</div>
-  </div>
+  <div class="fact">{fact}</div>{take_html}
   <div class="foot">
     <span class="src mono">{src_disp}</span>
     <span class="pg mono">{idx}/{total}</span>
