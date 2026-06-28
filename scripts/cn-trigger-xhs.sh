@@ -21,10 +21,10 @@ if ssh -o BatchMode=yes -o ConnectTimeout=20 -o StrictHostKeyChecking=accept-new
   echo "[cn-trigger] ✅ Mac 交付成功（Mac 已自发成功 Bark）" >> "$LOG"
 else
   RC=$?
-  echo "[cn-trigger] ✗ 失败 rc=$RC，发失败 Bark" >> "$LOG"
+  echo "[cn-trigger] ✗ 失败 rc=${RC}，发失败 Bark" >> "$LOG"
   curl -s -X POST "$BARK" \
     --data-urlencode "title=⚠️ 雷码工坊日更没出来" \
-    --data-urlencode "body=07:30 触发时连不上 Mac 或渲染出错（rc=$RC）。开机后在 xradar 目录手动跑：bash scripts/build-xhs.sh" \
+    --data-urlencode "body=07:30 触发时连不上 Mac 或渲染出错（rc=${RC}）。开机后在 xradar 目录手动跑：bash scripts/build-xhs.sh" \
     --data-urlencode "group=雷码工坊" \
     --data-urlencode "level=timeSensitive" >/dev/null
 fi

@@ -38,7 +38,7 @@ echo "[1/3] build-xhs（拉硅谷 JSON → 渲染 → 归档）..."
 HEADLESS=1 bash "$ROOT/scripts/build-xhs.sh" "$DATE"
 
 # --- 2) 部署预览页（按日期 slug）---
-echo "[2/3] 部署预览页 → vibeshare（slug=xhs-$DATE）..."
+echo "[2/3] 部署预览页 → vibeshare（slug=xhs-${DATE}）..."
 "$PYBIN" "$ROOT/scripts/preview_xhs.py" --date "$DATE"
 URL="$(vibeshare "$ROOT/data/xhs/$DATE/preview.html" --name "xhs-$DATE" --force --json 2>/dev/null \
        | "$PYBIN" -c 'import sys,json; print(json.load(sys.stdin).get("url",""))')"
@@ -49,4 +49,4 @@ echo "  预览链接：$URL"
 echo "[3/3] 发 Bark 通知..."
 "$PYBIN" "$ROOT/scripts/push_bark.py" --date "$DATE" --url "$URL"
 
-echo "[deliver] ✅ 完成 $DATE → 已推送（链接 $URL）"
+echo "[deliver] ✅ 完成 ${DATE} → 已推送（链接 ${URL}）"
