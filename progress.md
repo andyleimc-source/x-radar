@@ -4,6 +4,15 @@
 
 ---
 
+## 2026-06-28
+
+- **M4 小红书 AI 日更卡片组启动**（grill 定稿见 decision/plan）。完成两条独立支线 ①②：
+  - **① 扩源**：`accounts.yaml` 新增 `newsletters:`(Import AI / Ben's Bites / TLDR AI) + `blogs:`(OpenAI / DeepMind / Google AI / Hugging Face / Mistral / Anthropic 社区镜像) 两段，补 6 个 AI X 号（AndrewYNg/jackclarkSF/GoogleAI/MistralAI/huggingface/AIatMeta）；`external.py` 加 `fetch_newsletters()`/`fetch_blogs()`，复用现有 RSS/Atom 解析，纯标准库无新依赖。全部 WebFetch 验证可达；自测宽窗 newsletters 8 / blogs 12 条。The Batch 无官方 RSS 暂缺，Anthropic 用社区镜像（无官方源）。⚠️ 尚未接进 `build()`。
+  - **② 信号卡出图最小闭环**：新建 `scripts/render_xhs.py`，三套模板（封面 / 信号卡 / 尾卡 CTA），Playwright 截 3:4 PNG（1080×1440，viewport 540×720@2x）。雷码工坊品牌色（米白底/墨黑标题/磷绿竖线「雷码视角」/石墨正文）。`--sample` 跑通 5 张图 + `caption.txt`。本机已 `playwright install chromium`（headless-shell 145）。
+- **下一步**：选题分析（DeepSeek 跨源去重+打分+选 3-6 条→ `data/xhs/<date>.json`）+ `build-xhs.sh` 一条命令串起来。
+
+---
+
 ## 2026-05-17
 
 - **作者库 + 「👤 今日作者介绍」模块上线**：每日 digest 倒数第二位（写作选题建议前）插入 3 位当日上榜作者的画像（bio / 履历 / 擅长 / 定位 / 🤖 AI 点评）。

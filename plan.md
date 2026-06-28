@@ -46,12 +46,12 @@
 
 **待办**
 
-- [ ] **扩源**：`config/accounts.yaml` 加 `newsletters:`(RSS) + `blogs:`(RSS) 两段 + 补 AI X 号；`external.py` 加 RSS 抓取+清洗（复用 Reddit RSS 经验）
-- [ ] **选题分析**：服务器侧新脚本/复用 digest 数据，DeepSeek 跨源去重 + 按重要性打分 + 卡阈值选 3-6 条 + 生成每条「标题/事实/雷码视角/分类/出处」结构化 JSON → `data/xhs/<date>.json`
-- [ ] **品牌色卡片模板**：HTML/CSS「信号卡」3:4 模板（米白 #FAF7F0 / 墨黑 #0E1116 / 磷绿 #1AB87C / 石墨 #3A4151）+ 封面模板 + 尾卡 CTA 模板
-- [ ] **出图脚本** `scripts/render_xhs.py`：读 JSON → 渲染各卡 HTML → Playwright 截 3:4 PNG（建议 1080×1440）→ `data/xhs/<date>/01.png …`
-- [ ] **文案生成**：钩子标题 + 正文摘要 + 公众号引流 + 固定 tag 组（#AI #智能体 #ClaudeCode 等）→ 随图组一起出
-- [ ] **本机一条命令**：`scripts/build-xhs.sh` 串起「从服务器拉 JSON → 渲染 → 截图 → 出文案」
+- [x] **扩源**：`config/accounts.yaml` 加 `newsletters:`(Import AI/Ben's Bites/TLDR AI) + `blogs:`(OpenAI/DeepMind/Google AI/HF/Mistral/Anthropic镜像) + 补 6 个 AI X 号；`external.py` 加 `fetch_newsletters()`/`fetch_blogs()`（复用 RSS/Atom 解析，纯标准库）。⚠️ 尚未接进 `build()`，是下游选题分析的事。The Batch 无官方 RSS 暂缺；Anthropic 用社区镜像
+- [x] **品牌色卡片模板**：HTML/CSS「信号卡」3:4 模板（米白/墨黑/磷绿/石墨）+ 封面模板 + 尾卡 CTA 模板（在 `render_xhs.py` 内）
+- [x] **出图脚本** `scripts/render_xhs.py`：读 JSON → 渲染各卡 HTML → Playwright 截 3:4 PNG（1080×1440，viewport 540×720@2x）→ `data/xhs/<date>/00-cover.png / 01.png … / NN-cta.png`；`--sample` 可跑通最小闭环；本机已 `playwright install chromium`
+- [ ] **选题分析**（下一步主线）：复用已抓数据（X ai 类 + HN + Reddit + 新 newsletter/blog），DeepSeek 跨源去重 + 按重要性打分 + 卡阈值选 3-6 条 + 生成每条「category/title/fact/take/source」结构化 JSON → `data/xhs/<date>.json`（schema 见 render_xhs.py 头部）。话题层丢营销/招聘/带货，保留 AI 商业里程碑。「雷码视角」语气挂 `~/Desktop/articles/WRITING.md`
+- [ ] **文案生成**：钩子标题 + 正文摘要 + 公众号引流 + 固定 tag 组 → 写进 JSON 的 `caption`/`tags`（render_xhs 已会落 `caption.txt`）
+- [ ] **本机一条命令**：`scripts/build-xhs.sh` 串起「从服务器拉 JSON / 或本机直接跑选题分析 → render_xhs 出图 → 出文案」
 - [ ] **人工把关**（前几次必跑）→ 人工传小红书
 
 ## 暂不做
