@@ -1,16 +1,19 @@
 #!/bin/bash
 # X Radar · 小红书 AI 日更图组 — 本机一条命令
 #
-# 流程（全部本机跑，只从服务器拉「已抓好的」raw 推文，不二次消耗 twitterapi 额度）：
-#   1. scp 服务器当天 data/raw/<date> → 本机（cron 06:00 抓好的）
-#   2. analyze_xhs.py  → DeepSeek 跨源去重 + 选 3-6 条 → data/xhs/<date>.json
-#   3. render_xhs.py   → Playwright 截 3:4 卡片组 + caption.txt
-#   4. 打开成品目录人工审 → 人工传小红书
+# 默认流程（cron 已在服务器选好题）：
+#   1. scp 服务器 data/xhs/<date>.json → 本机（cron 06:00 后已生成）
+#   2. render_xhs.py → Playwright 截 3:4 卡片组 + caption.txt
+#   3. 打开成品目录人工审 → 人工传小红书
+#
+# 回退流程（服务器还没出 JSON，或想本机重选题）：
+#   scp 当天 raw → analyze_xhs.py 本机选题 → render
 #
 # 用法：
-#   bash scripts/build-xhs.sh            # 今天
-#   bash scripts/build-xhs.sh 2026-06-28 # 指定日期
-#   SKIP_PULL=1 bash scripts/build-xhs.sh  # 不拉服务器，用本机已有 raw
+#   bash scripts/build-xhs.sh              # 今天，优先用服务器现成 JSON
+#   bash scripts/build-xhs.sh 2026-06-28   # 指定日期
+#   LOCAL=1 bash scripts/build-xhs.sh      # 强制本机重新选题（拉 raw 本机 analyze）
+#   SKIP_PULL=1 bash scripts/build-xhs.sh  # 完全离线，用本机已有 json/raw
 #
 # 服务器：ubuntu@170.106.146.222（key 免密，凭证见 .local/servers.md），代码 ~/xradar
 set -euo pipefail
@@ -21,6 +24,7 @@ cd "$ROOT"
 DATE="${1:-$(date '+%Y-%m-%d')}"
 SERVER="ubuntu@170.106.146.222"
 REMOTE_ROOT="/home/ubuntu/xradar"
+JSON="data/xhs/$DATE.json"
 
 # 选有 playwright 的 python（系统 python3 没装）
 if /opt/homebrew/bin/python3 -c "import playwright" 2>/dev/null; then
@@ -33,25 +37,38 @@ else
 fi
 
 echo "▶ 日期：$DATE   python：$PYBIN"
+mkdir -p "data/xhs" "data/raw"
 
-# --- 1) 拉服务器当天 raw ---
-if [ "${SKIP_PULL:-0}" != "1" ]; then
-  echo "▶ [1/3] 从服务器拉 raw/$DATE ..."
-  mkdir -p "data/raw"
-  if ssh -o BatchMode=yes -o ConnectTimeout=8 "$SERVER" "test -d $REMOTE_ROOT/data/raw/$DATE" 2>/dev/null; then
-    scp -q -r "$SERVER:$REMOTE_ROOT/data/raw/$DATE" "data/raw/" \
-      && echo "  ✓ raw/$DATE 已同步" \
-      || { echo "  ✗ scp 失败，改用本机已有 raw"; }
-  else
-    echo "  ⚠ 服务器上没有 raw/$DATE（cron 还没跑？）——用本机已有 raw（analyze 会自动回退到最近一天）"
-  fi
+HAVE_JSON=0
+
+# --- 1) 取选题 JSON ---
+if [ "${LOCAL:-0}" = "1" ]; then
+  echo "▶ [1/3] LOCAL=1，强制本机重新选题"
+elif [ "${SKIP_PULL:-0}" = "1" ]; then
+  echo "▶ [1/3] SKIP_PULL=1，离线模式"
+  [ -f "$JSON" ] && HAVE_JSON=1
 else
-  echo "▶ [1/3] SKIP_PULL=1，跳过拉取"
+  echo "▶ [1/3] 从服务器拉选题 JSON ..."
+  if ssh -o BatchMode=yes -o ConnectTimeout=8 "$SERVER" "test -f $REMOTE_ROOT/$JSON" 2>/dev/null; then
+    scp -q "$SERVER:$REMOTE_ROOT/$JSON" "$JSON" && { HAVE_JSON=1; echo "  ✓ 用服务器现成 JSON（cron 选好的）"; }
+  else
+    echo "  ⚠ 服务器还没有 $JSON（cron 没跑？）——回退到本机选题"
+  fi
 fi
 
-# --- 2) 选题分析 ---
-echo "▶ [2/3] 选题分析（DeepSeek）..."
-"$PYBIN" scripts/analyze_xhs.py --date "$DATE"
+# --- 2) 没有现成 JSON → 拉 raw + 本机选题 ---
+if [ "$HAVE_JSON" != "1" ]; then
+  if [ "${SKIP_PULL:-0}" != "1" ]; then
+    echo "▶ [2/3] 拉服务器 raw/$DATE 供本机选题 ..."
+    if ssh -o BatchMode=yes -o ConnectTimeout=8 "$SERVER" "test -d $REMOTE_ROOT/data/raw/$DATE" 2>/dev/null; then
+      scp -q -r "$SERVER:$REMOTE_ROOT/data/raw/$DATE" "data/raw/" && echo "  ✓ raw/$DATE 已同步" || echo "  ✗ scp raw 失败，用本机已有"
+    else
+      echo "  ⚠ 服务器无 raw/$DATE，用本机已有（analyze 自动回退最近一天）"
+    fi
+  fi
+  echo "▶ 本机选题分析（DeepSeek）..."
+  "$PYBIN" scripts/analyze_xhs.py --date "$DATE"
+fi
 
 # --- 3) 出图 ---
 echo "▶ [3/3] 渲染图组（Playwright 3:4）..."

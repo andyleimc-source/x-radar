@@ -32,6 +32,16 @@ if ! python3 "$ROOT/scripts/digest.py" "$SLOT"; then
 fi
 echo "[Step 1] Digest pipeline done."
 
+# --- Step 1.5: 小红书 AI 日更选题 JSON（复用刚抓好的 raw，非致命） ---
+# 产出 data/xhs/<date>.json；本机 build-xhs.sh 直接 scp 这份 JSON 渲染出图。
+# 失败不影响邮件。
+echo "[Step 1.5] Running xhs select (analyze_xhs.py)..."
+if python3 "$ROOT/scripts/analyze_xhs.py" >> "$LOG" 2>> "$ERR"; then
+    echo "[Step 1.5] xhs JSON done: data/xhs/${DATE}.json"
+else
+    echo "[Step 1.5] WARN: analyze_xhs failed (skip; email still sends)"
+fi
+
 # Wait for file system sync
 sleep 3
 
