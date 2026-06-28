@@ -89,9 +89,9 @@ def gather_candidates(date_str: str, per_author: int = 3) -> list[dict]:
             "score": t.get("score", 0),
         })
 
-    # 2) Hacker News
+    # 2) Hacker News（放宽阈值——50/36h 常空，30/48h 多抓英文科技热点）
     try:
-        for h in external.fetch_hn(limit=14):
+        for h in external.fetch_hn(limit=14, hours=48, min_points=30):
             cands.append({
                 "source_type": "hn",
                 "source": "Hacker News",
@@ -153,6 +153,23 @@ def gather_candidates(date_str: str, per_author: int = 3) -> list[dict]:
             })
     except Exception as e:
         print(f"[xhs] blogs failed: {e}", file=sys.stderr)
+
+    # 6) AI 科技媒体（主力水源：面向大众的业界/产品/热点报道）
+    try:
+        for m in external.fetch_media(hours=48):
+            summ = (m.get("summary") or "").strip()
+            txt = m.get("title", "") + (("：" + summ[:300]) if summ else "")
+            name = m.get("name") or m.get("source", "media")
+            cands.append({
+                "source_type": "media",
+                "source": name,
+                "source_note": f"{name} 报道",
+                "text": txt,
+                "url": m.get("url", ""),
+                "score": 0,
+            })
+    except Exception as e:
+        print(f"[xhs] media failed: {e}", file=sys.stderr)
 
     # 编号
     for i, c in enumerate(cands):

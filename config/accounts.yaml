@@ -266,3 +266,29 @@ blogs:
   - name: Anthropic News
     rss: https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_anthropic_news.xml
     org: Anthropic
+
+# === AI 科技媒体（主流报道，面向普通读者的业界/产品/热点；走公开 RSS）===
+# 字段：name / rss / topic。抓取见 external.fetch_media()。
+# 选取标准：AI 专栏/分类页，更新勤、面向大众（不是研究圈）。是「凑足 10 条优质卡」的主力水源。
+# ⚠️ 原则（2026-06-29 定）：**只收海外源头**。国内 AI 媒体（量子位/机器之心/36氪等）本质上也是搬运海外新闻，
+#    一律不收，直接从海外一手源头抓。中文翻译由选题阶段 DeepSeek 完成。
+# 2026-06-29 全部实测可通、有货；某条若长期 fetch failed 就删。
+media:
+  - name: TechCrunch AI
+    rss: https://techcrunch.com/category/artificial-intelligence/feed/
+    topic: ai-news
+  - name: The Verge AI
+    rss: https://www.theverge.com/rss/ai-artificial-intelligence/index.xml
+    topic: ai-news
+  - name: VentureBeat AI
+    rss: https://venturebeat.com/category/ai/feed/
+    topic: ai-business
+  - name: Ars Technica AI
+    rss: https://arstechnica.com/ai/feed/
+    topic: ai-news
+  - name: MIT Tech Review AI
+    rss: https://www.technologyreview.com/topic/artificial-intelligence/feed
+    topic: ai-research
+  - name: Wired AI
+    rss: https://www.wired.com/feed/tag/ai/latest/rss
+    topic: ai-news

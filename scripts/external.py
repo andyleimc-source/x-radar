@@ -606,6 +606,20 @@ def fetch_blogs(
     return _fetch_feed_section("blogs", "blog", limit, hours, per_feed)
 
 
+MEDIA_PER_FEED = 3
+MEDIA_LIMIT = 20
+
+
+def fetch_media(
+    limit: int = MEDIA_LIMIT,
+    hours: int = 48,
+    per_feed: int = MEDIA_PER_FEED,
+) -> list[dict]:
+    """抓 accounts.yaml 的 media: 段（TechCrunch / The Verge / 量子位 ... AI 科技媒体）。
+    面向大众的业界/产品/热点报道，是小红书图组凑足 10 条优质卡的主力水源。"""
+    return _fetch_feed_section("media", "media", limit, hours, per_feed)
+
+
 # ---------- GitHub Trending ----------
 
 _GH_ARTICLE_RE = re.compile(r'<article class="Box-row">(.*?)</article>', re.DOTALL)
