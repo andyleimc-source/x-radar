@@ -78,13 +78,12 @@ echo "▶ [3/3] 渲染图组（Playwright 3:4）..."
 echo "▶ [4] 归档到 posts/$DATE/ ..."
 "$PYBIN" scripts/archive_xhs.py --date "$DATE"
 
-OUT="$ROOT/data/xhs/$DATE"
+OUT="$ROOT/posts/$DATE"
 echo ""
 echo "✅ 完成 → $OUT"
 ls -1 "$OUT"/*.png 2>/dev/null | sed 's/^/   /'
 echo ""
-echo "📋 文案：$OUT/caption.txt"
-[ -f "$OUT/caption.txt" ] && sed 's/^/   /' "$OUT/caption.txt"
+echo "📋 发布文案/标题/状态：$OUT/post.md（复制即发小红书）"
 
-# 打开目录人工审
+# 打开归档目录人工审 → 复制 post.md + 按顺序传图
 [ "$(uname)" = "Darwin" ] && open "$OUT" 2>/dev/null || true

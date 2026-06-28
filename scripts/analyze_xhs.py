@@ -15,6 +15,7 @@ X Radar · 小红书 AI 日更选题分析（M4）
     python3 scripts/analyze_xhs.py [--date YYYY-MM-DD] [--max N]
 """
 import os
+import re
 import sys
 import json
 import argparse
@@ -139,6 +140,19 @@ def polish_takes(cards: list[dict]) -> None:
         print(f"[xhs] WARN: 二次过校失败（保留原 take）：{e}", file=sys.stderr)
 
 
+_CN_NUM = "零一二三四五六七八九十"
+
+
+def fix_caption_count(caption: str, n: int) -> str:
+    """把 caption 里写死的「X 张图 / X 条新闻/信号」校正到实际条数 n（DeepSeek 常数不准）。"""
+    if not caption or n <= 0:
+        return caption
+    num = rf"[0-9{_CN_NUM}]+"
+    caption = re.sub(rf"{num}\s*张图", f"{n}张图", caption)
+    caption = re.sub(rf"{num}(\s*条)(新闻|信号|AI)", rf"{n}\1\2", caption)
+    return caption
+
+
 def select_and_write(date_str: str, cands: list[dict]) -> dict:
     sys_prompt = PROMPT.read_text()
     # 给模型的精简载荷（去掉 score 为 0 的噪音字段无所谓，保留 id/source_type/source/text/url）
@@ -151,11 +165,12 @@ def select_and_write(date_str: str, cands: list[dict]) -> dict:
 
     cards = parsed.get("cards") or []
     polish_takes(cards)  # 二次过校
+    caption = fix_caption_count((parsed.get("caption") or "").strip(), len(cards))
     out = {
         "date": date_str,
         "hook": (parsed.get("hook") or "").strip(),
         "cards": cards,
-        "caption": (parsed.get("caption") or "").strip(),
+        "caption": caption,
         "tags": parsed.get("tags") or [],
     }
     XHS_DIR.mkdir(parents=True, exist_ok=True)
