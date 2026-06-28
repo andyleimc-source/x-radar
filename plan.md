@@ -52,7 +52,8 @@
 - [x] **选题分析**：`scripts/analyze_xhs.py` 聚合 AI推文(data/raw)+HN+Reddit+newsletter+blog → DeepSeek 跨源去重+选3-6条+撰写「category/title/fact/take/source」→ `data/xhs/<date>.json`。prompt 在 `prompts/xhs_select.md`（老雷人设，专注 AI+AI商业里程碑，丢营销/招聘/带货，去 AI 腔）。真实数据验证通过
 - [x] **文案生成**：选题 prompt 同时出 `hook`/`caption`/`tags` 写进 JSON，render_xhs 落 `caption.txt`
 - [x] **本机一条命令**：`scripts/build-xhs.sh [date]` — scp 拉服务器当天 raw（key 免密，不二次消耗 twitterapi）→ analyze → render → 开目录。`SKIP_PULL=1` 纯本机
-- [ ] **人工把关**（前几次必跑）→ 人工传小红书
+- [x] **发布归档目录** `posts/<date>/`：`scripts/archive_xhs.py` 把当天图片 + `post.md`（小红书标题/正文/标签/图片顺序/来源自查/发布状态）归档；`build-xhs.sh` 末尾自动调。post.md 入 git（编辑记录），图片 gitignore（日更不撑大仓库）。工作区 `data/xhs/`（临时）与 `posts/`（留存档案）分开
+- [ ] **人工把关**（前几次必跑）→ 人工传小红书（复制 posts/<date>/post.md 即发）
 - [x] **analyze 接进服务器 cron**：`send-digest.sh` 加 Step 1.5，每天 06:00 digest 后跑 `analyze_xhs.py` 出 `data/xhs/<date>.json`（非致命）。本机 `build-xhs.sh` 默认直接 scp 这份现成 JSON 渲染（无需本机调 DeepSeek）；`LOCAL=1` 可强制本机重选。已部署+实测
 - [x] **在线预览**：`scripts/preview_xhs.py` 把当天 PNG 内嵌成单个自包含 HTML（横滑顺序 + 平铺 + 文案），`vibeshare` 一键部署成链接在手机/电脑审版式。第一组已出（2026-06-28）
 - [x] **去 AI 腔收紧 + 排版微调**：`prompts/xhs_select.md` 堵死标题「X：Y」冒号结构、空洞升华金句（「细节决定X」「从能跑走向好用」）、引号口号；`render_xhs.py` 改信号卡布局——take 紧跟 fact（34px），留白沉到页脚前，fact 短时不再中间裂开

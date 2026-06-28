@@ -9,3 +9,8 @@ __pycache__/
 *.pyc
 .local/
 data/xhs/
+
+# 发布归档：post.md 入库，图片/预览不入库（日更图片会撑大仓库）
+posts/*/*.png
+posts/*/*.jpg
+posts/*/preview.html

@@ -6,6 +6,10 @@
 
 ## 2026-06-28
 
+- **发布归档目录 posts/**：新建 `scripts/archive_xhs.py` + `posts/README.md`。每期 `posts/<date>/` = 最终图片 + `post.md`（小红书标题/正文介绍/标签/图片顺序/来源自查/发布状态，复制即发）。接进 `build-xhs.sh` 第 4 步自动归档。**post.md 入 git**（编辑记录可回溯），**图片不入 git**（`.gitignore` 加 `posts/*/*.png|jpg|preview.html`，日更图片会撑大仓库）——Andy 拍板「只入 post.md 图片本地留」。工作区 `data/xhs/`（临时渲染、会覆盖）与 `posts/`（留存档案）分开。
+
+- **vibeshare 预览修复**：3.2MB 单文件超体积上限只剩占位页 →`preview_xhs.py` 内嵌前 PIL 缩 600px+JPEG，压到 1MB 部署正常（详见 bug.md）。
+
 - **第二轮改版（按 Andy 反馈五连改）**：
   - **① 去 AI 腔二次过校**：新建 `prompts/xhs_polish.md` + `analyze_xhs.polish_takes()`——选题后把每段 take 再过一道 DeepSeek 专职重写（只改文字风格、不动事实/结论，删金句删引号口号）。非致命，失败保留原 take。take 现在是「价格没变但性能提升一大截」这种人话。
   - **② 砍独立封面**：`render_xhs.build_deck` 去掉封面页，第 1 条新闻即小红书封面图；尾卡保留，承载节目名「每天 3 分钟，跟上 AI」。理由：新闻少时封面+尾卡两页占比过重。

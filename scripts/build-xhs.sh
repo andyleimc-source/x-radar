@@ -74,6 +74,10 @@ fi
 echo "▶ [3/3] 渲染图组（Playwright 3:4）..."
 "$PYBIN" scripts/render_xhs.py --date "$DATE"
 
+# --- 4) 归档到 posts/<date>/（图片 + post.md）---
+echo "▶ [4] 归档到 posts/$DATE/ ..."
+"$PYBIN" scripts/archive_xhs.py --date "$DATE"
+
 OUT="$ROOT/data/xhs/$DATE"
 echo ""
 echo "✅ 完成 → $OUT"
