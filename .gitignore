@@ -8,3 +8,4 @@ data/posters/
 __pycache__/
 *.pyc
 .local/
+data/xhs/
