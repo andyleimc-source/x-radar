@@ -6,6 +6,16 @@
 
 ## 2026-06-29
 
+- **小红书内容升级 + 扩源（gm 访谈 + advisor，第一组复盘后迭代）**：详见 decision 2026-06-29「内容升级 + 扩源」。
+  - **触发**：第一组（5 条）只有福特/Codex 两条有阅读欲望、源 @id 读者不知道是谁、数量不够、fact 太短读不透。
+  - **做了**：① 选题受众改普通人硬门槛，砍论文/跑分/架构；② fact 100-150 字讲透 + 作者身份融进文本（accounts.yaml `note` 喂模型）；③ take 改可选；④ 标题字符级禁冒号 + 程序兜底；⑤ **扩源**：加 6 个海外 AI 媒体 RSS（TechCrunch/Verge/VentureBeat/Ars/MIT/Wired）+ 放宽 HN + 推文每作者 top3。
+  - **结果**：同日候选 16→23、选题从只能选 7 提到**满 10 条**且全是大众热点（福特返聘/检方用 ChatGPT 当证据/软银怼马斯克/政府放行 Anthropic）。版式最坏情况（150 字 fact + take）实测不溢出。硅谷机房 IP 实测 media 抓取可通，明天自动链路受益。
+  - **原则**：只收海外一手源头，国内媒体不收（搬运）。
+  - **今天交付**：07 点前已推过一版 7 条的 Bark（预览页 `xhs-2026-06-29`）；扩源后的 10 条版是否补推待定。
+  - **已知未解**：Reddit RSS 双 IP 频繁 429；选题有随机性靠厚水源压下限。
+
+- **推送时间 07:30 → 06:20**：cn crontab 改 `20 6 * * *`，硅谷 06:00 不动。时区两台服务器本就是 Asia/Shanghai（北京时间），无需改。
+
 - **小红书图组全自动交付链路打通（gm 访谈定方案 + 落地实测）**：每天 06:20 自动把成品推到手机 Bark，点开就能发。
   - **架构**（详见 decision 2026-06-29）：cn 腾讯云服务器 crontab `20 6 * * *` → Tailscale SSH 回连 Mac（work 100.82.108.123）→ Mac 跑 `deliver-xhs.sh`（拉硅谷当天 JSON → 渲染 → 归档 posts/ → 部署预览页 `xhs-<date>` → 发 Bark）。失败 cn 自己 curl 失败 Bark 报警。
   - **新文件**：`scripts/deliver-xhs.sh`(Mac 交付)、`scripts/cn-trigger-xhs.sh`(cn 触发，部署在 cn `~/`)、`scripts/push_bark.py`(读 JSON 标题/简介 POST Bark)；`build-xhs.sh` 加 `HEADLESS=1`；`.env` 加 `BARK_KEY`。
