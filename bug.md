@@ -9,6 +9,12 @@ _（暂无）_
 
 ## FIXED
 
+### 2026-06-29 · bash `set -u` 下 `$var` 紧跟中文全角标点被当未定义变量
+- **现象**：`deliver-xhs.sh`/`build-xhs.sh` 报 `DATE\x1f: unbound variable`、`JSON\x1f: unbound variable` 之类，脚本中途崩。隐蔽点：正常路径不一定触发（如 `$JSON（…）` 在回退分支才走到），测试时漏过
+- **根因**：`echo "...slug=xhs-$DATE）..."` 这种 `$DATE` 后紧跟全角括号「）」「，」等多字节字符，bash 在 `set -u`（nounset）下把多字节首字节误并进变量名 → 该名未定义 → 报错。**所有 `set -euo pipefail` 的脚本只要 `$var` 后面直接跟中文标点都会中招**
+- **修复**：一律用 `${var}` 花括号界定（`${DATE}）`）。已扫全 `scripts/*.sh` 根除：`grep -rnP '\$[A-Za-z_][A-Za-z0-9_]*[^\x00-\x7F]' scripts/*.sh` 应为空
+- **教训**：中文脚本里 `$var` 后跟任何非 ASCII 字符，一律 `${var}`
+
 ### 2026-06-28 · vibeshare 部署预览页只剩占位页「Nothing to see here」
 - **现象**：`vibeshare preview.html --force --json` 返回 `ok:true`，但线上访问只有 511 字节的占位页，内容没上去
 - **根因**：预览 HTML 把 8 张 1080×1440 PNG base64 内嵌，单文件 3.2MB，**超过 vibeshare/Firebase 单文件体积上限**（实测 1MB 能传、3.2MB 不能，限在两者之间），CLI 静默只部署了占位页

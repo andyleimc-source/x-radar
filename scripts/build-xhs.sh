@@ -52,7 +52,7 @@ else
   if ssh -o BatchMode=yes -o ConnectTimeout=8 "$SERVER" "test -f $REMOTE_ROOT/$JSON" 2>/dev/null; then
     scp -q "$SERVER:$REMOTE_ROOT/$JSON" "$JSON" && { HAVE_JSON=1; echo "  ✓ 用服务器现成 JSON（cron 选好的）"; }
   else
-    echo "  ⚠ 服务器还没有 $JSON（cron 没跑？）——回退到本机选题"
+    echo "  ⚠ 服务器还没有 ${JSON}（cron 没跑？）——回退到本机选题"
   fi
 fi
 
@@ -63,7 +63,7 @@ if [ "$HAVE_JSON" != "1" ]; then
     if ssh -o BatchMode=yes -o ConnectTimeout=8 "$SERVER" "test -d $REMOTE_ROOT/data/raw/$DATE" 2>/dev/null; then
       scp -q -r "$SERVER:$REMOTE_ROOT/data/raw/$DATE" "data/raw/" && echo "  ✓ raw/$DATE 已同步" || echo "  ✗ scp raw 失败，用本机已有"
     else
-      echo "  ⚠ 服务器无 raw/$DATE，用本机已有（analyze 自动回退最近一天）"
+      echo "  ⚠ 服务器无 raw/${DATE}，用本机已有（analyze 自动回退最近一天）"
     fi
   fi
   echo "▶ 本机选题分析（DeepSeek）..."
