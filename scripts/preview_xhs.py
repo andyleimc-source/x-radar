@@ -19,9 +19,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 XHS_DIR = ROOT / "data" / "xhs"
 
-# 预览内嵌图缩小到这个宽度 + JPEG 压缩，避免单 HTML 过大（vibeshare 有体积上限）
-PREVIEW_W = 600
-JPEG_Q = 78
+# 预览内嵌图缩小到这个宽度 + JPEG 压缩，避免单 HTML 过大（vibeshare 单文件 <1MB，否则静默变占位页）
+# 10+ 张图时 600/78 会超 1MB，故压到 520/72（预览只为审版式，正式发的是 posts/ 全分辨率 PNG）
+PREVIEW_W = 520
+JPEG_Q = 72
 
 
 def img_b64(p: Path) -> str:
