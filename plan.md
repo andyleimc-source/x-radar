@@ -53,7 +53,8 @@
 - [x] **文案生成**：选题 prompt 同时出 `hook`/`caption`/`tags` 写进 JSON，render_xhs 落 `caption.txt`
 - [x] **本机一条命令**：`scripts/build-xhs.sh [date]` — scp 拉服务器当天 raw（key 免密，不二次消耗 twitterapi）→ analyze → render → 开目录。`SKIP_PULL=1` 纯本机
 - [ ] **人工把关**（前几次必跑）→ 人工传小红书
-- [ ] **可选下一步**：把 newsletter/blog 接进邮件 digest 的 `build()`；analyze 接进服务器 cron 自动出 JSON；CDP 自动发布；卡片排版微调（fact 短时 take 留白偏大）
+- [x] **analyze 接进服务器 cron**：`send-digest.sh` 加 Step 1.5，每天 06:00 digest 后跑 `analyze_xhs.py` 出 `data/xhs/<date>.json`（非致命）。本机 `build-xhs.sh` 默认直接 scp 这份现成 JSON 渲染（无需本机调 DeepSeek）；`LOCAL=1` 可强制本机重选。已部署+实测
+- [ ] **可选下一步**：把 newsletter/blog 接进邮件 digest 的 `build()`；CDP 自动发布；卡片排版微调（fact 短时 take 留白偏大）
 
 ## 暂不做
 

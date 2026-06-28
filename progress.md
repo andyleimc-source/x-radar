@@ -15,7 +15,13 @@
   - `scripts/build-xhs.sh [date]`：本机一条命令 = scp 拉服务器当天 raw（key 免密 SSH，不二次消耗 twitterapi 额度）→ analyze → render → 开目录人工审。`SKIP_PULL=1` 纯本机。
   - **真实全跑验证**：从服务器拉 12 条今日推 → DeepSeek 选 3 条（GPT-5.6 Sol / Claude / Cerebras 750tps）→ 出 5 图 + caption，质量好。
 - **现状**：日更图组管线已可用——每天 cron 抓好后，本机 `bash scripts/build-xhs.sh` 即出图组，人工审一眼传小红书。
-- **运行时小坑**（非代码 bug）：HN Algolia 偶发 400、Reddit RSS 连抓会 429 限流；analyze 已优雅降级。服务器 IP 抓 Reddit 更稳。
+- **运行时小坑**：Reddit RSS 连抓会 429 限流；analyze 已优雅降级。服务器 IP 抓 Reddit 更稳。
+
+- **④ analyze 接进服务器 cron（同日，全自动出 JSON）**：
+  - `send-digest.sh` 加 **Step 1.5**：每天 06:00 digest 完成后跑 `analyze_xhs.py` 出 `data/xhs/<date>.json`（非致命，挂了不影响邮件）。已 push + 服务器 `git pull` + 实测生成。
+  - `build-xhs.sh` 改默认路径：**直接 scp 服务器现成 JSON 渲染**（无需本机调 DeepSeek，更快更省）；服务器没出就回退「拉 raw 本机选题」。`LOCAL=1` 强制本机重选，`SKIP_PULL=1` 离线。本机实测默认路径出图成功。
+  - **顺手修了一个影响主 digest 的真 bug**：HN Algolia 收紧索引，`points` 不再可过滤数值属性 → `fetch_hn` 一直 400、HN 板块静默降级。改 `search_by_date` + 本机过 points 修复（见 bug.md）。本机+服务器都验证 HN 恢复。
+  - **最终形态**：服务器 cron 全自动抓取→选题→出 JSON；本机每天 `bash scripts/build-xhs.sh` 一条命令拉 JSON+出图+开目录，人工审完传小红书。
 
 ---
 
