@@ -9,7 +9,13 @@
 - **M4 小红书 AI 日更卡片组启动**（grill 定稿见 decision/plan）。完成两条独立支线 ①②：
   - **① 扩源**：`accounts.yaml` 新增 `newsletters:`(Import AI / Ben's Bites / TLDR AI) + `blogs:`(OpenAI / DeepMind / Google AI / Hugging Face / Mistral / Anthropic 社区镜像) 两段，补 6 个 AI X 号（AndrewYNg/jackclarkSF/GoogleAI/MistralAI/huggingface/AIatMeta）；`external.py` 加 `fetch_newsletters()`/`fetch_blogs()`，复用现有 RSS/Atom 解析，纯标准库无新依赖。全部 WebFetch 验证可达；自测宽窗 newsletters 8 / blogs 12 条。The Batch 无官方 RSS 暂缺，Anthropic 用社区镜像（无官方源）。⚠️ 尚未接进 `build()`。
   - **② 信号卡出图最小闭环**：新建 `scripts/render_xhs.py`，三套模板（封面 / 信号卡 / 尾卡 CTA），Playwright 截 3:4 PNG（1080×1440，viewport 540×720@2x）。雷码工坊品牌色（米白底/墨黑标题/磷绿竖线「雷码视角」/石墨正文）。`--sample` 跑通 5 张图 + `caption.txt`。本机已 `playwright install chromium`（headless-shell 145）。
-- **下一步**：选题分析（DeepSeek 跨源去重+打分+选 3-6 条→ `data/xhs/<date>.json`）+ `build-xhs.sh` 一条命令串起来。
+- **③ 选题分析 + 一条命令（同日完成，M4 端到端打通）**：
+  - `scripts/analyze_xhs.py`：聚合 AI推文(data/raw 三类账号)+HN+Reddit+newsletter+blog → DeepSeek 跨源去重+选 3-6 条+撰写(category/title/fact/take/source + hook + caption + tags) → `data/xhs/<date>.json`。优雅降级（某源挂了不影响整体）。
+  - `prompts/xhs_select.md`：老雷人设选题 prompt——专注 AI + AI 商业里程碑，丢营销/招聘/带货，跨源去重，宁缺毋滥 3-6 条，去 AI 腔。
+  - `scripts/build-xhs.sh [date]`：本机一条命令 = scp 拉服务器当天 raw（key 免密 SSH，不二次消耗 twitterapi 额度）→ analyze → render → 开目录人工审。`SKIP_PULL=1` 纯本机。
+  - **真实全跑验证**：从服务器拉 12 条今日推 → DeepSeek 选 3 条（GPT-5.6 Sol / Claude / Cerebras 750tps）→ 出 5 图 + caption，质量好。
+- **现状**：日更图组管线已可用——每天 cron 抓好后，本机 `bash scripts/build-xhs.sh` 即出图组，人工审一眼传小红书。
+- **运行时小坑**（非代码 bug）：HN Algolia 偶发 400、Reddit RSS 连抓会 429 限流；analyze 已优雅降级。服务器 IP 抓 Reddit 更稳。
 
 ---
 

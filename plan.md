@@ -49,10 +49,11 @@
 - [x] **扩源**：`config/accounts.yaml` 加 `newsletters:`(Import AI/Ben's Bites/TLDR AI) + `blogs:`(OpenAI/DeepMind/Google AI/HF/Mistral/Anthropic镜像) + 补 6 个 AI X 号；`external.py` 加 `fetch_newsletters()`/`fetch_blogs()`（复用 RSS/Atom 解析，纯标准库）。⚠️ 尚未接进 `build()`，是下游选题分析的事。The Batch 无官方 RSS 暂缺；Anthropic 用社区镜像
 - [x] **品牌色卡片模板**：HTML/CSS「信号卡」3:4 模板（米白/墨黑/磷绿/石墨）+ 封面模板 + 尾卡 CTA 模板（在 `render_xhs.py` 内）
 - [x] **出图脚本** `scripts/render_xhs.py`：读 JSON → 渲染各卡 HTML → Playwright 截 3:4 PNG（1080×1440，viewport 540×720@2x）→ `data/xhs/<date>/00-cover.png / 01.png … / NN-cta.png`；`--sample` 可跑通最小闭环；本机已 `playwright install chromium`
-- [ ] **选题分析**（下一步主线）：复用已抓数据（X ai 类 + HN + Reddit + 新 newsletter/blog），DeepSeek 跨源去重 + 按重要性打分 + 卡阈值选 3-6 条 + 生成每条「category/title/fact/take/source」结构化 JSON → `data/xhs/<date>.json`（schema 见 render_xhs.py 头部）。话题层丢营销/招聘/带货，保留 AI 商业里程碑。「雷码视角」语气挂 `~/Desktop/articles/WRITING.md`
-- [ ] **文案生成**：钩子标题 + 正文摘要 + 公众号引流 + 固定 tag 组 → 写进 JSON 的 `caption`/`tags`（render_xhs 已会落 `caption.txt`）
-- [ ] **本机一条命令**：`scripts/build-xhs.sh` 串起「从服务器拉 JSON / 或本机直接跑选题分析 → render_xhs 出图 → 出文案」
+- [x] **选题分析**：`scripts/analyze_xhs.py` 聚合 AI推文(data/raw)+HN+Reddit+newsletter+blog → DeepSeek 跨源去重+选3-6条+撰写「category/title/fact/take/source」→ `data/xhs/<date>.json`。prompt 在 `prompts/xhs_select.md`（老雷人设，专注 AI+AI商业里程碑，丢营销/招聘/带货，去 AI 腔）。真实数据验证通过
+- [x] **文案生成**：选题 prompt 同时出 `hook`/`caption`/`tags` 写进 JSON，render_xhs 落 `caption.txt`
+- [x] **本机一条命令**：`scripts/build-xhs.sh [date]` — scp 拉服务器当天 raw（key 免密，不二次消耗 twitterapi）→ analyze → render → 开目录。`SKIP_PULL=1` 纯本机
 - [ ] **人工把关**（前几次必跑）→ 人工传小红书
+- [ ] **可选下一步**：把 newsletter/blog 接进邮件 digest 的 `build()`；analyze 接进服务器 cron 自动出 JSON；CDP 自动发布；卡片排版微调（fact 短时 take 留白偏大）
 
 ## 暂不做
 
