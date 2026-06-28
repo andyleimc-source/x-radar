@@ -12,12 +12,13 @@ MAC="andy@100.82.108.123"            # Mac 的 Tailscale IP（work 节点）
 MAC_REPO="/Users/andy/Documents/running/xradar"
 BARK="https://api.day.app/94ksA4aTsW7vtL8n3LNJan"
 LOG="$HOME/cn-trigger-xhs.log"
+DATE_ARG="${1:-}"                     # 可选：指定日期（测试用），缺省走 Mac 当天
 
 echo "" >> "$LOG"
-echo "===== cn-trigger $(date '+%F %T %Z') =====" >> "$LOG"
+echo "===== cn-trigger $(date '+%F %T %Z') date='${DATE_ARG:-today}' =====" >> "$LOG"
 
 if ssh -o BatchMode=yes -o ConnectTimeout=20 -o StrictHostKeyChecking=accept-new "$MAC" \
-     "/bin/bash $MAC_REPO/scripts/deliver-xhs.sh" >> "$LOG" 2>&1; then
+     "/bin/bash $MAC_REPO/scripts/deliver-xhs.sh ${DATE_ARG}" >> "$LOG" 2>&1; then
   echo "[cn-trigger] ✅ Mac 交付成功（Mac 已自发成功 Bark）" >> "$LOG"
 else
   RC=$?

@@ -4,6 +4,20 @@
 
 ---
 
+## 2026-06-29 · 小红书图组「全自动交付」：cn 服务器当闹钟 → Tailscale SSH 到 Mac 渲染 → Bark 推送
+
+- **决策**：每天 **07:30（Asia/Shanghai）** 由 **cn 腾讯云服务器（101.43.4.46 / Tailscale 100.126.124.56）** 的 crontab 触发 → 通过 **Tailscale SSH 回连 Mac（work 节点 100.82.108.123）** → Mac 跑 `deliver-xhs.sh`（拉硅谷当天 JSON + 渲染 + 归档 + 部署预览 + 发 Bark）→ 一条 **Bark 通知**（标题=小红书标题、正文=简介+标签、链接=当天预览页 `xhs-<date>`）。SSH 失败/渲染错 → cn 自己 curl 一条失败 Bark 报警，绝不静默。
+- **Why**：
+  - 渲染只能在 Mac（Playwright/Chromium，硅谷 2G 跑不动）；定时器又不能放 Mac（Andy 要求）→ 必须「服务器当闹钟、Mac 当渲染机」。
+  - 硅谷服务器**不在 Tailscale**，cn 服务器在且常在线 → 用 cn 当触发器，Mac 仍从硅谷公网 IP 拉 JSON（既有路径）。
+  - Bark `image=` 一条通知只能带一张 URL 图、不能传本地文件 → 不推 N 张图，改「一条通知 + 预览页链接」，图和文案都在预览页里存/复制。
+- **备选**：① 给硅谷装 Tailscale 当触发器（多一套 Tailscale 鉴权，否决，cn 现成）；② Mac 本地 launchd 定时（Andy 明确否决）；③ 邮件交付（email-mcp `send_email` 不支持附件、内嵌 base64 又怕客户端不渲染 → **Andy 拍板砍掉邮件这条线**）；④ Bark 推 8 张图（刷屏 + 还得公网托管每张图，否决）。
+- **前置/信任链**：Mac 开「远程登录」(sshd)；cn 的 SSH 公钥写进 Mac `~/.ssh/authorized_keys`（`from=` 限定 cn IP）；Mac→硅谷、Mac→cn 均已免密。Mac 常开不关机（Andy 确认）→ 07:30 可达。
+- **代价/已知脆点**：Mac 睡死/断网/Tailscale 掉 → 当天只会收到失败 Bark（需手动 `build-xhs.sh` 兜底）；Mac Tailscale IP 若变需改 cn-trigger；reddit 本机连跑易 429、HN 偶空 → 候选池偶尔缩水。
+- **配置**：`.env` 加 `BARK_KEY`（gitignore）；cn `~/cn-trigger-xhs.sh` + crontab `30 7 * * *`；脚本 `scripts/deliver-xhs.sh`(Mac) + `scripts/cn-trigger-xhs.sh`(cn) + `scripts/push_bark.py`。
+
+---
+
 ## 2026-05-17 · 作者库数据源选 Jina（s.jina.ai）而非 Perplexity
 
 - **决策**：用 `s.jina.ai` 搜索 + DeepSeek 综述生成作者画像；不引 Perplexity Sonar

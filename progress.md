@@ -4,6 +4,16 @@
 
 ---
 
+## 2026-06-29
+
+- **小红书图组全自动交付链路打通（gm 访谈定方案 + 落地实测）**：每天 07:30 自动把成品推到手机 Bark，点开就能发。
+  - **架构**（详见 decision 2026-06-29）：cn 腾讯云服务器 crontab `30 7 * * *` → Tailscale SSH 回连 Mac（work 100.82.108.123）→ Mac 跑 `deliver-xhs.sh`（拉硅谷当天 JSON → 渲染 → 归档 posts/ → 部署预览页 `xhs-<date>` → 发 Bark）。失败 cn 自己 curl 失败 Bark 报警。
+  - **新文件**：`scripts/deliver-xhs.sh`(Mac 交付)、`scripts/cn-trigger-xhs.sh`(cn 触发，部署在 cn `~/`)、`scripts/push_bark.py`(读 JSON 标题/简介 POST Bark)；`build-xhs.sh` 加 `HEADLESS=1`；`.env` 加 `BARK_KEY`。
+  - **gm 访谈结论**：推送时间 07:30（Mac 常开不关机，SSH 可达）；Bark 一条通知带预览页链接（不推 N 张图）；**邮件砍掉**（email-mcp 不支持附件，Andy 决定不做）；Mac 连不上由 cn 发失败 Bark。
+  - **信任链搭建**：开 Mac 远程登录（sshd）；cn SSH 公钥写进 Mac authorized_keys（`from=` 限 cn IP）。Mac→硅谷、Mac→cn、cn→Mac 全部免密实测通。
+  - **踩坑**：① bash `set -u` 下 `$VAR` 紧跟全角括号（`$DATE）`）被当未定义变量 → 全加 `${}` 界定；② 代码改动只 commit 没 push，硅谷 `git pull` 拉不到新 prompt → 补 push 后硅谷重出 JSON；③ reddit 连跑 429。
+  - **实测**：cn 入口脚本 `cn-trigger-xhs.sh 2026-06-28` 全链路退出码 0，Bark 推送成功。**首次全自动交付 = 06-29 07:30**。
+
 ## 2026-06-28
 
 - **发布归档目录 posts/**：新建 `scripts/archive_xhs.py` + `posts/README.md`。每期 `posts/<date>/` = 最终图片 + `post.md`（小红书标题/正文介绍/标签/图片顺序/来源自查/发布状态，复制即发）。接进 `build-xhs.sh` 第 4 步自动归档。**post.md 入 git**（编辑记录可回溯），**图片不入 git**（`.gitignore` 加 `posts/*/*.png|jpg|preview.html`，日更图片会撑大仓库）——Andy 拍板「只入 post.md 图片本地留」。工作区 `data/xhs/`（临时渲染、会覆盖）与 `posts/`（留存档案）分开。
