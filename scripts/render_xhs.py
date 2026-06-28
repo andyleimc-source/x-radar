@@ -147,22 +147,28 @@ def render_card(c: dict, idx: int, total: int, date_str: str) -> str:
     fact = esc(c.get("fact") or "")
     take = esc(c.get("take") or "")
     source = esc(c.get("source") or "")
+    # 次级旁注用的浅色块（比米白背景略深，柔和区分「点评 ≠ 新闻」）
+    TINT = "#EFEBDF"
     css = f"""
-.sig .top {{ display:flex; align-items:center; gap:9px; margin-bottom:34px; }}
+.sig .top {{ display:flex; align-items:center; gap:9px; margin-bottom:30px; }}
 .sig .dot {{ width:11px; height:11px; border-radius:50%; background:{PHOS}; flex:none; }}
 .sig .cat {{ font-size:17px; font-weight:700; color:{INK}; }}
 .sig .date {{ margin-left:auto; font-size:15px; color:{MIST}; }}
-.sig h2 {{ font-size:40px; line-height:1.22; font-weight:800; color:{INK}; letter-spacing:-0.5px; }}
-.sig .fact {{ margin-top:26px; font-size:21px; line-height:1.62; color:{GRAPHITE}; }}
-.sig .take {{ margin-top:34px; padding:22px 0 0 20px; position:relative; }}
-.sig .take::before {{ content:""; position:absolute; left:0; top:22px; bottom:4px; width:6px;
-  background:{PHOS}; border-radius:3px; }}
-.sig .take .label {{ font-size:16px; font-weight:800; color:{PHOS}; letter-spacing:1px; margin-bottom:8px; }}
-.sig .take .body {{ font-size:20px; line-height:1.6; color:{GRAPHITE}; }}
-.sig .foot {{ margin-top:auto; padding-top:30px; display:flex; align-items:center; font-size:15px; color:{MIST}; }}
+/* 新闻为主：标题大而黑，事实大而深 */
+.sig h2 {{ font-size:42px; line-height:1.2; font-weight:800; color:{INK}; letter-spacing:-0.5px; }}
+.sig .fact {{ margin-top:24px; font-size:23px; line-height:1.6; color:{INK}; font-weight:500; }}
+/* 雷码视角：次级旁注——缩小、变浅、加底色块，明显弱于新闻 */
+.sig .take {{ margin-top:30px; background:{TINT}; border-radius:14px;
+  padding:18px 22px 20px 22px; position:relative; }}
+.sig .take::before {{ content:""; position:absolute; left:0; top:16px; bottom:16px; width:5px;
+  background:{PHOS}; border-radius:0 3px 3px 0; }}
+.sig .take .label {{ font-size:14px; font-weight:800; color:{PHOS}; letter-spacing:1.5px; margin-bottom:6px; }}
+.sig .take .body {{ font-size:18px; line-height:1.58; color:{BRICK}; }}
+.sig .foot {{ margin-top:auto; padding-top:24px; display:flex; align-items:center; font-size:15px; color:{MIST}; }}
 .sig .foot .src {{ color:{BRICK}; }}
 .sig .foot .pg {{ margin-left:auto; }}
 """
+    src_disp = f"来源 {source}" if source else ""
     body = f"""
 <div class="card sig">
   <div class="top">
@@ -177,7 +183,7 @@ def render_card(c: dict, idx: int, total: int, date_str: str) -> str:
     <div class="body">{take}</div>
   </div>
   <div class="foot">
-    <span class="src mono">{source}</span>
+    <span class="src mono">{src_disp}</span>
     <span class="pg mono">{idx}/{total}</span>
   </div>
 </div>"""
@@ -204,7 +210,7 @@ def render_cta() -> str:
 <div class="card cta">
  <div class="card-inner">
   <div class="badge"><span class="dot"></span>雷码工坊 · LEIMA WORKS</div>
-  <h2>每天<span class="g">三分钟</span>，<br>跟上 AI 真正发生的事</h2>
+  <h2>每天 <span class="g">3 分钟</span>，<br>跟上 AI 真正发生的事</h2>
   <div class="sub">不聊概念，只聊真实发生的事。<br>产品人视角，看 AI 怎么重塑工作。</div>
   <div class="line"></div>
   <div class="wx">公众号搜 <b>雷码工坊</b> · 看每条信号背后的深度拆解</div>
@@ -272,20 +278,14 @@ def build_deck(data: dict, out_dir: Path) -> list[Path]:
         old.unlink()
     paths = []
 
-    # 封面
-    p = out_dir / "00-cover.png"
-    render_to_png(render_cover(date_str, n, data.get("hook", "")), p)
-    paths.append(p)
-    print(f"  ✓ {p.name}", flush=True)
-
-    # 内容卡
+    # 内容卡（第 1 张即小红书封面图，无独立封面页）
     for i, c in enumerate(cards, 1):
         p = out_dir / f"{i:02d}.png"
         render_to_png(render_card(c, i, n, date_str), p)
         paths.append(p)
         print(f"  ✓ {p.name}  {c.get('title','')[:24]}", flush=True)
 
-    # 尾卡
+    # 尾卡（节目名 + 引流）
     p = out_dir / f"{n+1:02d}-cta.png"
     render_to_png(render_cta(), p)
     paths.append(p)
@@ -316,7 +316,7 @@ def main():
     out_dir = XHS_DIR / data["date"]
     print(f"渲染图组 → {out_dir}", flush=True)
     paths = build_deck(data, out_dir)
-    print(f"\n完成：{len(paths)} 张图（封面 + {len(data.get('cards') or [])} 内容 + 尾卡）", flush=True)
+    print(f"\n完成：{len(paths)} 张图（{len(data.get('cards') or [])} 条新闻 + 尾卡）", flush=True)
 
     # 文案落盘（方便人工复制到小红书）
     caption = (data.get("caption") or "").strip()

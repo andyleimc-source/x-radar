@@ -2,8 +2,8 @@
 """
 X Radar · 小红书 AI 日更选题分析（M4）
 
-聚合当天 AI 信号 → DeepSeek 跨源去重 + 按重要性选 3-6 条 + 撰写
-（标题/事实/雷码视角/分类/出处 + 封面钩子 + 文案 + tag）→ data/xhs/<date>.json
+聚合当天 AI 信号 → DeepSeek 跨源去重 + 按重要性选 6-10 条 + 撰写
+（标题/事实/雷码视角/分类/出处 + 文案 + tag）→ 再过一道去 AI 腔二次过校 → data/xhs/<date>.json
 
 数据源：
 - AI 类推文：data/raw/<date>/*.json（ai-lab / ai-people / cn 三类账号，由 cron 抓）
@@ -115,6 +115,30 @@ def gather_candidates(date_str: str, tweet_top: int = 25) -> list[dict]:
     return cands
 
 
+POLISH_PROMPT = ROOT / "prompts" / "xhs_polish.md"
+
+
+def polish_takes(cards: list[dict]) -> None:
+    """二次过校：把每张卡的「雷码视角」take 再过一道去 AI 腔重写（就地改 cards）。"""
+    takes = [(c.get("take") or "").strip() for c in cards]
+    if not any(takes):
+        return
+    try:
+        sys_prompt = POLISH_PROMPT.read_text()
+        res = _deepseek(sys_prompt, {"takes": takes}, timeout=180)
+        new = res.get("takes") or []
+        if len(new) == len(cards):
+            for c, t in zip(cards, new):
+                t = (t or "").strip()
+                if t:
+                    c["take"] = t
+            print(f"[xhs] 去 AI 腔二次过校完成（{len(new)} 段）", flush=True)
+        else:
+            print(f"[xhs] WARN: 过校返回 {len(new)} 段 ≠ {len(cards)} 张卡，跳过", file=sys.stderr)
+    except Exception as e:
+        print(f"[xhs] WARN: 二次过校失败（保留原 take）：{e}", file=sys.stderr)
+
+
 def select_and_write(date_str: str, cands: list[dict]) -> dict:
     sys_prompt = PROMPT.read_text()
     # 给模型的精简载荷（去掉 score 为 0 的噪音字段无所谓，保留 id/source_type/source/text/url）
@@ -126,6 +150,7 @@ def select_and_write(date_str: str, cands: list[dict]) -> dict:
     parsed = _deepseek(sys_prompt, payload, timeout=240)
 
     cards = parsed.get("cards") or []
+    polish_takes(cards)  # 二次过校
     out = {
         "date": date_str,
         "hook": (parsed.get("hook") or "").strip(),
@@ -142,7 +167,7 @@ def select_and_write(date_str: str, cands: list[dict]) -> dict:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--date", help="YYYY-MM-DD（缺省今天）")
-    ap.add_argument("--max", type=int, default=25, help="参选推文数（按作者取热前 N）")
+    ap.add_argument("--max", type=int, default=32, help="参选推文数（按作者取热前 N）")
     args = ap.parse_args()
 
     load_env()
