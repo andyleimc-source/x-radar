@@ -12,15 +12,32 @@ X Radar · 小红书图组在线预览页生成器
 """
 import argparse
 import base64
+import io
 from datetime import datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 XHS_DIR = ROOT / "data" / "xhs"
 
+# 预览内嵌图缩小到这个宽度 + JPEG 压缩，避免单 HTML 过大（vibeshare 有体积上限）
+PREVIEW_W = 600
+JPEG_Q = 78
+
 
 def img_b64(p: Path) -> str:
-    return base64.b64encode(p.read_bytes()).decode()
+    """缩小成 JPEG 再 base64，单文件体积砍约 10x（预览看版式足够清晰）。"""
+    try:
+        from PIL import Image
+        im = Image.open(p).convert("RGB")
+        if im.width > PREVIEW_W:
+            h = round(im.height * PREVIEW_W / im.width)
+            im = im.resize((PREVIEW_W, h), Image.LANCZOS)
+        buf = io.BytesIO()
+        im.save(buf, format="JPEG", quality=JPEG_Q, optimize=True)
+        return "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
+    except Exception:
+        # 没有 PIL 就退回原始 PNG
+        return "data:image/png;base64," + base64.b64encode(p.read_bytes()).decode()
 
 
 def build(date_str: str) -> Path:
@@ -36,10 +53,10 @@ def build(date_str: str) -> Path:
 
     cards_html = []
     for p in pngs:
-        b64 = img_b64(p)
+        uri = img_b64(p)
         label = p.stem
         cards_html.append(
-            f'<figure class="card"><img src="data:image/png;base64,{b64}" alt="{label}">'
+            f'<figure class="card"><img src="{uri}" alt="{label}">'
             f'<figcaption>{label}</figcaption></figure>'
         )
 
@@ -81,7 +98,7 @@ def build(date_str: str) -> Path:
 <div class="deck">{''.join(cards_html)}</div>
 <p class="hint">← 横向滑动 · 顺序即发布顺序（封面 → 内容 → 尾卡）。每张 3:4 / 1080×1440。</p>
 <h2 class="sec">② 平铺全看</h2>
-<div class="grid">{''.join(f'<img src="data:image/png;base64,{img_b64(p)}" alt="{p.stem}">' for p in pngs)}</div>
+<div class="grid">{''.join(f'<img src="{img_b64(p)}" alt="{p.stem}">' for p in pngs)}</div>
 {cap_block}
 </body></html>"""
 

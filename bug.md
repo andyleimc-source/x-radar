@@ -9,6 +9,12 @@ _（暂无）_
 
 ## FIXED
 
+### 2026-06-28 · vibeshare 部署预览页只剩占位页「Nothing to see here」
+- **现象**：`vibeshare preview.html --force --json` 返回 `ok:true`，但线上访问只有 511 字节的占位页，内容没上去
+- **根因**：预览 HTML 把 8 张 1080×1440 PNG base64 内嵌，单文件 3.2MB，**超过 vibeshare/Firebase 单文件体积上限**（实测 1MB 能传、3.2MB 不能，限在两者之间），CLI 静默只部署了占位页
+- **修复**：`preview_xhs.py` 内嵌前用 PIL 把图缩到宽 600px + JPEG q78（`img_b64`），单文件砍到 ~1MB，部署后线上内容正常。注意浏览器可能缓存了旧占位页，需硬刷新
+- **教训**：vibeshare 部署单文件务必 < 1MB；图片预览页一律先缩 JPEG，别内嵌全分辨率 PNG
+
 ### 2026-06-28 · HN Algolia 抓取全部 400（影响主 digest + xhs 选题）
 - **现象**：`fetch_hn` 一直 `HTTP Error 400`，HN 板块在邮件 digest 和小红书选题里都拿不到任何条目（静默降级，之前没发现）
 - **根因**：Algolia 收紧了 HN 索引设置，`points` 不再是可过滤数值属性——`numericFilters=...,points>=50` 直接 400（响应体：`invalid numeric attribute(points), attribute not specified in numericAttributesForFiltering`）
