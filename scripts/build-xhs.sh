@@ -85,5 +85,7 @@ ls -1 "$OUT"/*.png 2>/dev/null | sed 's/^/   /'
 echo ""
 echo "📋 发布文案/标题/状态：$OUT/post.md（复制即发小红书）"
 
-# 打开归档目录人工审 → 复制 post.md + 按顺序传图
-[ "$(uname)" = "Darwin" ] && open "$OUT" 2>/dev/null || true
+# 打开归档目录人工审 → 复制 post.md + 按顺序传图（HEADLESS=1 时跳过，给自动化用）
+if [ "${HEADLESS:-0}" != "1" ] && [ "$(uname)" = "Darwin" ]; then
+  open "$OUT" 2>/dev/null || true
+fi
