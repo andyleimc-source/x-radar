@@ -158,9 +158,11 @@ def fetch_article_text(url: str, max_chars: int = HN_ARTICLE_MAX, timeout: int =
 
 def fetch_hn(limit: int = 8, hours: int = 36, min_points: int = 50, with_article: bool = False) -> list[dict]:
     ts = int((datetime.now(timezone.utc) - timedelta(hours=hours)).timestamp())
+    # 注：Algolia 索引设置已收紧，points 不再是可过滤数值属性（numericFilters=points>= 会 400）。
+    # 只用 created_at_i 做服务端时间窗，points 改本机过滤；search_by_date 取窗口内最新 100 条。
     url = (
-        "https://hn.algolia.com/api/v1/search"
-        f"?tags=story&numericFilters=created_at_i>{ts},points>={min_points}&hitsPerPage=50"
+        "https://hn.algolia.com/api/v1/search_by_date"
+        f"?tags=story&numericFilters=created_at_i>{ts}&hitsPerPage=100"
     )
     try:
         data = json.loads(_get(url).decode("utf-8", "ignore"))
@@ -171,6 +173,8 @@ def fetch_hn(limit: int = 8, hours: int = 36, min_points: int = 50, with_article
     items = []
     for h in hits:
         title = (h.get("title") or "").strip()
+        if (h.get("points") or 0) < min_points:
+            continue
         if not title or not _HN_KEYWORDS.search(title):
             continue
         obj_id = h.get("objectID")

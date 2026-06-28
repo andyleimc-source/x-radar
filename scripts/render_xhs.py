@@ -267,6 +267,9 @@ def build_deck(data: dict, out_dir: Path) -> list[Path]:
     cards = data.get("cards") or []
     n = len(cards)
     out_dir.mkdir(parents=True, exist_ok=True)
+    # 清掉上次的旧图，避免卡片数变化时残留（如 3 条 → 4 条时旧的尾卡）
+    for old in out_dir.glob("*.png"):
+        old.unlink()
     paths = []
 
     # 封面
