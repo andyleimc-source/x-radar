@@ -16,17 +16,43 @@
   **sub 选取原则**（2026-05-10 定稿）：覆盖 Andy 的核心选题方向——AI 编程双雄（codex/ClaudeCode）+ SaaS 实战故事（microsaas）+ GitHub 项目品味（coolgithubprojects）+ 营销战术（SaaSMarketing）。砍掉 r/ClaudeAI（meme 多）/ r/cursor（吐槽多）/ r/singularity（话题散）/ r/LocalLLaMA（X 那边覆盖）/ r/OpenAI（X 那边覆盖）。
 - [x] HN / PH / GH 标题/描述翻译复用 `scripts/external.py` 的 `translate_items`，沿用一行列表风格（带分数、评论数、源链接）；Reddit 走 DeepSeek 主信源不在 external.py 渲染
 
-### M2 — 海报长图（已有雏形）
+### M2 — 海报长图（已退役 · 2026-06-28）
 
-- [x] `scripts/render_poster.py <morning|evening> [--date YYYY-MM-DD]` 雏形：Playwright 渲染 430 CSS px @3x 竖版 PNG 到 `data/posters/<date>-<slot>.png`，markdown bold 已会转 `<b>`
-- [ ] 接入触发链：本机 launchd/cron 在邮件发出后 1 小时，从服务器 `scp` 拉 `data/digests/<date>-<slot>.md` → 本机渲染（**不接远端 cron**——远端小机器跑不动 Chromium）
-- [ ] 人工确认环节（前几次必须人工把关）
+> 被 M4「小红书 AI 日更卡片组」取代。`render_poster.py` 单张长图与新卡片组功能重叠，**退役不再进调度**，代码留仓库当参考。两套并存只会每天纠结发哪个。
 
-### M3 — 小红书版
+- [x] `scripts/render_poster.py` 雏形：Playwright 渲染 430 CSS px @3x 竖版长图（保留作参考）
 
-- [ ] **图卡切分**：6 张 3:4 竖图（封面 / 今日观察 / 精选1-3 / 精选4-7 / 速览+PH Top5 / GH Top5+CTA 尾卡）
-- [ ] **文案**：钩子一句 + 3 条信号 + 公众号引流 + 5-8 个固定 tag（#AI #智能体 等）
-- [ ] **发布**：XHS 无官方 API，**先人工网页版贴图**，稳定后做 baoyu 风格 Chrome CDP 自动化（注：本机无 XHS 发布 MCP，只有图卡生成 skill `baoyu-xhs-images`）
+### M3 — 小红书版（旧设想，被 M4 取代）
+
+> 原 6 张固定切分方案（封面/观察/精选/速览/GH）已被 M4「每图一条新闻 + 浮动张数」替代。保留备查。
+
+---
+
+### M4 — 小红书 AI 日更卡片组（当前主线 · 2026-06-28 grill 定稿）
+
+**总目标**：每天从 AI 行业信息自动生成一组 3:4 卡片图，每图一条新闻，雷码工坊品牌色，读者看完立刻收获观点/知识/有用信息，实现「雷码工坊」小红书日更。
+
+**已定决策（grill 共识）**
+
+1. **产品定位**：与邮件 digest **并行新增**，共用同一批抓取数据，走独立的提炼+渲染路径。邮件 digest 保持不动（吃全量，含营销圈），图片管线只吃 AI。
+2. **内容边界**：**AI + AI 创业商业里程碑**。账号层只取 `ai-lab / ai-people / cn`；话题层 DeepSeek 丢掉纯产品促销/融资公关/招聘/带货，但保留 AI 公司的重大商业/战略动作。
+3. **图组结构**：**浮动 3-6 张内容图（按重要性卡阈值，宁缺毋滥）+ 固定封面 1 + 固定尾卡 CTA 1**。封面=首图（决定点击率），写日期 + 「今日 N 条 AI 信号」+ 钩子；尾卡引流雷码工坊公众号。
+4. **单卡范式 = 事实+观点「信号卡」**：① 磷绿小点 + 分类标签 + 日期（顶）② 墨黑大钉子标题（钩子，一句戳价值）③ 石墨正文 2-3 句核心事实 ④ 磷绿竖线引出「雷码视角」点评 1 段 ⑤ 出处角标 + 页码（底）。
+5. **「雷码视角」语气**：挂 `~/Desktop/articles/WRITING.md` 老雷人设（产品人/技术迷，乔布斯信徒，不聊概念只聊真实发生的事，有温度有观点），生成后理想上过 humanizer-zh 原则去 AI 味。
+6. **扩源**（合规接口）：新增 **AI Newsletter RSS**（The Batch / Import AI / Ben's Bites / TLDR AI 等）+ **官方实验室博客 RSS**（OpenAI / Anthropic / DeepMind / Google AI / Mistral 等）+ 补一批 **AI 大 X 号**。
+7. **渲染/触发**：服务器 cron 只产出「选好的 AI 新闻 JSON」；**本机一条命令**拉取 + 渲染 HTML + Playwright 截图（一卡一 PNG，3:4）→ 人工审一眼。不碰 launchd。
+8. **发布 scope**：本轮只到「出图组 + 文案/tag」，**人工传小红书**。CDP 自动发布后续单独立项。
+9. **旧长图退役**：新建 `scripts/render_xhs.py` 专做卡片组，复用 .env/DeepSeek/Playwright 管子，范式+选题+出图全新写。
+
+**待办**
+
+- [ ] **扩源**：`config/accounts.yaml` 加 `newsletters:`(RSS) + `blogs:`(RSS) 两段 + 补 AI X 号；`external.py` 加 RSS 抓取+清洗（复用 Reddit RSS 经验）
+- [ ] **选题分析**：服务器侧新脚本/复用 digest 数据，DeepSeek 跨源去重 + 按重要性打分 + 卡阈值选 3-6 条 + 生成每条「标题/事实/雷码视角/分类/出处」结构化 JSON → `data/xhs/<date>.json`
+- [ ] **品牌色卡片模板**：HTML/CSS「信号卡」3:4 模板（米白 #FAF7F0 / 墨黑 #0E1116 / 磷绿 #1AB87C / 石墨 #3A4151）+ 封面模板 + 尾卡 CTA 模板
+- [ ] **出图脚本** `scripts/render_xhs.py`：读 JSON → 渲染各卡 HTML → Playwright 截 3:4 PNG（建议 1080×1440）→ `data/xhs/<date>/01.png …`
+- [ ] **文案生成**：钩子标题 + 正文摘要 + 公众号引流 + 固定 tag 组（#AI #智能体 #ClaudeCode 等）→ 随图组一起出
+- [ ] **本机一条命令**：`scripts/build-xhs.sh` 串起「从服务器拉 JSON → 渲染 → 截图 → 出文案」
+- [ ] **人工把关**（前几次必跑）→ 人工传小红书
 
 ## 暂不做
 
