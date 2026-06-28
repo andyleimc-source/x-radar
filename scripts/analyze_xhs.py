@@ -190,6 +190,16 @@ def polish_takes(cards: list[dict]) -> None:
 _CN_NUM = "零一二三四五六七八九十"
 
 
+def strip_title_colons(cards: list[dict]) -> None:
+    """兜底：标题里禁止冒号（模型常违反「X：Y」禁令）。把残留冒号换成空格并清掉重复空格。"""
+    for c in cards:
+        t = (c.get("title") or "")
+        if "：" in t or ":" in t:
+            t = t.replace("：", " ").replace(":", " ")
+            t = re.sub(r"\s{2,}", " ", t).strip()
+            c["title"] = t
+
+
 def fix_caption_count(caption: str, n: int) -> str:
     """把 caption 里写死的「X 张图 / X 条新闻/信号」校正到实际条数 n（DeepSeek 常数不准）。"""
     if not caption or n <= 0:
@@ -212,6 +222,7 @@ def select_and_write(date_str: str, cands: list[dict]) -> dict:
     parsed = _deepseek(sys_prompt, payload, timeout=240)
 
     cards = parsed.get("cards") or []
+    strip_title_colons(cards)  # 兜底去标题冒号
     polish_takes(cards)  # 二次过校
     caption = fix_caption_count((parsed.get("caption") or "").strip(), len(cards))
     out = {
