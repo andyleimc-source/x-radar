@@ -478,6 +478,130 @@ def latest_podcast_guids(items: list[dict]) -> dict:
     return out
 
 
+# ---------- Newsletters & Lab blogs (RSS / Atom) ----------
+# 复用上面播客那套 RSS/Atom 解析（_parse_podcast_feed / _parse_pubdate），
+# 只换字段名 + 时间窗，不引 feedparser。源配置在 config/accounts.yaml 的
+# newsletters: / blogs: 两段。
+
+FEED_SUMMARY_MAX = 800            # 摘要截断（对齐 Reddit body 的 800）
+NEWSLETTER_LOOKBACK_HOURS = 48
+NEWSLETTER_PER_FEED = 3
+NEWSLETTER_LIMIT = 12
+BLOG_LOOKBACK_HOURS = 48
+BLOG_PER_FEED = 3
+BLOG_LIMIT = 12
+
+
+def _load_feed_section(section: str) -> list[dict]:
+    """从 config/accounts.yaml 读任意顶级 section（newsletters / blogs）。
+    手写极简解析，复用 _load_podcasts_config 的写法，不引 yaml 依赖。
+    要求每条至少有 name + rss。"""
+    text = (ROOT / "config" / "accounts.yaml").read_text()
+    marker = section + ":"
+    in_sec = False
+    items: list[dict] = []
+    cur: dict = {}
+    for line in text.splitlines():
+        if line.startswith(marker):
+            in_sec = True
+            continue
+        if not in_sec:
+            continue
+        # 退出本段（遇到下一个顶级 key）
+        if line and not line.startswith(" ") and not line.startswith("#") and not line.startswith("-"):
+            break
+        stripped = line.strip()
+        if stripped.startswith("- "):
+            if cur:
+                items.append(cur)
+            cur = {}
+            stripped = stripped[2:]
+            if ":" in stripped:
+                k, v = stripped.split(":", 1)
+                cur[k.strip()] = v.strip()
+        elif ":" in stripped and not stripped.startswith("#"):
+            k, v = stripped.split(":", 1)
+            cur[k.strip()] = v.strip()
+    if cur:
+        items.append(cur)
+    return [it for it in items if it.get("name") and it.get("rss")]
+
+
+def _fetch_feed_section(
+    section: str,
+    source_label: str,
+    limit: int,
+    hours: int,
+    per_feed: int,
+) -> list[dict]:
+    """通用：抓 accounts.yaml 某段所有 RSS/Atom 源最近 N 条，做时间窗过滤。
+    返回结构对齐其他 fetch_*：source / name / title / url / summary / published / category。
+    每源最多 per_feed 条，全局按发布时间倒序截断到 limit。纯 RSS，不调任何 LLM。"""
+    cfg = _load_feed_section(section)
+    headers = {"User-Agent": UA}
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
+    out: list[dict] = []
+    for src in cfg:
+        name = src["name"]
+        url = src["rss"]
+        try:
+            raw = _get(url, headers=headers, timeout=30)
+        except Exception as e:
+            print(f"[external] {source_label} {name} fetch failed: {e}", file=sys.stderr)
+            continue
+        eps = _parse_podcast_feed(raw, name)  # 通用 RSS2.0/Atom 解析，show_notes 已截到 800
+        if not eps:
+            continue
+        eps.sort(
+            key=lambda e: e["published_dt"] or datetime.min.replace(tzinfo=timezone.utc),
+            reverse=True,
+        )
+        category = src.get("topic") or src.get("org") or ""
+        kept = 0
+        for e in eps:
+            if not (e["published_dt"] and e["published_dt"] >= cutoff):
+                continue
+            summary = e.get("show_notes") or ""
+            if len(summary) > FEED_SUMMARY_MAX:
+                summary = summary[:FEED_SUMMARY_MAX].rstrip() + "…"
+            out.append({
+                "source": source_label,
+                "name": name,
+                "title": e["title"],
+                "url": e["url"],
+                "summary": summary,
+                "published": e["published"],
+                "published_dt": e["published_dt"],
+                "category": category,
+            })
+            kept += 1
+            if kept >= per_feed:
+                break
+    out.sort(
+        key=lambda x: x["published_dt"] or datetime.min.replace(tzinfo=timezone.utc),
+        reverse=True,
+    )
+    return [{k: v for k, v in it.items() if k != "published_dt"} for it in out[:limit]]
+
+
+def fetch_newsletters(
+    limit: int = NEWSLETTER_LIMIT,
+    hours: int = NEWSLETTER_LOOKBACK_HOURS,
+    per_feed: int = NEWSLETTER_PER_FEED,
+) -> list[dict]:
+    """抓 accounts.yaml 的 newsletters: 段（Import AI / Ben's Bites / TLDR AI ...）。"""
+    return _fetch_feed_section("newsletters", "newsletter", limit, hours, per_feed)
+
+
+def fetch_blogs(
+    limit: int = BLOG_LIMIT,
+    hours: int = BLOG_LOOKBACK_HOURS,
+    per_feed: int = BLOG_PER_FEED,
+) -> list[dict]:
+    """抓 accounts.yaml 的 blogs: 段（OpenAI / DeepMind / HuggingFace / Mistral / Anthropic ...）。"""
+    return _fetch_feed_section("blogs", "blog", limit, hours, per_feed)
+
+
 # ---------- GitHub Trending ----------
 
 _GH_ARTICLE_RE = re.compile(r'<article class="Box-row">(.*?)</article>', re.DOTALL)

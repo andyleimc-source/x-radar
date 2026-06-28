@@ -167,6 +167,26 @@ accounts:
     category: martech
     note: Dave Gerhardt · DGMG，B2B 营销
 
+  # === AI labs / people 补充（2026-06，配合 newsletters/blogs 源）===
+  - username: AndrewYNg
+    category: ai-people
+    note: Andrew Ng · DeepLearning.AI / The Batch 主理人
+  - username: jackclarkSF
+    category: ai-people
+    note: Jack Clark · Anthropic 政策负责人 / Import AI 作者
+  - username: GoogleAI
+    category: ai-lab
+    note: Google AI 官方
+  - username: MistralAI
+    category: ai-lab
+    note: Mistral 官方
+  - username: huggingface
+    category: ai-lab
+    note: Hugging Face 官方
+  - username: AIatMeta
+    category: ai-lab
+    note: Meta AI 官方（FAIR / Llama）
+
 # === Podcasts (海外 AI / SaaS / 创业 / dev) ===
 # 改这个列表增删播客源。topic 仅人工分类，不影响逻辑。
 # 体检 RSS 可达性：bash scripts/check_podcast_feeds.sh
@@ -207,3 +227,42 @@ podcasts:
     rss: https://api.substack.com/feed/podcast/458709.rss
     topic: dev
     host_handle: gergelyorosz-pod
+
+# === AI Newsletters（人工精选 AI 通讯，走公开 RSS）===
+# 字段：name / rss / topic。抓取见 external.fetch_newsletters()。
+# 体检同播客逻辑（标准库 RSS/Atom 解析，不引 feedparser）。
+newsletters:
+  - name: Import AI
+    rss: https://importai.substack.com/feed
+    topic: ai-research
+  - name: Ben's Bites
+    rss: https://www.bensbites.com/feed
+    topic: ai-news
+  - name: TLDR AI
+    rss: https://tldr.tech/api/rss/ai
+    topic: ai-news
+  # The Batch (DeepLearning.AI) 暂无可用官方 RSS（官方 /feed/ 404，社区源已空），先不收。
+
+# === 官方实验室博客（走公开 RSS）===
+# 字段：name / rss / org。抓取见 external.fetch_blogs()。
+blogs:
+  - name: OpenAI Blog
+    rss: https://openai.com/blog/rss.xml
+    org: OpenAI
+  - name: Google DeepMind
+    rss: https://deepmind.google/blog/rss.xml
+    org: Google DeepMind
+  - name: Google AI
+    rss: https://blog.google/technology/ai/rss/
+    org: Google
+  - name: Hugging Face
+    rss: https://huggingface.co/blog/feed.xml
+    org: Hugging Face
+  - name: Mistral AI
+    rss: https://mistral.ai/rss.xml
+    org: Mistral
+  # Anthropic 无官方 RSS；下面是社区维护的 Anthropic News 镜像（GitHub raw，每日更新）。
+  # 如失效就删掉这条——官方一旦上线 RSS 应优先替换。
+  - name: Anthropic News
+    rss: https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_anthropic_news.xml
+    org: Anthropic
