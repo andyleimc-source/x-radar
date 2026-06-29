@@ -1,20 +1,15 @@
 # X Radar · 项目笔记
 
 每日抓 X 关注列表 → DeepSeek 分析 → 邮件 digest（主线）。
-另有支线：**小红书 AI 日更图组**（M4）——AI 信号选题 → 3:4 卡片图 → 每天 06:20 自动 Bark 推到手机。
 
-## 小红书图组 · 全自动交付（M4，2026-06-29 起）
+## ⛔ 小红书 AI 日更图组（M4）—— 已停产（2026-06-29）
 
-两条 cron 接力，**渲染在 Mac、定时在服务器**：
+效果不佳，整条路放弃，**停止每日自动生产**。已做的停用动作：
 
-1. **硅谷服务器 06:00**（既有 `send-digest.sh` Step 1.5）→ `analyze_xhs.py` 出当天选好题的 `data/xhs/<date>.json`。
-2. **cn 服务器 06:20**（crontab `20 6 * * *` → `~/cn-trigger-xhs.sh`）→ Tailscale SSH 回连 Mac（work 节点 `100.82.108.123`）→ Mac 跑 `scripts/deliver-xhs.sh`：拉硅谷 JSON → 渲染 3:4 图 → 归档 `posts/<date>/` → 部署预览页 `xhs-<date>` → 发 **Bark**（标题=小红书标题、正文=简介+标签、链接=预览页）。Mac 连不上 → cn 发失败 Bark 报警。
-
-- 渲染脚本只能在 Mac 跑（Playwright/Chromium）。`.env` 里 `BARK_KEY`。详见 `decision.md` 2026-06-29。
-- **手动出一期**（任意时间）：本机 `bash scripts/build-xhs.sh [date]`（拉 JSON+渲染+归档+开目录）。
-- **手动测全自动链路**：`ssh ubuntu@100.126.124.56 'bash ~/cn-trigger-xhs.sh <date>'`（带日期测有数据的那天）。
-- 成品在 `posts/<date>/`（图片 + `post.md` 标题/简介/标签/发布状态，post.md 入 git、图片不入）。
-- 排查：Mac `data/state/deliver-xhs.log`、cn `~/cn-trigger-xhs.log`。
+- 硅谷 `send-digest.sh` 的 Step 1.5（`analyze_xhs.py`）已注释，不再每日出选题 JSON（邮件主线不受影响）。
+- cn 服务器 crontab `20 6 * * *`（`~/cn-trigger-xhs.sh`）已摘除，不再每日触发 Mac 渲染。
+- **代码全部保留**（`analyze_xhs.py` / `render_xhs.py` / `deliver-xhs.sh` / `build-xhs.sh` / `cn-trigger-xhs.sh` 等），`posts/<date>/` 历史归档保留。需要时手动 `bash scripts/build-xhs.sh [date]` 仍可出图；要彻底恢复，重新接回上述两个调度点即可。
+- 详见 `decision.md` 2026-06-29。
 
 ## 协作骨架文件
 

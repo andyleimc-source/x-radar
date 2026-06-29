@@ -32,15 +32,16 @@ if ! python3 "$ROOT/scripts/digest.py" "$SLOT"; then
 fi
 echo "[Step 1] Digest pipeline done."
 
-# --- Step 1.5: 小红书 AI 日更选题 JSON（复用刚抓好的 raw，非致命） ---
-# 产出 data/xhs/<date>.json；本机 build-xhs.sh 直接 scp 这份 JSON 渲染出图。
-# 失败不影响邮件。
-echo "[Step 1.5] Running xhs select (analyze_xhs.py)..."
-if python3 "$ROOT/scripts/analyze_xhs.py" >> "$LOG" 2>> "$ERR"; then
-    echo "[Step 1.5] xhs JSON done: data/xhs/${DATE}.json"
-else
-    echo "[Step 1.5] WARN: analyze_xhs failed (skip; email still sends)"
-fi
+# --- Step 1.5: 小红书 AI 日更选题 JSON —— 已停用（2026-06-29）---
+# 小红书日更图组效果不佳，整条路放弃，停止每日生产。
+# 调度也已摘除：cn 服务器 crontab `20 6 * * *` 已删；本机不再自动渲染。
+# 代码保留（analyze_xhs.py / render_xhs.py / build-xhs.sh 等），需要时可手动跑恢复。
+# echo "[Step 1.5] Running xhs select (analyze_xhs.py)..."
+# if python3 "$ROOT/scripts/analyze_xhs.py" >> "$LOG" 2>> "$ERR"; then
+#     echo "[Step 1.5] xhs JSON done: data/xhs/${DATE}.json"
+# else
+#     echo "[Step 1.5] WARN: analyze_xhs failed (skip; email still sends)"
+# fi
 
 # Wait for file system sync
 sleep 3
