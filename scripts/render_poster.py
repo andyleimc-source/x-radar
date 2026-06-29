@@ -129,7 +129,15 @@ def _deepseek(sys_prompt: str, payload: dict, timeout: int = 180) -> dict:
     )
     with request.urlopen(req, timeout=timeout) as resp:
         data = json.loads(resp.read().decode("utf-8"))
-    return json.loads(data["choices"][0]["message"]["content"])
+    content = data["choices"][0]["message"]["content"]
+    # 容错：DeepSeek 偶尔在字符串里塞未转义控制符（裸换行等）。
+    # strict=False 允许串内控制符；仍失败再清洗掉控制字符。
+    try:
+        return json.loads(content, strict=False)
+    except json.JSONDecodeError:
+        import re as _re
+        cleaned = _re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", "", content)
+        return json.loads(cleaned, strict=False)
 
 
 def enrich_tweets(items: list[dict]) -> None:
