@@ -223,9 +223,9 @@ def render_cta() -> str:
   <h2>每天 <span class="g">3 分钟</span>，<br>跟上 AI 真正发生的事</h2>
   <div class="sub">不聊概念，只聊真实发生的事。<br>产品人视角，看 AI 怎么重塑工作。</div>
   <div class="line"></div>
-  <div class="wx">公众号搜 <b>雷码工坊</b> · 看每条信号背后的深度拆解</div>
+  <div class="wx">点赞 · 收藏 · 关注 <b>雷码工坊</b><br>每天 3 分钟，不错过 AI 真正发生的事</div>
  </div>
- <div class="foot mono">关注我 · 不错过每天的 AI 信号 →</div>
+ <div class="foot mono">关注我 · 每天看懂 AI →</div>
 </div>"""
     return html_doc(body, css)
 
@@ -359,12 +359,20 @@ def main():
     paths = build_deck(data, out_dir)
     print(f"\n完成：{len(paths)} 张图（{len(data.get('cards') or [])} 条新闻 + 尾卡）", flush=True)
 
-    # 文案落盘（方便人工复制到小红书）
+    # 文案落盘（方便人工复制到小红书）——标题 / 描述 / 标签 分开
+    title = (data.get("xhs_title") or data.get("hook") or "").strip()
     caption = (data.get("caption") or "").strip()
     tags = " ".join(data.get("tags") or [])
-    if caption or tags:
+    if title or caption or tags:
         cap_path = out_dir / "caption.txt"
-        cap_path.write_text((caption + "\n\n" + tags).strip() + "\n")
+        parts = []
+        if title:
+            parts.append(f"【标题】\n{title}")
+        if caption:
+            parts.append(f"【描述】\n{caption}")
+        if tags:
+            parts.append(f"【标签】\n{tags}")
+        cap_path.write_text("\n\n".join(parts) + "\n")
         print(f"文案 → {cap_path}", flush=True)
 
 

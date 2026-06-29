@@ -242,9 +242,12 @@ def select_and_write(date_str: str, cands: list[dict]) -> dict:
     strip_title_colons(cards)  # 兜底去标题冒号
     polish_takes(cards)  # 二次过校
     caption = fix_caption_count((parsed.get("caption") or "").strip(), len(cards))
+    xhs_title = (parsed.get("xhs_title") or "").strip()
+    hook = (parsed.get("hook") or "").strip()
     out = {
         "date": date_str,
-        "hook": (parsed.get("hook") or "").strip(),
+        "hook": hook,
+        "xhs_title": xhs_title or hook,  # 缺则回退 hook
         "cards": cards,
         "caption": caption,
         "tags": parsed.get("tags") or [],

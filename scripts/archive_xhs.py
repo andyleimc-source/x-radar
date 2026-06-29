@@ -36,6 +36,7 @@ def build(date_str: str) -> Path:
     data = json.loads(json_path.read_text())
     cards = data.get("cards") or []
     hook = (data.get("hook") or "").strip()
+    xhs_title = (data.get("xhs_title") or "").strip()
     caption = (data.get("caption") or "").strip()
     tags = data.get("tags") or []
 
@@ -58,24 +59,26 @@ def build(date_str: str) -> Path:
         title = c.get("title", "")
         img_lines.append(f"{i+1}. `{p.name}` — [{cat}] {title}")
     for p in cta:
-        img_lines.append(f"{len(content)+1}. `{p.name}` — 尾卡（节目名 + 引流）")
+        img_lines.append(f"{len(content)+1}. `{p.name}` — 尾卡（关注引导，无站外引流）")
 
     # 来源自查（仅供本人核对，勿放进小红书正文——带链接会被封）
     src_lines = [f"- [{c.get('category','')}] {c.get('title','')} — {c.get('source','')}" for c in cards]
 
     tag_line = " ".join(tags)
-    title_for_xhs = hook or (cards[0].get("title", "") if cards else "今日 AI 信号")
+    # 小红书标题：优先用 ≤20 字的 xhs_title，回退 hook，再回退首条标题
+    title_for_xhs = xhs_title or hook or (cards[0].get("title", "") if cards else "今日 AI 信号")
 
     md = f"""# 雷码工坊 · 今日 AI 信号 · {date_str}
 
 > {len(content)} 条新闻 + 尾卡 · 共 {len(pngs)} 图 · 3:4 / 1080×1440
 
-## 📌 小红书标题
+## 📌 小红书标题（≤20 字 · 复制这行）
 {title_for_xhs}
 
-## 📝 正文介绍（直接复制发小红书）
+## 📝 描述/正文（≤100 字 · 复制这段）
 {caption}
 
+## 🏷 标签（复制这行）
 {tag_line}
 
 ## 🖼 图片顺序（按此顺序上传，第 1 张即封面）
