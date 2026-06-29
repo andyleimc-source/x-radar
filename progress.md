@@ -14,6 +14,12 @@
   - **今天交付**：07 点前已推过一版 7 条的 Bark（预览页 `xhs-2026-06-29`）；扩源后的 10 条版是否补推待定。
   - **已知未解**：Reddit RSS 双 IP 频繁 429；选题有随机性靠厚水源压下限。
 
+- **第二轮迭代（看完 10 条版反馈后）**：
+  - **补 14 个海外 AI 大号**（handle 全验证有效）：新闻号 rowancheung/TheRundownAI、产品号 cursor/perplexity/midjourney/runwayml/elevenlabs、大厂 AIatMeta/GoogleAI/MistralAI、KOL AndrewYNg/emollick/AravSrinivas/kevinweil。新增 `ai-product`/`ai-media` 类并入 AI_CATEGORIES，AI 候选账号 33→47。twitterapi.io 成本实测可忽略（按返回推文数 ~$0.15/1k，全量才 ~$0.6/月，加号 +~$0.3/月）。
+  - **fact 讲透 + 补背景**：Andy 反馈软银/RepoPrompt 那条没前情看不懂 → prompt 要求「假设读者零背景，涉及人物/公司/前情必须补一句背景，自查能否独立看懂」，字数提到 110-170。砍掉面向开发者的工具/库（RepoPrompt 类）。
+  - **修 bug**：长 fact 致 DeepSeek 返回裸控制符 JSON、`json.loads` 崩 → `_deepseek` 加 `strict=False`+清控制符兜底。预览 HTML 因卡面文字多超 1MiB → 压到 460/66。
+  - **今天重发 10 条版**（第三推）：软银/Mythos/白宫限制/ElevenLabs 失语教师 全补足背景、RepoPrompt 已砍，Bark 已推。
+
 - **推送时间 07:30 → 06:20**：cn crontab 改 `20 6 * * *`，硅谷 06:00 不动。时区两台服务器本就是 Asia/Shanghai（北京时间），无需改。
 
 - **小红书图组全自动交付链路打通（gm 访谈定方案 + 落地实测）**：每天 06:20 自动把成品推到手机 Bark，点开就能发。
