@@ -27,7 +27,9 @@ POSTER_DIR = ROOT / "data" / "posters"
 sys.path.insert(0, str(ROOT / "scripts"))
 import external  # noqa: E402
 
-AI_CATEGORIES = {"ai-lab", "ai-people", "cn"}
+# 这些类的账号会进小红书/海报的 AI 推文候选池（load_ai_tweets 据此过滤）。
+# ai-product=AI 产品/工具官号，ai-media=AI 新闻媒体号（2026-06-29 补海外大号时加）。
+AI_CATEGORIES = {"ai-lab", "ai-people", "cn", "ai-product", "ai-media"}
 
 
 def load_env():

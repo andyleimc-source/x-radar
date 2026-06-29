@@ -38,6 +38,52 @@ accounts:
     category: ai-people
     note: AK 每日论文
 
+  # === 海外 AI 大号补充（2026-06-29，全部 handle 验证有效；只收海外一手）===
+  # ai-media=AI 新闻媒体号 / ai-product=AI 产品工具官号 / ai-people=个人 KOL。
+  # 都进小红书候选池（AI_CATEGORIES）。note 会喂给选题模型当作者身份 ground truth。
+  - username: rowancheung
+    category: ai-media
+    note: Rowan Cheung · Rundown AI 创始人，大众向 AI 日报
+  - username: TheRundownAI
+    category: ai-media
+    note: The Rundown AI · 大众向 AI 日报
+  - username: AndrewYNg
+    category: ai-people
+    note: 吴恩达 · DeepLearning.AI 创始人
+  - username: emollick
+    category: ai-people
+    note: Ethan Mollick · 沃顿教授，AI 实用研究
+  - username: AravSrinivas
+    category: ai-people
+    note: Aravind Srinivas · Perplexity CEO
+  - username: kevinweil
+    category: ai-people
+    note: Kevin Weil · OpenAI 首席产品官
+  - username: cursor_ai
+    category: ai-product
+    note: Cursor · AI 编程工具官方
+  - username: perplexity_ai
+    category: ai-product
+    note: Perplexity · AI 搜索官方
+  - username: midjourney
+    category: ai-product
+    note: Midjourney · AI 绘图官方
+  - username: runwayml
+    category: ai-product
+    note: Runway · AI 视频生成官方
+  - username: elevenlabs
+    category: ai-product
+    note: ElevenLabs · AI 语音官方
+  - username: AIatMeta
+    category: ai-lab
+    note: Meta AI · Meta 官方 AI
+  - username: GoogleAI
+    category: ai-lab
+    note: Google AI · 谷歌官方 AI
+  - username: MistralAI
+    category: ai-lab
+    note: Mistral AI · 法国大模型公司官方
+
   # === Low-code / No-code / Productivity SaaS ===
   - username: airtable
     category: nocode
