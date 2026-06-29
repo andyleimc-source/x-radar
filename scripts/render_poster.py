@@ -121,23 +121,31 @@ def _deepseek(sys_prompt: str, payload: dict, timeout: int = 180) -> dict:
         "response_format": {"type": "json_object"},
         "stream": False,
     }).encode("utf-8")
-    req = request.Request(
-        f"{base}/chat/completions",
-        data=body,
-        headers={"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"},
-        method="POST",
-    )
-    with request.urlopen(req, timeout=timeout) as resp:
-        data = json.loads(resp.read().decode("utf-8"))
-    content = data["choices"][0]["message"]["content"]
-    # 容错：DeepSeek 偶尔在字符串里塞未转义控制符（裸换行等）。
-    # strict=False 允许串内控制符；仍失败再清洗掉控制字符。
-    try:
-        return json.loads(content, strict=False)
-    except json.JSONDecodeError:
-        import re as _re
-        cleaned = _re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", "", content)
-        return json.loads(cleaned, strict=False)
+    # DeepSeek 偶发吐坏 JSON（未转义引号/裸控制符/缺逗号）。先清洗+strict=False，
+    # 结构性坏（清不掉）就整次重试——换一次生成通常就正常了。
+    import re as _re
+    last_err = None
+    for attempt in range(3):
+        req = request.Request(
+            f"{base}/chat/completions",
+            data=body,
+            headers={"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"},
+            method="POST",
+        )
+        try:
+            with request.urlopen(req, timeout=timeout) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+            content = data["choices"][0]["message"]["content"]
+            try:
+                return json.loads(content, strict=False)
+            except json.JSONDecodeError:
+                cleaned = _re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", "", content)
+                return json.loads(cleaned, strict=False)
+        except json.JSONDecodeError as e:
+            last_err = e
+            print(f"[deepseek] JSON 解析失败（第 {attempt+1}/3 次），重试…", file=sys.stderr)
+            continue
+    raise last_err
 
 
 def enrich_tweets(items: list[dict]) -> None:

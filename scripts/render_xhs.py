@@ -149,32 +149,38 @@ def render_card(c: dict, idx: int, total: int, date_str: str) -> str:
     source = esc(c.get("source") or "")
     # 次级旁注用的浅色块（比米白背景略深，柔和区分「点评 ≠ 新闻」）
     TINT = "#EFEBDF"
+    # 字号/间距全部 ×var(--k)，由 render_to_png 的自适应引擎测高后求解 k：
+    # 内容短 → k>1 放大填满；内容长 → k<1 缩小不溢出。永远饱满、不留空档、不裁切。
     css = f"""
-.sig .top {{ display:flex; align-items:center; gap:9px; margin-bottom:26px; }}
+.sig {{ --k:1; }}
+.sig .top {{ display:flex; align-items:center; gap:9px; margin-bottom:calc(24px * var(--k)); }}
 .sig .dot {{ width:11px; height:11px; border-radius:50%; background:{PHOS}; flex:none; }}
 .sig .cat {{ font-size:17px; font-weight:700; color:{INK}; }}
 .sig .date {{ margin-left:auto; font-size:15px; color:{MIST}; }}
-/* 标题缩小让位给事实；事实是绝对主体——大号深色，吃满版面 */
-.sig h2 {{ font-size:34px; line-height:1.22; font-weight:800; color:{INK}; letter-spacing:-0.5px; }}
-.sig .fact {{ margin-top:22px; font-size:22px; line-height:1.62; color:{INK}; font-weight:500; }}
+/* .fit 吃满 top 与 foot 之间的全部空间；.inner 居中，自适应引擎把它撑到刚好填满 */
+.sig .fit {{ flex:1; min-height:0; display:flex; flex-direction:column; justify-content:flex-start; overflow:hidden; }}
+.sig .inner {{ width:100%; }}
+/* 事实是绝对主体——大号深色 */
+.sig h2 {{ font-size:calc(34px * var(--k)); line-height:1.2; font-weight:800; color:{INK}; letter-spacing:-0.5px; }}
+.sig .fact {{ margin-top:calc(22px * var(--k)); font-size:calc(22px * var(--k)); line-height:1.62; color:{INK}; font-weight:500; }}
 /* 雷码视角：次级旁注，可选——缩小、变浅、加底色块，明显弱于新闻 */
-.sig .take {{ margin-top:26px; background:{TINT}; border-radius:14px;
-  padding:16px 20px 18px 20px; position:relative; }}
+.sig .take {{ margin-top:calc(24px * var(--k)); background:{TINT}; border-radius:14px;
+  padding:calc(16px * var(--k)) calc(20px * var(--k)); position:relative; }}
 .sig .take::before {{ content:""; position:absolute; left:0; top:15px; bottom:15px; width:5px;
   background:{PHOS}; border-radius:0 3px 3px 0; }}
-.sig .take .label {{ font-size:14px; font-weight:800; color:{PHOS}; letter-spacing:1.5px; margin-bottom:5px; }}
-.sig .take .body {{ font-size:18px; line-height:1.55; color:{BRICK}; }}
-.sig .foot {{ margin-top:auto; padding-top:22px; display:flex; align-items:center; font-size:15px; color:{MIST}; }}
+.sig .take .label {{ font-size:calc(14px * var(--k)); font-weight:800; color:{PHOS}; letter-spacing:1.5px; margin-bottom:calc(5px * var(--k)); }}
+.sig .take .body {{ font-size:calc(18px * var(--k)); line-height:1.55; color:{BRICK}; }}
+.sig .foot {{ flex:none; padding-top:22px; display:flex; align-items:center; font-size:15px; color:{MIST}; }}
 .sig .foot .src {{ color:{BRICK}; }}
 .sig .foot .pg {{ margin-left:auto; }}
 """
     src_disp = f"来源 {source}" if source else ""
     # take 可选：没有就不渲染那块旁注，事实独占更多版面
     take_html = f"""
-  <div class="take">
-    <div class="label">雷码视角</div>
-    <div class="body">{take}</div>
-  </div>""" if take else ""
+    <div class="take">
+      <div class="label">雷码视角</div>
+      <div class="body">{take}</div>
+    </div>""" if take else ""
     body = f"""
 <div class="card sig">
   <div class="top">
@@ -182,8 +188,10 @@ def render_card(c: dict, idx: int, total: int, date_str: str) -> str:
     <span class="cat">{category}</span>
     <span class="date mono">{md}</span>
   </div>
-  <h2>{title}</h2>
-  <div class="fact">{fact}</div>{take_html}
+  <div class="fit"><div class="inner">
+    <h2>{title}</h2>
+    <div class="fact">{fact}</div>{take_html}
+  </div></div>
   <div class="foot">
     <span class="src mono">{src_disp}</span>
     <span class="pg mono">{idx}/{total}</span>
@@ -223,7 +231,35 @@ def render_cta() -> str:
 
 
 # ---------- 截图 ----------
-def render_to_png(html_str: str, out_path: Path) -> None:
+# 自适应填充引擎：测 .inner 自然高度 vs .fit 可用高度，迭代求解缩放系数 --k，
+# 让内容刚好填满 top 与 foot 之间的空间（目标 FILL）。内容短则放大、长则缩小。
+# k 夹在 [K_MIN, K_MAX]：放大有上限（短内容不会大到失真），缩小有下限（长内容到底也保可读，
+# 真撑不下由 card overflow:hidden 兜底，但 220 字内实测都在范围内）。
+_FIT_JS = """() => {
+  const fit = document.querySelector('.fit');
+  const inner = document.querySelector('.fit .inner');
+  if (!fit || !inner) return 1;
+  const FILL = 0.98, K_MIN = 0.46, K_MAX = 1.5;
+  const sig = document.querySelector('.sig');
+  let k = 1;
+  for (let i = 0; i < 18; i++) {
+    const avail = fit.clientHeight;
+    const need = inner.scrollHeight;
+    if (!need) break;
+    // 文字块高度 ≈ 正比于 k²（字号变大→每行字数变少→行数变多），
+    // 故用 sqrt 步长匹配这个平方关系，一两步即稳定收敛，不会在两值间震荡。
+    let nk = k * Math.sqrt(avail * FILL / need);
+    nk = Math.max(K_MIN, Math.min(K_MAX, nk));
+    const done = Math.abs(nk - k) < 0.003;
+    k = nk;
+    sig.style.setProperty('--k', k.toString());
+    if (done) break;
+  }
+  return k;
+}"""
+
+
+def render_to_png(html_str: str, out_path: Path, fit: bool = False) -> None:
     from playwright.sync_api import sync_playwright
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with sync_playwright() as p:
@@ -234,7 +270,10 @@ def render_to_png(html_str: str, out_path: Path) -> None:
         )
         page = ctx.new_page()
         page.set_content(html_str, wait_until="networkidle")
-        page.wait_for_timeout(300)
+        page.wait_for_timeout(200)
+        if fit:
+            page.evaluate(_FIT_JS)       # 内容卡：自适应缩放填满
+            page.wait_for_timeout(60)
         page.screenshot(path=str(out_path), clip={"x": 0, "y": 0, "width": CARD_W, "height": CARD_H}, type="png")
         browser.close()
 
@@ -283,7 +322,7 @@ def build_deck(data: dict, out_dir: Path) -> list[Path]:
     # 内容卡（第 1 张即小红书封面图，无独立封面页）
     for i, c in enumerate(cards, 1):
         p = out_dir / f"{i:02d}.png"
-        render_to_png(render_card(c, i, n, date_str), p)
+        render_to_png(render_card(c, i, n, date_str), p, fit=True)
         paths.append(p)
         print(f"  ✓ {p.name}  {c.get('title','')[:24]}", flush=True)
 
