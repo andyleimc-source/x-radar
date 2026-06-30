@@ -195,7 +195,6 @@ def render_card(c: dict, idx: int, total: int, date_str: str) -> str:
   </div></div>
   <div class="foot">
     <span class="src mono">{src_disp}</span>
-    <span class="pg mono">{idx}/{total}</span>
   </div>
 </div>"""
     return html_doc(body, css)
@@ -240,23 +239,29 @@ _FIT_JS = """() => {
   const fit = document.querySelector('.fit');
   const inner = document.querySelector('.fit .inner');
   if (!fit || !inner) return 1;
-  const FILL = 0.98, K_MIN = 0.46, K_MAX = 1.5;
+  const FILL = 0.98, K_MIN = 0.40, K_MAX = 1.5, SAFE = 0.995;
   const sig = document.querySelector('.sig');
-  let k = 1;
-  for (let i = 0; i < 18; i++) {
+  let k = 1, bestFit = 0;          // bestFit = 见过的「不溢出」里最大的 k
+  sig.style.setProperty('--k', k.toString());
+  for (let i = 0; i < 20; i++) {
     const avail = fit.clientHeight;
-    const need = inner.scrollHeight;
+    const need = inner.scrollHeight;   // 反映当前 --k 的真实渲染高度
     if (!need) break;
-    // 文字块高度 ≈ 正比于 k²（字号变大→每行字数变少→行数变多），
-    // 故用 sqrt 步长匹配这个平方关系，一两步即稳定收敛，不会在两值间震荡。
+    // 当前档不溢出就记为候选——这一步是关键：
+    // 行折叠是离散的，need∝k² 的平滑假设在「某行刚好折行」的临界点会断裂，
+    // sqrt 步长会在「有空隙」和「溢出」两档间来回震荡、永不满足收敛判据，
+    // 循环跑满后可能正好停在溢出档导致裁字。所以只认记录到的最大安全档。
+    if (need <= avail * SAFE && k > bestFit) bestFit = k;
     let nk = k * Math.sqrt(avail * FILL / need);
     nk = Math.max(K_MIN, Math.min(K_MAX, nk));
-    const done = Math.abs(nk - k) < 0.003;
+    if (Math.abs(nk - k) < 0.003) { k = nk; break; }   // 平滑收敛（短内容常走这条）
     k = nk;
     sig.style.setProperty('--k', k.toString());
-    if (done) break;
   }
-  return k;
+  // 终值：优先用记录到的最大安全档（绝不停在震荡的溢出档）；一档都不安全才退到 K_MIN（极长内容，由 overflow:hidden 兜底）
+  const finalK = bestFit > 0 ? bestFit : K_MIN;
+  sig.style.setProperty('--k', finalK.toString());
+  return finalK;
 }"""
 
 

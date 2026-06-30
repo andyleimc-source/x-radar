@@ -96,7 +96,22 @@
 
 ---
 
-## 2026-05-10 · Reddit 走公开 RSS，不接 OAuth
+## 2026-07-01 · Reddit 改走 OAuth script app（推翻 2026-05-10 的「不接 OAuth」）
+
+- **决策**：Reddit 信息源从未认证 RSS 切到 **OAuth script app + `client_credentials`（application-only）**，调 `oauth.reddit.com` JSON 端点。纯 stdlib 改 `scripts/external.py:fetch_reddit`，凭证存 `.env`（`REDDIT_CLIENT_ID`/`REDDIT_CLIENT_SECRET`）。**待 Andy 拿到 id/secret 后实施**（注册时验证码循环卡住，见下）。
+- **Why（为什么推翻 5-10 旧决策）**：
+  - 旧路彻底失效：未认证 `.json` 端点 **2026-05 正式废弃**，公开 RSS **2026-06-11 起也限流**（429，约每 60 秒只放 1 次、全局 IP 限额）。我们这两天本机回退跑 `deliver-xhs.sh` 就开始 4/5 个 sub 报 429。
+  - OAuth 是 Reddit 现在**唯一在维护**的数据通道（已成其付费主推产品），免费非商用档 **60–100 QPM**，我们 10 条/天用不到零头。
+  - 旧决策担心的「注册无合规入口/wiki 只有 moderation 表单」已不成立：2026 建 **script 类型 app 无人工审批、当场出 client_id/secret**（非商用不走 review，严格审批只针对商用/提额档）。
+  - 旧决策的「DC IP 调 .json 全 403」对 OAuth 不适用——`oauth.reddit.com` 认证后放行，不再依赖未认证端点的 IP 白名单。
+- **当前卡点**：注册页**验证码无限循环**（Andy 实测）。根因是账号风控（新号/空号/VPN IP 触发人机验证），非审核。对策：关 VPN/代理、用 `old.reddit.com/prefs/apps`、确保账号邮箱已验证+有活跃度、换无痕浏览器。
+- **备选**：① RSS `feed=`/`user=` token 法（从已登录 RSS 偏好页复制带 token 的 feed URL，不用建 app、不碰验证码，但稳定性弱于 OAuth，作退路）；② 第三方抓取 API（Apify/ScrapeBadger，要钱+加外部依赖，否决）；③ GitHub 免 key 抓取器（YARS/ScrapiReddit 等全建在已废弃的 `.json` 上，业内称「坟场」，否决）。
+- **代价**：多一对 secret 要管；OAuth token 约 1h 过期需缓存复用；首次注册要 Andy 过验证码。换来真稳 + 能拿回 score/num_comments（可跨 sub 全局排序，比 RSS 强）。
+- 研究来源：lapcatsoftware（6/3 首报 RSS 限流）、HN 48511663、scrapebadger/thunderbit/octolens 2026 现状、hackread 2026 注册指南、Reddit 官方 GitHub OAuth2 wiki。
+
+---
+
+## 2026-05-10 · Reddit 走公开 RSS，不接 OAuth（已被 2026-07-01 推翻，见上）
 
 - **决策**：Reddit 信息源用未认证的 Atom RSS（`/r/<sub>/top/.rss?t=week`），不注册 script app、不走 OAuth、不存 client_id/secret
 - **Why**：
