@@ -3,10 +3,9 @@
 X Radar · 小红书 AI 日更卡片组生成器（M4）
 
 输入：一份选好题的 JSON（见下方 schema），由选题分析阶段产出。
-输出：一组 3:4 PNG 卡片到 data/xhs/<date>/，每图一条新闻。
-- 封面卡（首图，决定点击率）
-- 内容卡 ×N（「信号卡」范式：墨黑标题 + 石墨事实 + 磷绿竖线引出「雷码视角」）
-- 尾卡 CTA（引流雷码工坊公众号）
+输出：一组 3:4 PNG 卡片到 data/xhs/<date>/，每图一条新闻（1620×2160，device_scale_factor=3）。
+- 内容卡 ×N（「信号卡」范式：墨黑标题 + 石墨事实 + 磷绿竖线引出「雷码视角」；首图即封面）
+- 尾卡 CTA 已移除（含「关注」字样，小红书跨平台易被拦截/降权）；render_cta() 保留备查不再调用
 
 品牌色（雷码工坊 v2 终端磷绿）：
 - 墨黑 #0E1116  大标题 / 结构
@@ -74,8 +73,10 @@ def esc(s: str) -> str:
 
 
 # ---------- 共享 CSS ----------
-# 卡片 = 540×720 CSS px，截图时 device_scale_factor=2 → 1080×1440 (3:4)
+# 卡片 = 540×720 CSS px，截图时 device_scale_factor=SCALE → 高分辨率 3:4
+# SCALE=3 → 1620×2160（高于小红书 1080 最低线，留足余量，App 重压后仍清晰，不糊）
 CARD_W, CARD_H = 540, 720
+SCALE = 3
 
 BASE_CSS = f"""
 * {{ margin:0; padding:0; box-sizing:border-box; }}
@@ -266,7 +267,7 @@ def render_to_png(html_str: str, out_path: Path, fit: bool = False) -> None:
         browser = p.chromium.launch()
         ctx = browser.new_context(
             viewport={"width": CARD_W, "height": CARD_H},
-            device_scale_factor=2,  # 540×720 @2x = 1080×1440 (3:4)
+            device_scale_factor=SCALE,  # 540×720 @3x = 1620×2160 (3:4)
         )
         page = ctx.new_page()
         page.set_content(html_str, wait_until="networkidle")
@@ -320,17 +321,14 @@ def build_deck(data: dict, out_dir: Path) -> list[Path]:
     paths = []
 
     # 内容卡（第 1 张即小红书封面图，无独立封面页）
+    # 注：尾卡 CTA 已移除（含「关注我」字样，小红书跨平台易被拦截/降权）；
+    #     render_cta() 函数保留备查，但不再进图组。
     for i, c in enumerate(cards, 1):
         p = out_dir / f"{i:02d}.png"
         render_to_png(render_card(c, i, n, date_str), p, fit=True)
         paths.append(p)
         print(f"  ✓ {p.name}  {c.get('title','')[:24]}", flush=True)
 
-    # 尾卡（节目名 + 引流）
-    p = out_dir / f"{n+1:02d}-cta.png"
-    render_to_png(render_cta(), p)
-    paths.append(p)
-    print(f"  ✓ {p.name}", flush=True)
     return paths
 
 
@@ -357,7 +355,7 @@ def main():
     out_dir = XHS_DIR / data["date"]
     print(f"渲染图组 → {out_dir}", flush=True)
     paths = build_deck(data, out_dir)
-    print(f"\n完成：{len(paths)} 张图（{len(data.get('cards') or [])} 条新闻 + 尾卡）", flush=True)
+    print(f"\n完成：{len(paths)} 张图（{len(data.get('cards') or [])} 条新闻，无尾卡）", flush=True)
 
     # 文案落盘（方便人工复制到小红书）——标题 / 描述 / 标签 分开
     title = (data.get("xhs_title") or data.get("hook") or "").strip()
