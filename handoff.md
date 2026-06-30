@@ -4,6 +4,13 @@
 
 ---
 
+## 🔭 停泊任务（指针）
+
+- **📌 图组去重 + 转发文案合一改造 + 预览页去图**（2026-07-01 建）→ 见 `plan.md` › M4 待办末「任务卡 · 图组去重 + 转发文案改造 + 预览页瘦身」。三件事：跨日去重、转发文案合成一整段（标题≤15/描述≤100/标签≤5、正经不浮夸、不露字段名）、预览页只放文案去掉图片置顶。
+- **🔧 Reddit 改 OAuth 稳定方案**（2026-07-01 研究完，待 Andy 给 client_id/secret）：Reddit 2026-06-11 起对 RSS 也限流（429）。方案=注册 script 类型 app 走 `client_credentials` OAuth → `oauth.reddit.com` JSON，100 QPM，纯 stdlib 改 `scripts/external.py:fetch_reddit`。Andy 去 reddit.com/prefs/apps 拿 id/secret 后写进 `.env`（`REDDIT_CLIENT_ID`/`REDDIT_CLIENT_SECRET`）即可动手。
+
+---
+
 ## 当前状态（2026-05-06）
 
 - 主管线稳定（远程 crontab 06:00 → `send-digest.sh morning` → digest + 邮件）
