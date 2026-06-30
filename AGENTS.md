@@ -1,25 +1,6 @@
 # X Radar · 项目笔记
 
-每日抓 X 关注列表 → DeepSeek 分析 → 邮件 digest（主线）。
-
-## 🟡 小红书 AI 日更图组（M4）—— 已转「按需手动」（2026-06-30）
-
-不再每日自动生产，但**保留按需出图发布**：Andy 主动说"发今天的海报"时才跑一次。曾在 2026-06-29 标记"停产"，次日改为按需手动（效果一般但还能用，想发就发）。
-
-**手动发布（一条命令，全流程）：**
-
-```bash
-bash scripts/deliver-xhs.sh [YYYY-MM-DD]   # 不传日期=今天
-```
-
-= 拉硅谷 raw → 本机 DeepSeek 选题（服务器 xhs cron 已摘，必走本机回退，约几分钱）→ Playwright 渲染 3:4 图组 → 归档 `posts/<date>/` → vibeshare 部署预览页 → Bark 推手机。只想出图不发布用 `bash scripts/build-xhs.sh [date]`。
-
-**自动调度状态（保持关闭，别复活）：**
-
-- 硅谷 `send-digest.sh` 的 Step 1.5（`analyze_xhs.py`）已注释，不每日出选题 JSON（邮件主线不受影响）。
-- cn 服务器 crontab `20 6 * * *`（`~/cn-trigger-xhs.sh`）已摘除，不每日触发 Mac 渲染。
-- 要恢复全自动重新接回上述两个调度点即可，但**当前明确不接**——只手动。
-- 详见 `decision.md` 2026-06-29 / 2026-06-30。
+每日抓 X 关注列表 → DeepSeek 分析 → 邮件 digest。
 
 ## 协作骨架文件
 
@@ -77,7 +58,7 @@ bash /home/ubuntu/xradar/scripts/send-digest.sh morning    # 手动触发一次
 1. `python3 scripts/digest.py <slot>` → 纯 Python 脚本：读 `config/accounts.yaml` / `data/state/last_seen.json` → 并发调 `scripts/fetch_tweets.sh` 抓每个账号 → 过滤（丢 reply / 纯 RT / 增量按 id）→ 调 **DeepSeek V4 Flash**（OpenAI 兼容 API，走 `.env` 里的 `DEEPSEEK_API_KEY`）按 `prompts/analysis.md` 生成 digest → 写到 `data/digests/<date>-<slot>.md`。
 2. `python3 scripts/send-email-mcp.py <slot>` → 通过 `email-mcp`（stdio / JSON-RPC）用 `work` 账号（andy.lei@mingdao.com）发到 `leimingcan@icloud.com`。
 
-⚠️ 微信推送已砍，原 `.claude/commands/twitter-digest.md` 已不在调度路径。详见 `decision.md`。
+⚠️ 微信推送已砍，原 `.Codex/commands/twitter-digest.md` 已不在调度路径。详见 `decision.md`。
 
 LLM 供应商通过 `.env` 切换：`DEEPSEEK_BASE_URL` + `DEEPSEEK_MODEL` + `DEEPSEEK_API_KEY`，换 MiniMax / OpenAI 兼容接口只改 env。
 
