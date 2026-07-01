@@ -23,6 +23,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 XHS_DIR = ROOT / "data" / "xhs"
 POSTS_DIR = ROOT / "posts"
+# 全量已发历史（入 git 落盘）：每行 {date,title,source,url}，analyze_xhs.py 选题时靠它跨日去重
+HISTORY = POSTS_DIR / "history.jsonl"
 # 桌面成品库：每次生成都按日期建子文件夹，图 + 文案一站式取用
 DESKTOP_DIR = Path.home() / "Desktop" / "小红书AI日报"
 
@@ -35,6 +37,30 @@ def strip_follow_cta(text: str) -> str:
     sentences = re.split(r"(?<=[。！!？?\n])", text)
     kept = [s for s in sentences if "关注" not in s]
     return "".join(kept).strip().strip("，,、；; ").strip() or text
+
+
+def upsert_history(date_str: str, cards: list[dict]) -> None:
+    """把当天条目写进 posts/history.jsonl（同日期旧条目先删，重跑不产生重复行）。"""
+    lines = []
+    if HISTORY.exists():
+        for ln in HISTORY.read_text().splitlines():
+            ln = ln.strip()
+            if not ln:
+                continue
+            try:
+                if json.loads(ln).get("date") != date_str:
+                    lines.append(ln)
+            except Exception:
+                continue
+    for c in cards:
+        lines.append(json.dumps({
+            "date": date_str,
+            "title": (c.get("title") or "").strip(),
+            "source": (c.get("source") or "").strip(),
+            "url": (c.get("url") or "").strip(),
+        }, ensure_ascii=False))
+    HISTORY.write_text("\n".join(lines) + "\n")
+    print(f"📚 历史档案 → {HISTORY}（{len(lines)} 条）")
 
 
 def build(date_str: str) -> Path:
@@ -103,6 +129,7 @@ def build(date_str: str) -> Path:
 - 数据（赞/藏/评）：
 """
     (out_dir / "post.md").write_text(md)
+    upsert_history(date_str, cards)
 
     # 同步到桌面成品库：~/Desktop/小红书AI日报/<date>/（图 + 文案.txt 一站取用）
     desk = DESKTOP_DIR / date_str

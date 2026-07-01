@@ -4,36 +4,36 @@
 
 ## 📋 一键复制（标题 + 描述 + 标签，复制这一段即可发布）
 ```
-Fable 5解禁归来！
+Fable 5 解禁回归
 
-今天AI圈最大事件：Anthropic的Fable 5终于解禁回归了！还有xAI的无代码语音代理、Google的新图像模型和NotebookLM短视频功能、Cloudflare要求AI付费...左滑一次看完10条今日AI信号，3分钟掌握全球AI动态👉
+Claude 最强模型 Fable 5 全球解禁回归！还有 xAI 语音机器人、ChatGPT 管钱、Google 水印里程碑。左滑一次看完今天的 AI 大事。
 
-#AI #人工智能 #Fable5 #Claude #GPT
+#AI #人工智能 #Claude #Fable5 #AI工具
 ```
 
 ## 🖼 图片顺序（按此顺序上传，第 1 张即封面）
-1. `01.png` — [模型发布] Claude Fable 5全球解禁
-2. `02.png` — [产品上新] ChatGPT上线个人理财
-3. `03.png` — [产品上新] xAI推无代码语音代理
-4. `04.png` — [产品上新] Google水印技术里程碑
-5. `05.png` — [模型发布] Google出最快图像模型
-6. `06.png` — [产品上新] Anthropic推Claude Science
-7. `07.png` — [行业观察] Cloudflare要求AI付版权费
-8. `08.png` — [产品上新] NotebookLM生成AI短视频
-9. `09.png` — [行业观察] SpaceX原型AI设备曝光
-10. `10.png` — [行业观察] ChatGPT全球采用率飙升
+1. `01.png` — [模型发布] Fable 5 全球回归，附加新安全限制
+2. `02.png` — [产品上新] xAI 无代码机器人，每分钟5美分
+3. `03.png` — [产品上新] ChatGPT 帮你管钱，Plus 可用
+4. `04.png` — [行业观察] Google 水印标记千亿 AI 图像
+5. `05.png` — [产品上新] SpaceX 要做 AI 手机？原型曝光
+6. `06.png` — [行业观察] Cloudflare 威胁屏蔽不付费的 AI 爬虫
+7. `07.png` — [用户热点] AI 干坏事了？这个网站让你举报
+8. `08.png` — [行业观察] AI 也爱随大流 选数总是 7
+9. `09.png` — [行业观察] 演员库彻转向 AI 基建投资
+10. `10.png` — [用户热点] AI 浏览器漏洞，2+2=5 攻破防护
 
 ## 🔗 来源自查（仅供本人核对，**勿放进正文**——带链接会被小红书封）
-- [模型发布] Claude Fable 5全球解禁 — @AnthropicAI
-- [产品上新] ChatGPT上线个人理财 — @gdb
-- [产品上新] xAI推无代码语音代理 — @xai
-- [产品上新] Google水印技术里程碑 — @GoogleAI
-- [模型发布] Google出最快图像模型 — Google DeepMind Blog
-- [产品上新] Anthropic推Claude Science — Anthropic News
-- [行业观察] Cloudflare要求AI付版权费 — TechCrunch
-- [产品上新] NotebookLM生成AI短视频 — The Verge
-- [行业观察] SpaceX原型AI设备曝光 — TechCrunch
-- [行业观察] ChatGPT全球采用率飙升 — OpenAI Blog
+- [模型发布] Fable 5 全球回归，附加新安全限制 — @AnthropicAI
+- [产品上新] xAI 无代码机器人，每分钟5美分 — @xai
+- [产品上新] ChatGPT 帮你管钱，Plus 可用 — @gdb
+- [行业观察] Google 水印标记千亿 AI 图像 — @GoogleAI
+- [产品上新] SpaceX 要做 AI 手机？原型曝光 — TechCrunch AI
+- [行业观察] Cloudflare 威胁屏蔽不付费的 AI 爬虫 — TechCrunch AI
+- [用户热点] AI 干坏事了？这个网站让你举报 — Wired AI
+- [行业观察] AI 也爱随大流 选数总是 7 — MIT Tech Review AI
+- [行业观察] 演员库彻转向 AI 基建投资 — TechCrunch AI
+- [用户热点] AI 浏览器漏洞，2+2=5 攻破防护 — Ars Technica AI
 
 ## ✅ 发布状态
 - [ ] 已发布到小红书

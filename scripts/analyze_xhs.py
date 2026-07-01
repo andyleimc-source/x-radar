@@ -34,6 +34,39 @@ import external  # noqa: E402
 from render_poster import load_ai_tweets, _deepseek, load_env  # noqa: E402
 
 ACCOUNTS_YAML = ROOT / "config" / "accounts.yaml"
+HISTORY = ROOT / "posts" / "history.jsonl"  # 全量已发历史（archive_xhs.py 每天落盘）
+
+
+def _norm_url(u: str) -> str:
+    return (u or "").strip().rstrip("/").lower()
+
+
+def load_history() -> list[dict]:
+    """读全量已发历史。每条 {date,title,source,url}（老条目 url 可能为空）。"""
+    if not HISTORY.exists():
+        return []
+    out = []
+    for ln in HISTORY.read_text().splitlines():
+        ln = ln.strip()
+        if not ln:
+            continue
+        try:
+            out.append(json.loads(ln))
+        except Exception:
+            continue
+    return out
+
+
+def drop_published(cands: list[dict], history: list[dict]) -> list[dict]:
+    """程序级兜底：候选 url 与历史 url 精确重合的直接剔除（全量历史，不限天数）。"""
+    seen = {_norm_url(h.get("url")) for h in history} - {""}
+    if not seen:
+        return cands
+    kept = [c for c in cands if _norm_url(c.get("url")) not in seen]
+    n = len(cands) - len(kept)
+    if n:
+        print(f"[xhs] 已按历史 URL 剔除 {n} 条已发候选", flush=True)
+    return kept
 
 
 def _note_map() -> dict:
@@ -227,7 +260,7 @@ def fix_caption_count(caption: str, n: int) -> str:
     return caption
 
 
-def select_and_write(date_str: str, cands: list[dict]) -> dict:
+def select_and_write(date_str: str, cands: list[dict], history: list[dict]) -> dict:
     sys_prompt = PROMPT.read_text()
     # 给模型的精简载荷（去掉 score 为 0 的噪音字段无所谓，保留 id/source_type/source/text/url）
     payload = {"date": date_str, "candidates": [
@@ -236,9 +269,20 @@ def select_and_write(date_str: str, cands: list[dict]) -> dict:
          "text": c["text"], "url": c["url"], "score": c["score"]}
         for c in cands
     ]}
+    # 已发历史喂给模型做事件级去重（URL 级已程序剔除；这里防换来源/换说法的同一事件）。
+    # 全量历史太长时只喂最近 400 条（≈40 天），URL 精确排除仍覆盖全量。
+    if history:
+        payload["already_published"] = [
+            f"{h.get('date','')} {h.get('title','')}" for h in history[-400:]
+        ]
     parsed = _deepseek(sys_prompt, payload, timeout=240)
 
     cards = parsed.get("cards") or []
+    # src_id → url：把出处链接写回卡片，落盘后供后续按 URL 去重
+    by_id = {c["id"]: c for c in cands}
+    for c in cards:
+        src = by_id.get(c.pop("src_id", None)) or {}
+        c["url"] = src.get("url", "")
     strip_title_colons(cards)  # 兜底去标题冒号
     polish_takes(cards)  # 二次过校
     caption = fix_caption_count((parsed.get("caption") or "").strip(), len(cards))
@@ -271,6 +315,10 @@ def main():
     date_str = args.date or datetime.now().strftime("%Y-%m-%d")
     print(f"[xhs] 聚合候选 {date_str} ...", flush=True)
     cands = gather_candidates(date_str, per_author=args.per_author)
+    history = load_history()
+    if history:
+        print(f"[xhs] 已发历史 {len(history)} 条（{history[0].get('date','?')} ~ {history[-1].get('date','?')}）", flush=True)
+    cands = drop_published(cands, history)
     by_type: dict[str, int] = {}
     for c in cands:
         by_type[c["source_type"]] = by_type.get(c["source_type"], 0) + 1
@@ -279,7 +327,7 @@ def main():
         sys.exit("没有候选条目（raw 数据缺失？先确认 data/raw/<date> 有推文，或检查网络）")
 
     print("[xhs] DeepSeek 选题中 ...", flush=True)
-    out = select_and_write(date_str, cands)
+    out = select_and_write(date_str, cands, history)
     print(f"[xhs] 选中 {len(out['cards'])} 条 → data/xhs/{date_str}.json", flush=True)
     for i, c in enumerate(out["cards"], 1):
         print(f"   {i}. [{c.get('category','')}] {c.get('title','')}  · {c.get('source','')}", flush=True)
