@@ -51,7 +51,7 @@ def build(date_str: str) -> Path:
     hook = (data.get("hook") or "").strip()
     xhs_title = (data.get("xhs_title") or "").strip()
     caption = strip_follow_cta((data.get("caption") or "").strip())
-    tags = data.get("tags") or []
+    tags = (data.get("tags") or [])[:5]  # 小红书标签硬上限 5 个（prompt 也约束了，这里兜底）
 
     out_dir = POSTS_DIR / date_str
     out_dir.mkdir(parents=True, exist_ok=True)

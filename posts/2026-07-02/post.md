@@ -8,7 +8,7 @@ Fable 5解禁归来！
 
 今天AI圈最大事件：Anthropic的Fable 5终于解禁回归了！还有xAI的无代码语音代理、Google的新图像模型和NotebookLM短视频功能、Cloudflare要求AI付费...左滑一次看完10条今日AI信号，3分钟掌握全球AI动态👉
 
-#AI #人工智能 #Fable5 #Claude #GPT #xAI #GoogleAI #ChatGPT
+#AI #人工智能 #Fable5 #Claude #GPT
 ```
 
 ## 🖼 图片顺序（按此顺序上传，第 1 张即封面）
