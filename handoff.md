@@ -6,10 +6,16 @@
 
 ## 🔭 停泊任务（指针）
 
-- **📌 图组去重 + 转发文案合一改造 + 预览页去图**（2026-07-01 建）→ 见 `plan.md` › M4 待办末「任务卡 · 图组去重 + 转发文案改造 + 预览页瘦身」。三件事：跨日去重、转发文案合成一整段（标题≤15/描述≤100/标签≤5、正经不浮夸、不露字段名）、预览页只放文案去掉图片置顶。
+- **📌 图组任务卡剩余两件**（2026-07-01 建）→ 见 `plan.md` › M4 待办末「任务卡 · 图组去重 + 转发文案改造 + 预览页瘦身」。**目标 1 跨日去重已做完（2026-07-02，全量历史版）**；标签≤5 也已做。剩：② 转发文案合成一整段（标题≤15、正经不浮夸、不露「标题/描述/标签」字段名）；③ 预览页去图、文案置顶。
 - **🔧 Reddit 改 OAuth 稳定方案**（2026-07-01 研究完，待 Andy 给 client_id/secret）：Reddit 2026-06-11 起对 RSS 也限流（429）。方案=注册 script 类型 app 走 `client_credentials` OAuth → `oauth.reddit.com` JSON，100 QPM，纯 stdlib 改 `scripts/external.py:fetch_reddit`。Andy 去 reddit.com/prefs/apps 拿 id/secret 后写进 `.env`（`REDDIT_CLIENT_ID`/`REDDIT_CLIENT_SECRET`）即可动手。
 
 ---
+
+## 本轮增量（2026-07-02）
+
+- 图组已交付今日版（预览 `xhs-2026-07-02`），分辨率永久翻倍 **3240×4320**（`render_xhs.py` SCALE=6），标签硬上限 5
+- **跨日去重已上线**：`posts/history.jsonl`（入 git）= 每天已发条目落盘（archive 自动 upsert）；`analyze_xhs.py` 按历史 URL 程序剔除 + 近 400 条标题喂模型 + prompt 规则 4.5。以后每天自动生效，无需手动
+- 注意：`data/xhs/<date>.json` 的卡片现在带 `url` 字段（src_id 回填），老 JSON 没有属正常
 
 ## 当前状态（2026-05-06）
 
