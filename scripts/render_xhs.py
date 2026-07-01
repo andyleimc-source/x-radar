@@ -3,7 +3,7 @@
 X Radar · 小红书 AI 日更卡片组生成器（M4）
 
 输入：一份选好题的 JSON（见下方 schema），由选题分析阶段产出。
-输出：一组 3:4 PNG 卡片到 data/xhs/<date>/，每图一条新闻（1620×2160，device_scale_factor=3）。
+输出：一组 3:4 PNG 卡片到 data/xhs/<date>/，每图一条新闻（3240×4320，device_scale_factor=6）。
 - 内容卡 ×N（「信号卡」范式：墨黑标题 + 石墨事实 + 磷绿竖线引出「雷码视角」；首图即封面）
 - 尾卡 CTA 已移除（含「关注」字样，小红书跨平台易被拦截/降权）；render_cta() 保留备查不再调用
 
@@ -74,9 +74,9 @@ def esc(s: str) -> str:
 
 # ---------- 共享 CSS ----------
 # 卡片 = 540×720 CSS px，截图时 device_scale_factor=SCALE → 高分辨率 3:4
-# SCALE=3 → 1620×2160（高于小红书 1080 最低线，留足余量，App 重压后仍清晰，不糊）
+# SCALE=6 → 3240×4320（2026-07-02 应 Andy 要求从 3x 翻倍，App 重压后仍清晰）
 CARD_W, CARD_H = 540, 720
-SCALE = 3
+SCALE = 6
 
 BASE_CSS = f"""
 * {{ margin:0; padding:0; box-sizing:border-box; }}
@@ -272,7 +272,7 @@ def render_to_png(html_str: str, out_path: Path, fit: bool = False) -> None:
         browser = p.chromium.launch()
         ctx = browser.new_context(
             viewport={"width": CARD_W, "height": CARD_H},
-            device_scale_factor=SCALE,  # 540×720 @3x = 1620×2160 (3:4)
+            device_scale_factor=SCALE,  # 540×720 @6x = 3240×4320 (3:4)
         )
         page = ctx.new_page()
         page.set_content(html_str, wait_until="networkidle")

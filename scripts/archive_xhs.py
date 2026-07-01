@@ -83,7 +83,7 @@ def build(date_str: str) -> Path:
 
     md = f"""# 雷码工坊 · 今日 AI 信号 · {date_str}
 
-> {len(content)} 条新闻 · 共 {len(pngs)} 图 · 3:4 / 1620×2160
+> {len(content)} 条新闻 · 共 {len(pngs)} 图 · 3:4 / 3240×4320
 
 ## 📋 一键复制（标题 + 描述 + 标签，复制这一段即可发布）
 ```
